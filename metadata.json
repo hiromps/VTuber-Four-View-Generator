@@ -1,0 +1,5 @@
+{
+  "name": "VTuber Four-View Generator",
+  "description": "Upload a frontal view illustration of a VTuber to automatically generate a four-view character sheet (front, back, left, right) using Gemini. You can also generate new character concepts from text prompts.",
+  "requestFramePermissions": []
+}
