@@ -1,13 +1,20 @@
 
 import React, { useState, useCallback } from 'react';
+import JSZip from 'jszip';
 import { generateCharacterSheetView, generateConceptArt } from './services/geminiService';
 import { fileToData } from './utils/imageUtils';
 import { ViewType, GeneratedImages, AspectRatio, UploadedFile } from './types';
 
-// SVG Icon Components defined inside App.tsx for simplicity
+// SVG Icon Components
 const UploadIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+    </svg>
+);
+
+const DownloadIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+        <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
     </svg>
 );
 
@@ -18,9 +25,9 @@ const LoadingSpinner = () => (
 );
 
 const ImagePlaceholder = ({ label }: { label: string }) => (
-    <div className="bg-gray-800 aspect-square rounded-lg flex flex-col justify-center items-center text-gray-400">
+    <div className="bg-gray-800 w-full h-full rounded-lg flex flex-col justify-center items-center text-gray-400">
         <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mb-2 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14" /></svg>
-        <span className="text-sm font-medium">{label}</span>
+        <span className="text-sm font-medium text-center px-2">{label}</span>
     </div>
 );
 
@@ -32,6 +39,7 @@ const App: React.FC = () => {
     const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
     const [generatedImages, setGeneratedImages] = useState<GeneratedImages>({ front: null, back: null, left: null, right: null });
     const [isSheetLoading, setIsSheetLoading] = useState(false);
+    const [isZipping, setIsZipping] = useState(false);
     const [sheetError, setSheetError] = useState<string | null>(null);
 
     // Concept Art State
@@ -102,6 +110,50 @@ const App: React.FC = () => {
         }
     }, [prompt, aspectRatio]);
     
+    const handleDownloadSingle = (src: string, filename: string) => {
+        if (!src) return;
+        const link = document.createElement("a");
+        link.href = src;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    const handleDownloadAll = useCallback(async () => {
+        // FIX: Add a type predicate to the filter to correctly narrow the type of the array to [string, string][].
+        // This ensures `src` is correctly typed as `string` in the map function below, resolving the error.
+        const imagesToZip = Object.entries(generatedImages).filter((entry): entry is [string, string] => entry[1] !== null);
+        if (imagesToZip.length === 0) return;
+
+        setIsZipping(true);
+        try {
+            const zip = new JSZip();
+            
+            const fetchPromises = imagesToZip.map(([view, src]) =>
+                fetch(src)
+                    .then((res) => res.blob())
+                    .then((blob) => {
+                        const fileExtension = blob.type.split('/')[1] || 'png';
+                        zip.file(`${view}.${fileExtension}`, blob);
+                    })
+            );
+
+            await Promise.all(fetchPromises);
+            const zipBlob = await zip.generateAsync({ type: 'blob' });
+            const url = URL.createObjectURL(zipBlob);
+            handleDownloadSingle(url, 'vtuber-character-sheet.zip');
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Error creating zip file:", error);
+            setSheetError("Failed to create zip file.");
+        } finally {
+            setIsZipping(false);
+        }
+    }, [generatedImages]);
+
+    const hasAnyGeneratedImages = Object.values(generatedImages).some(img => img !== null);
+
     const TabButton: React.FC<{ tabId: 'sheet' | 'concept'; children: React.ReactNode }> = ({ tabId, children }) => (
         <button
             onClick={() => setActiveTab(tabId)}
@@ -167,34 +219,52 @@ const App: React.FC = () => {
 
                         {/* Results */}
                         <div className="lg:col-span-2 bg-gray-800 p-6 rounded-lg shadow-lg">
-                            <h2 className="text-xl font-semibold mb-4">Generated Views</h2>
-                            {isSheetLoading && (
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    <div className="flex flex-col items-center space-y-2">
-                                        <div className="w-full aspect-square bg-gray-700 rounded-lg flex items-center justify-center"><LoadingSpinner/></div>
-                                        <p className="text-sm text-gray-400">Front</p>
-                                    </div>
-                                    <div className="flex flex-col items-center space-y-2">
-                                        <div className="w-full aspect-square bg-gray-700 rounded-lg flex items-center justify-center"><LoadingSpinner/></div>
-                                        <p className="text-sm text-gray-400">Back</p>
-                                    </div>
-                                    <div className="flex flex-col items-center space-y-2">
-                                        <div className="w-full aspect-square bg-gray-700 rounded-lg flex items-center justify-center"><LoadingSpinner/></div>
-                                        <p className="text-sm text-gray-400">Left</p>
-                                    </div>
-                                    <div className="flex flex-col items-center space-y-2">
-                                        <div className="w-full aspect-square bg-gray-700 rounded-lg flex items-center justify-center"><LoadingSpinner/></div>
-                                        <p className="text-sm text-gray-400">Right</p>
-                                    </div>
-                                </div>
-                            )}
+                            <div className="flex justify-between items-center mb-4">
+                                <h2 className="text-xl font-semibold">Generated Views</h2>
+                                {hasAnyGeneratedImages && (
+                                    <button 
+                                        onClick={handleDownloadAll}
+                                        disabled={isZipping || isSheetLoading}
+                                        className="bg-green-600 hover:bg-green-700 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center text-sm gap-2"
+                                    >
+                                        <DownloadIcon />
+                                        <span>{isZipping ? 'Zipping...' : 'Download All'}</span>
+                                    </button>
+                                )}
+                            </div>
+                            
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                {Object.entries(generatedImages).map(([key, src]) => (
-                                    <div key={key} className="flex flex-col items-center space-y-2">
-                                        {src ? <img src={src} alt={`${key} view`} className="w-full aspect-square object-cover rounded-lg bg-gray-700" /> : <ImagePlaceholder label={key.charAt(0).toUpperCase() + key.slice(1)} />}
-                                        <p className="text-sm text-gray-400 capitalize">{key}</p>
+                                {isSheetLoading && (['front', 'back', 'left', 'right'] as ViewType[]).map(view => (
+                                     <div key={view} className="flex flex-col items-center space-y-2">
+                                        <div className="w-full aspect-square bg-gray-700 rounded-lg flex items-center justify-center"><LoadingSpinner/></div>
+                                        <p className="text-sm text-gray-400 capitalize">{view}</p>
                                     </div>
                                 ))}
+                                {!isSheetLoading && (Object.keys(generatedImages) as ViewType[]).map((key) => {
+                                    const src = generatedImages[key];
+                                    return (
+                                        <div key={key} className="flex flex-col items-center space-y-2">
+                                            <div className="w-full aspect-square relative group bg-gray-700 rounded-lg">
+                                                {src ? (
+                                                    <>
+                                                        <img src={src} alt={`${key} view`} className="w-full h-full object-cover rounded-lg" />
+                                                        <button
+                                                            onClick={() => handleDownloadSingle(src, `${key}.png`)}
+                                                            className="absolute bottom-2 right-2 bg-black bg-opacity-60 hover:bg-opacity-80 text-white p-1.5 rounded-full transition-opacity duration-200 opacity-0 group-hover:opacity-100 focus:opacity-100"
+                                                            aria-label={`Download ${key} view`}
+                                                            title={`Download ${key} view`}
+                                                        >
+                                                            <DownloadIcon />
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <ImagePlaceholder label={key.charAt(0).toUpperCase() + key.slice(1)} />
+                                                )}
+                                            </div>
+                                            <p className="text-sm text-gray-400 capitalize">{key}</p>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>
@@ -225,9 +295,25 @@ const App: React.FC = () => {
                         </div>
 
                         <div className="lg:col-span-2 bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col justify-center items-center">
-                             <h2 className="text-xl font-semibold mb-4 w-full">Generated Concept</h2>
-                            <div className="w-full h-full min-h-[400px] flex justify-center items-center">
-                                {isConceptLoading ? <LoadingSpinner /> : conceptImage ? <img src={conceptImage} alt="Generated concept art" className="max-w-full max-h-[80vh] rounded-lg object-contain" /> : <ImagePlaceholder label="Your concept art will appear here" />}
+                            <h2 className="text-xl font-semibold mb-4 w-full">Generated Concept</h2>
+                            <div className="w-full h-full min-h-[400px] flex justify-center items-center relative group">
+                                {isConceptLoading ? (
+                                    <LoadingSpinner />
+                                ) : conceptImage ? (
+                                    <>
+                                        <img src={conceptImage} alt="Generated concept art" className="max-w-full max-h-[80vh] rounded-lg object-contain" />
+                                        <button
+                                            onClick={() => handleDownloadSingle(conceptImage, 'concept-art.png')}
+                                            className="absolute bottom-4 right-4 bg-black bg-opacity-60 hover:bg-opacity-80 text-white p-2 rounded-full transition-opacity duration-200 opacity-0 group-hover:opacity-100 focus:opacity-100"
+                                            aria-label="Download concept art"
+                                            title="Download concept art"
+                                        >
+                                            <DownloadIcon />
+                                        </button>
+                                    </>
+                                ) : (
+                                    <ImagePlaceholder label="Your concept art will appear here" />
+                                )}
                             </div>
                         </div>
                     </div>
