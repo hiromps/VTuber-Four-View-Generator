@@ -1,158 +1,257 @@
+'use client'
 
-import React, { useState, useCallback } from 'react';
-import JSZip from 'jszip';
-import { generateCharacterSheetView, generateConceptArt } from './services/geminiService';
-import { fileToData } from './utils/imageUtils';
-import { ViewType, GeneratedImages, AspectRatio, UploadedFile } from './types';
+import React, { useState, useCallback, useEffect } from 'react'
+import JSZip from 'jszip'
+import { fileToData } from '@/utils/imageUtils'
+import { ViewType, GeneratedImages, AspectRatio, UploadedFile } from '@/types'
+import { createClient } from '@/lib/supabase/client'
+import AuthModal from '@/components/AuthModal'
+import TokenDisplay from '@/components/TokenDisplay'
+import BuyTokensModal from '@/components/BuyTokensModal'
+import type { User } from '@supabase/supabase-js'
 
 // SVG Icon Components
 const UploadIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
     </svg>
-);
+)
 
 const DownloadIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
         <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
     </svg>
-);
+)
 
 const LoadingSpinner = () => (
     <div className="flex justify-center items-center">
         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
     </div>
-);
+)
 
 const ImagePlaceholder = ({ label }: { label: string }) => (
     <div className="bg-gray-800 w-full h-full rounded-lg flex flex-col justify-center items-center text-gray-400">
         <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mb-2 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14" /></svg>
         <span className="text-sm font-medium text-center px-2">{label}</span>
     </div>
-);
+)
 
+export default function Home() {
+    const [user, setUser] = useState<User | null>(null)
+    const [tokens, setTokens] = useState(0)
+    const [showAuthModal, setShowAuthModal] = useState(false)
+    const [showBuyModal, setShowBuyModal] = useState(false)
+    const [activeTab, setActiveTab] = useState<'sheet' | 'concept'>('sheet')
 
-const App: React.FC = () => {
-    const [activeTab, setActiveTab] = useState<'sheet' | 'concept'>('sheet');
-    
     // Character Sheet State
-    const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
-    const [generatedImages, setGeneratedImages] = useState<GeneratedImages>({ front: null, back: null, left: null, right: null });
-    const [isSheetLoading, setIsSheetLoading] = useState(false);
-    const [isZipping, setIsZipping] = useState(false);
-    const [sheetError, setSheetError] = useState<string | null>(null);
+    const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null)
+    const [generatedImages, setGeneratedImages] = useState<GeneratedImages>({ front: null, back: null, left: null, right: null })
+    const [isSheetLoading, setIsSheetLoading] = useState(false)
+    const [isZipping, setIsZipping] = useState(false)
+    const [sheetError, setSheetError] = useState<string | null>(null)
 
     // Concept Art State
-    const [prompt, setPrompt] = useState<string>('A cyberpunk VTuber with neon hair and holographic cat ears');
-    const [aspectRatio, setAspectRatio] = useState<AspectRatio>('3:4');
-    const [conceptImage, setConceptImage] = useState<string | null>(null);
-    const [isConceptLoading, setIsConceptLoading] = useState(false);
-    const [conceptError, setConceptError] = useState<string | null>(null);
+    const [prompt, setPrompt] = useState<string>('A cyberpunk VTuber with neon hair and holographic cat ears')
+    const [aspectRatio, setAspectRatio] = useState<AspectRatio>('3:4')
+    const [conceptImage, setConceptImage] = useState<string | null>(null)
+    const [isConceptLoading, setIsConceptLoading] = useState(false)
+    const [conceptError, setConceptError] = useState<string | null>(null)
 
-    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (file) {
-            try {
-                const data = await fileToData(file);
-                setUploadedFile(data);
-                setGeneratedImages({ front: null, back: null, left: null, right: null });
-                setSheetError(null);
-            } catch (error) {
-                console.error("Error processing file:", error);
-                setSheetError("Failed to load image. Please try another file.");
+    const supabase = createClient()
+
+    // Check authentication and fetch tokens
+    useEffect(() => {
+        const checkAuth = async () => {
+            const { data: { user } } = await supabase.auth.getUser()
+            setUser(user)
+            if (user) {
+                fetchTokens()
             }
         }
-    };
+        checkAuth()
+
+        // Listen for auth changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user ?? null)
+            if (session?.user) {
+                fetchTokens()
+            } else {
+                setTokens(0)
+            }
+        })
+
+        return () => subscription.unsubscribe()
+    }, [])
+
+    const fetchTokens = async () => {
+        try {
+            const response = await fetch('/api/tokens')
+            if (response.ok) {
+                const data = await response.json()
+                setTokens(data.tokens)
+            }
+        } catch (error) {
+            console.error('Error fetching tokens:', error)
+        }
+    }
+
+    const handleLogout = async () => {
+        await fetch('/api/auth/logout', { method: 'POST' })
+        setUser(null)
+        setTokens(0)
+    }
+
+    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0]
+        if (file) {
+            try {
+                const data = await fileToData(file)
+                setUploadedFile(data)
+                setGeneratedImages({ front: null, back: null, left: null, right: null })
+                setSheetError(null)
+            } catch (error) {
+                console.error("Error processing file:", error)
+                setSheetError("Failed to load image. Please try another file.")
+            }
+        }
+    }
 
     const handleGenerateSheet = useCallback(async () => {
+        if (!user) {
+            setShowAuthModal(true)
+            return
+        }
+
         if (!uploadedFile) {
-            setSheetError("Please upload an image first.");
-            return;
+            setSheetError("Please upload an image first.")
+            return
         }
 
-        setIsSheetLoading(true);
-        setSheetError(null);
-        setGeneratedImages({ front: null, back: null, left: null, right: null });
+        if (tokens < 4) {
+            setSheetError("Insufficient tokens. You need 4 tokens to generate a character sheet.")
+            setShowBuyModal(true)
+            return
+        }
 
-        const views: ViewType[] = ['front', 'back', 'left', 'right'];
-        
+        setIsSheetLoading(true)
+        setSheetError(null)
+        setGeneratedImages({ front: null, back: null, left: null, right: null })
+
         try {
-            await Promise.all(views.map(async (view) => {
-                const imageUrl = await generateCharacterSheetView(uploadedFile.base64, uploadedFile.mimeType, view);
-                setGeneratedImages(prev => ({ ...prev, [view]: imageUrl }));
-            }));
+            const response = await fetch('/api/generate/sheet', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    base64Image: uploadedFile.base64,
+                    mimeType: uploadedFile.mimeType,
+                }),
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to generate character sheet')
+            }
+
+            // Update tokens
+            setTokens(data.tokens)
+
+            // Set all generated images
+            setGeneratedImages(data.images)
+
         } catch (error) {
-            console.error("Error generating character sheet:", error);
-            setSheetError(error instanceof Error ? error.message : "An unknown error occurred.");
+            console.error("Error generating character sheet:", error)
+            setSheetError(error instanceof Error ? error.message : "An unknown error occurred.")
         } finally {
-            setIsSheetLoading(false);
+            setIsSheetLoading(false)
         }
-    }, [uploadedFile]);
+    }, [user, uploadedFile, tokens])
 
     const handleGenerateConcept = useCallback(async () => {
-        if (!prompt) {
-            setConceptError("Please enter a prompt.");
-            return;
+        if (!user) {
+            setShowAuthModal(true)
+            return
         }
 
-        setIsConceptLoading(true);
-        setConceptError(null);
-        setConceptImage(null);
+        if (!prompt) {
+            setConceptError("Please enter a prompt.")
+            return
+        }
+
+        if (tokens < 1) {
+            setConceptError("Insufficient tokens. You need 1 token to generate concept art.")
+            setShowBuyModal(true)
+            return
+        }
+
+        setIsConceptLoading(true)
+        setConceptError(null)
+        setConceptImage(null)
 
         try {
-            const imageUrl = await generateConceptArt(prompt, aspectRatio);
-            setConceptImage(imageUrl);
+            const response = await fetch('/api/generate/concept', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt, aspectRatio }),
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to generate concept art')
+            }
+
+            setConceptImage(data.imageUrl)
+            setTokens(data.tokens)
         } catch (error) {
-            console.error("Error generating concept art:", error);
-            setConceptError(error instanceof Error ? error.message : "An unknown error occurred.");
+            console.error("Error generating concept art:", error)
+            setConceptError(error instanceof Error ? error.message : "An unknown error occurred.")
         } finally {
-            setIsConceptLoading(false);
+            setIsConceptLoading(false)
         }
-    }, [prompt, aspectRatio]);
-    
+    }, [user, prompt, aspectRatio, tokens])
+
     const handleDownloadSingle = (src: string, filename: string) => {
-        if (!src) return;
-        const link = document.createElement("a");
-        link.href = src;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
+        if (!src) return
+        const link = document.createElement("a")
+        link.href = src
+        link.download = filename
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+    }
 
     const handleDownloadAll = useCallback(async () => {
-        // FIX: Add a type predicate to the filter to correctly narrow the type of the array to [string, string][].
-        // This ensures `src` is correctly typed as `string` in the map function below, resolving the error.
-        const imagesToZip = Object.entries(generatedImages).filter((entry): entry is [string, string] => entry[1] !== null);
-        if (imagesToZip.length === 0) return;
+        const imagesToZip = Object.entries(generatedImages).filter((entry): entry is [string, string] => entry[1] !== null)
+        if (imagesToZip.length === 0) return
 
-        setIsZipping(true);
+        setIsZipping(true)
         try {
-            const zip = new JSZip();
-            
+            const zip = new JSZip()
+
             const fetchPromises = imagesToZip.map(([view, src]) =>
                 fetch(src)
                     .then((res) => res.blob())
                     .then((blob) => {
-                        const fileExtension = blob.type.split('/')[1] || 'png';
-                        zip.file(`${view}.${fileExtension}`, blob);
+                        const fileExtension = blob.type.split('/')[1] || 'png'
+                        zip.file(`${view}.${fileExtension}`, blob)
                     })
-            );
+            )
 
-            await Promise.all(fetchPromises);
-            const zipBlob = await zip.generateAsync({ type: 'blob' });
-            const url = URL.createObjectURL(zipBlob);
-            handleDownloadSingle(url, 'vtuber-character-sheet.zip');
-            URL.revokeObjectURL(url);
+            await Promise.all(fetchPromises)
+            const zipBlob = await zip.generateAsync({ type: 'blob' })
+            const url = URL.createObjectURL(zipBlob)
+            handleDownloadSingle(url, 'vtuber-character-sheet.zip')
+            URL.revokeObjectURL(url)
         } catch (error) {
-            console.error("Error creating zip file:", error);
-            setSheetError("Failed to create zip file.");
+            console.error("Error creating zip file:", error)
+            setSheetError("Failed to create zip file.")
         } finally {
-            setIsZipping(false);
+            setIsZipping(false)
         }
-    }, [generatedImages]);
+    }, [generatedImages])
 
-    const hasAnyGeneratedImages = Object.values(generatedImages).some(img => img !== null);
+    const hasAnyGeneratedImages = Object.values(generatedImages).some(img => img !== null)
 
     const TabButton: React.FC<{ tabId: 'sheet' | 'concept'; children: React.ReactNode }> = ({ tabId, children }) => (
         <button
@@ -165,7 +264,7 @@ const App: React.FC = () => {
         >
             {children}
         </button>
-    );
+    )
 
     return (
         <div className="min-h-screen bg-gray-900 text-white font-sans">
@@ -174,6 +273,26 @@ const App: React.FC = () => {
                     <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">
                         VTuber Four-View Generator
                     </h1>
+                    <div className="flex items-center space-x-4">
+                        {user ? (
+                            <>
+                                <TokenDisplay tokens={tokens} onBuyTokens={() => setShowBuyModal(true)} />
+                                <button
+                                    onClick={handleLogout}
+                                    className="text-gray-300 hover:text-white transition"
+                                >
+                                    Logout
+                                </button>
+                            </>
+                        ) : (
+                            <button
+                                onClick={() => setShowAuthModal(true)}
+                                className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-lg transition"
+                            >
+                                Sign In
+                            </button>
+                        )}
+                    </div>
                 </div>
             </header>
 
@@ -198,7 +317,7 @@ const App: React.FC = () => {
                                     <input id="dropzone-file" type="file" className="hidden" accept="image/png, image/jpeg, image/webp" onChange={handleFileChange} />
                                 </label>
                             </div>
-                            
+
                             {uploadedFile?.objectURL && (
                                 <div className="mt-4">
                                     <p className="text-sm font-medium text-gray-300 mb-2">Preview:</p>
@@ -207,7 +326,10 @@ const App: React.FC = () => {
                             )}
 
                             <h2 className="text-xl font-semibold border-b border-gray-600 pb-3">2. Generate Sheet</h2>
-                            <button 
+                            <div className="bg-gray-700 p-3 rounded-lg text-sm text-gray-300">
+                                Cost: <span className="font-bold text-yellow-400">4 tokens</span>
+                            </div>
+                            <button
                                 onClick={handleGenerateSheet}
                                 disabled={!uploadedFile || isSheetLoading}
                                 className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center"
@@ -222,7 +344,7 @@ const App: React.FC = () => {
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-xl font-semibold">Generated Views</h2>
                                 {hasAnyGeneratedImages && (
-                                    <button 
+                                    <button
                                         onClick={handleDownloadAll}
                                         disabled={isZipping || isSheetLoading}
                                         className="bg-green-600 hover:bg-green-700 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center text-sm gap-2"
@@ -232,7 +354,7 @@ const App: React.FC = () => {
                                     </button>
                                 )}
                             </div>
-                            
+
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 {isSheetLoading && (['front', 'back', 'left', 'right'] as ViewType[]).map(view => (
                                      <div key={view} className="flex flex-col items-center space-y-2">
@@ -241,7 +363,7 @@ const App: React.FC = () => {
                                     </div>
                                 ))}
                                 {!isSheetLoading && (Object.keys(generatedImages) as ViewType[]).map((key) => {
-                                    const src = generatedImages[key];
+                                    const src = generatedImages[key]
                                     return (
                                         <div key={key} className="flex flex-col items-center space-y-2">
                                             <div className="w-full aspect-square relative group bg-gray-700 rounded-lg">
@@ -263,13 +385,13 @@ const App: React.FC = () => {
                                             </div>
                                             <p className="text-sm text-gray-400 capitalize">{key}</p>
                                         </div>
-                                    );
+                                    )
                                 })}
                             </div>
                         </div>
                     </div>
                 )}
-                
+
                 {activeTab === 'concept' && (
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <div className="lg:col-span-1 bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col space-y-6 h-fit">
@@ -287,6 +409,9 @@ const App: React.FC = () => {
                                     <option value="9:16">Tall (9:16)</option>
                                     <option value="16:9">Widescreen (16:9)</option>
                                 </select>
+                            </div>
+                            <div className="bg-gray-700 p-3 rounded-lg text-sm text-gray-300">
+                                Cost: <span className="font-bold text-yellow-400">1 token</span>
                             </div>
                             <button onClick={handleGenerateConcept} disabled={isConceptLoading} className="w-full bg-pink-600 hover:bg-pink-700 disabled:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition-colors flex justify-center items-center">
                                 {isConceptLoading ? 'Generating...' : 'Generate Concept Art'}
@@ -319,8 +444,9 @@ const App: React.FC = () => {
                     </div>
                 )}
             </main>
-        </div>
-    );
-};
 
-export default App;
+            <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+            <BuyTokensModal isOpen={showBuyModal} onClose={() => setShowBuyModal(false)} />
+        </div>
+    )
+}
