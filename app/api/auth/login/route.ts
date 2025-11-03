@@ -95,28 +95,52 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // If user exists but trying to use a different email alias, block immediately
-    if (existingUser && existingUser.email.toLowerCase().trim() !== email.toLowerCase().trim()) {
-      console.warn(
-        `Alias attempt blocked before magic link: ${email} -> ${existingUser.email} (normalized: ${normalizedEmail})`
-      )
-      return NextResponse.json(
-        {
-          error: getTranslation(request, 'auth.emailAliasNotAllowed'),
-        },
-        { status: 409 }
-      )
+    // Check if user exists with normalized email
+    if (existingUser) {
+      const inputEmail = email.toLowerCase().trim()
+      const existingEmail = existingUser.email?.toLowerCase().trim()
+
+      console.log('Existing user found:', existingUser)
+      console.log('Email check:', {
+        input: inputEmail,
+        existing: existingEmail,
+        normalized: normalizedEmail,
+        match: inputEmail === existingEmail,
+        existingUserEmail: existingUser.email
+      })
+
+      // If emails match exactly, this is a normal sign-in (allow)
+      if (inputEmail === existingEmail) {
+        console.log('Normal sign-in detected, proceeding...')
+        // Continue to send magic link
+      }
+      // If emails don't match, this is an alias attempt (block)
+      else {
+        console.warn(
+          `Alias attempt blocked before magic link: ${email} -> ${existingUser.email} (normalized: ${normalizedEmail})`
+        )
+        return NextResponse.json(
+          {
+            error: getTranslation(request, 'auth.emailAliasNotAllowed'),
+          },
+          { status: 409 }
+        )
+      }
     }
 
     // Also check auth.users to catch users that were created but failed in trigger
     const { data: authUsers } = await adminClient.auth.admin.listUsers()
 
     if (authUsers?.users) {
+      const inputEmail = email.toLowerCase().trim()
+
       const matchingAuthUser = authUsers.users.find(user => {
         try {
           const authNormalizedEmail = normalizeEmail(user.email || '')
-          return authNormalizedEmail === normalizedEmail &&
-                 user.email?.toLowerCase().trim() !== email.toLowerCase().trim()
+          const authEmail = user.email?.toLowerCase().trim()
+
+          // Only match if normalized emails match but actual emails differ (alias case)
+          return authNormalizedEmail === normalizedEmail && authEmail !== inputEmail
         } catch {
           return false
         }
