@@ -146,6 +146,15 @@ https://your-domain.com/api/stripe/webhook
 - `POST /api/stripe/checkout` - Create Stripe checkout session
 - `POST /api/stripe/webhook` - Handle Stripe webhooks
 
+## Documentation
+
+Detailed setup guides and documentation are available in the `/docs` directory:
+
+- **[Quick Start Guide](./docs/QUICKSTART.md)** - Get up and running in 15 minutes
+- **[Environment Variables Setup](./docs/ENVIRONMENT_VARIABLES.md)** - Complete guide for all environment variables
+- **[Stripe Webhook Setup](./docs/STRIPE_WEBHOOK_SETUP.md)** - Step-by-step webhook configuration
+- **[Supabase Email Templates](./supabase/EMAIL_TEMPLATE_SETUP.md)** - Customize authentication emails
+
 ## License
 
 MIT
