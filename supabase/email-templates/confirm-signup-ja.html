@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>メールアドレスの確認 - VTuber Four View Generator</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif; background-color: #f5f5f5;">
+    <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f5f5f5;">
+        <tr>
+            <td align="center" style="padding: 40px 0;">
+                <!-- メインコンテナ -->
+                <table role="presentation" style="width: 600px; max-width: 100%; border-collapse: collapse; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); overflow: hidden;">
+
+                    <!-- ヘッダー（グラデーション） -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">
+                                🎨 VTuber Four View Generator
+                            </h1>
+                            <p style="margin: 10px 0 0 0; color: #e0e7ff; font-size: 16px;">
+                                あなたのクリエイティブな旅が始まります
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- コンテンツ -->
+                    <tr>
+                        <td style="padding: 40px 30px;">
+                            <h2 style="margin: 0 0 20px 0; color: #1a202c; font-size: 24px; font-weight: 600;">
+                                ようこそ！👋
+                            </h2>
+
+                            <p style="margin: 0 0 20px 0; color: #4a5568; font-size: 16px; line-height: 1.8;">
+                                ご登録ありがとうございます！VTuberキャラクターシートや表情差分の作成をサポートできることを嬉しく思います。
+                            </p>
+
+                            <p style="margin: 0 0 30px 0; color: #4a5568; font-size: 16px; line-height: 1.8;">
+                                ご利用を開始するには、以下のボタンをクリックしてメールアドレスを確認してください：
+                            </p>
+
+                            <!-- CTAボタン -->
+                            <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <td align="center" style="padding: 0 0 30px 0;">
+                                        <a href="{{ .ConfirmationURL }}" style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 6px rgba(102, 126, 234, 0.4);">
+                                            ✨ メールアドレスを確認
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- 機能プレビュー -->
+                            <div style="background-color: #f7fafc; border-radius: 8px; padding: 24px; margin: 0 0 30px 0;">
+                                <h3 style="margin: 0 0 16px 0; color: #2d3748; font-size: 18px; font-weight: 600;">
+                                    できること：
+                                </h3>
+                                <ul style="margin: 0; padding: 0 0 0 20px; color: #4a5568; font-size: 15px; line-height: 1.8;">
+                                    <li style="margin-bottom: 8px;">🎭 4方向キャラクターシート生成（正面・背面・左側面・右側面）</li>
+                                    <li style="margin-bottom: 8px;">😊 表情差分の作成</li>
+                                    <li style="margin-bottom: 8px;">🎨 VTuberコンセプトアートのデザイン</li>
+                                    <li style="margin-bottom: 0;">📦 すべてZIPファイルでダウンロード可能</li>
+                                </ul>
+                            </div>
+
+                            <!-- 代替リンク -->
+                            <p style="margin: 0 0 10px 0; color: #718096; font-size: 14px; line-height: 1.6;">
+                                ボタンが機能しない場合は、このリンクをブラウザにコピー＆ペーストしてください：
+                            </p>
+                            <p style="margin: 0 0 20px 0; word-break: break-all;">
+                                <a href="{{ .ConfirmationURL }}" style="color: #667eea; text-decoration: none; font-size: 14px;">
+                                    {{ .ConfirmationURL }}
+                                </a>
+                            </p>
+
+                            <!-- セキュリティ通知 -->
+                            <div style="background-color: #fef5e7; border-left: 4px solid #f59e0b; padding: 16px; border-radius: 4px; margin: 0 0 20px 0;">
+                                <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.6;">
+                                    <strong>🔒 セキュリティに関する注意：</strong> このリンクは24時間で期限切れになります。アカウントを作成した覚えがない場合は、このメールを無視しても問題ありません。
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- フッター -->
+                    <tr>
+                        <td style="background-color: #f7fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+                            <p style="margin: 0 0 10px 0; color: #718096; font-size: 14px;">
+                                お困りの際は
+                                <a href="mailto:support@example.com" style="color: #667eea; text-decoration: none;">support@example.com</a>
+                                までお問い合わせください
+                            </p>
+                            <p style="margin: 0; color: #a0aec0; font-size: 13px;">
+                                © 2025 VTuber Four View Generator. All rights reserved.
+                            </p>
+                            <p style="margin: 10px 0 0 0; color: #cbd5e0; font-size: 12px;">
+                                VTuberクリエイターのために ❤️ を込めて
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- モバイル対応注記 -->
+                <table role="presentation" style="width: 600px; max-width: 100%; margin-top: 20px;">
+                    <tr>
+                        <td style="text-align: center; padding: 0 20px;">
+                            <p style="margin: 0; color: #a0aec0; font-size: 12px;">
+                                このメールは {{ .Email }} に送信されました
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
