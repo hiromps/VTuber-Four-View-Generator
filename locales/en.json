@@ -93,7 +93,9 @@
     "securePayment": "Secure payment powered by Stripe",
     "failedCheckout": "Failed to create checkout session",
     "stripeFailed": "Stripe failed to load",
-    "purchaseError": "An error occurred"
+    "purchaseError": "An error occurred",
+    "paymentSuccess": "Payment successful! Tokens have been added to your account.",
+    "paymentCanceled": "Payment was canceled. No charges were made."
   },
   "errors": {
     "uploadImage": "Please upload an image first.",
