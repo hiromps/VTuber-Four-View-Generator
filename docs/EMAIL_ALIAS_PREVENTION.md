@@ -85,28 +85,49 @@ normalizeEmail('test.user+alias@gmail.com')
    }
    ```
 
-2. **正規化とエイリアスチェック**
+2. **マジックリンク送信前のエイリアスチェック（重要）**
+
+   **Supabaseの`signInWithOtp`を呼び出す前**に、以下の多層チェックを実施：
+
+   a. **public.usersテーブルでチェック**
    ```typescript
-   const normalizedEmail = normalizeEmail(email)
+   // マイグレーション実行後: normalized_emailカラムで高速検索
+   // マイグレーション実行前: すべてのemailを取得して手動で正規化チェック
 
-   // 既存ユーザーをチェック
-   const existingUser = await supabase
-     .from('users')
-     .select('id, email')
-     .eq('normalized_email', normalizedEmail)
-     .maybeSingle()
-
-   // エイリアスを使った登録をブロック
    if (existingUser && existingUser.email !== email.toLowerCase().trim()) {
-     return NextResponse.json({
-       error: 'An account with this email address already exists. Email aliases are not allowed.'
-     }, { status: 409 })
+     // エイリアス検出 → 即座にブロック
+     return NextResponse.json({ error: '...' }, { status: 409 })
    }
    ```
 
-3. **ユーザーフレンドリーなエラーメッセージ**
+   b. **auth.usersテーブルでもチェック**
+   ```typescript
+   // トリガー関数で失敗したユーザー（auth.usersにはいるがpublic.usersにいない）もキャッチ
+   const { data: authUsers } = await adminClient.auth.admin.listUsers()
+
+   const matchingAuthUser = authUsers.users.find(user => {
+     const authNormalizedEmail = normalizeEmail(user.email)
+     return authNormalizedEmail === normalizedEmail &&
+            user.email !== email.toLowerCase().trim()
+   })
+
+   if (matchingAuthUser) {
+     // エイリアス検出 → 即座にブロック
+     return NextResponse.json({ error: '...' }, { status: 409 })
+   }
+   ```
+
+3. **マジックリンクは検証後のみ送信**
+   ```typescript
+   // エイリアスチェックを全てパスした場合のみ実行
+   const { error } = await supabase.auth.signInWithOtp({ email, ... })
+   ```
+
+4. **ユーザーフレンドリーなエラーメッセージ**
    - エイリアス検出時: `An account with this email address already exists. Email aliases (e.g., user+tag@example.com) are not allowed.`
    - 一般的な重複: `An account with this email address already exists. Email aliases are not allowed.`
+
+**重要:** この実装により、エイリアスメールアドレスの場合は**マジックリンクが送信される前**にブロックされます。auth.usersテーブルへの登録も行われません。
 
 ### 4. 包括的なテストスイート (`__tests__/email-utils.test.ts`)
 
