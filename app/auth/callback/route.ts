@@ -7,7 +7,16 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const supabase = await createClient()
-    await supabase.auth.exchangeCodeForSession(code)
+    try {
+      const { error } = await supabase.auth.exchangeCodeForSession(code)
+      if (error) {
+        console.error('Auth callback error:', error.message)
+        // エラーがあってもホームページにリダイレクト
+      }
+    } catch (error) {
+      console.error('Auth callback exception:', error)
+      // 例外が発生してもホームページにリダイレクト
+    }
   }
 
   // Redirect to home page

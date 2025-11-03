@@ -32,13 +32,26 @@ export const generateCharacterSheetView = async (
   additionalPrompt: string = ''
 ): Promise<string> => {
   try {
+    // Base64文字列とMIMEタイプの検証
+    if (!base64Image || base64Image.trim() === '') {
+      throw new Error('Base64 image data is empty');
+    }
+
+    const validMimeTypes = ['image/png', 'image/jpeg', 'image/webp'];
+    if (!validMimeTypes.includes(mimeType)) {
+      throw new Error(`Invalid MIME type: ${mimeType}`);
+    }
+
+    // Base64文字列から空白・改行を削除
+    const cleanBase64 = base64Image.replace(/[\r\n\s]/g, '');
+
     const response: GenerateContentResponse = await ai.models.generateContent({
       model: 'gemini-2.5-flash-image',
       contents: {
         parts: [
           {
             inlineData: {
-              data: base64Image,
+              data: cleanBase64,
               mimeType: mimeType,
             },
           },
@@ -51,7 +64,7 @@ export const generateCharacterSheetView = async (
         responseModalities: [Modality.IMAGE],
       },
     });
-    
+
     for (const part of response.candidates?.[0]?.content?.parts || []) {
       if (part.inlineData) {
         return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
@@ -60,7 +73,15 @@ export const generateCharacterSheetView = async (
     throw new Error('No image was generated for the character sheet view.');
   } catch (error) {
     console.error(`Error generating ${view} view:`, error);
-    throw new Error(`Failed to generate ${view} view. Please check the console for details.`);
+
+    // より詳細なエラーメッセージを提供
+    if (error instanceof Error) {
+      if (error.message.includes('did not match')) {
+        throw new Error(`Invalid image format. Please ensure you upload a valid PNG, JPEG, or WebP image.`);
+      }
+      throw error;
+    }
+    throw new Error(`Failed to generate ${view} view. Please try again.`);
   }
 };
 
@@ -118,13 +139,26 @@ export const generateFacialExpression = async (
   additionalPrompt: string = ''
 ): Promise<string> => {
   try {
+    // Base64文字列とMIMEタイプの検証
+    if (!base64Image || base64Image.trim() === '') {
+      throw new Error('Base64 image data is empty');
+    }
+
+    const validMimeTypes = ['image/png', 'image/jpeg', 'image/webp'];
+    if (!validMimeTypes.includes(mimeType)) {
+      throw new Error(`Invalid MIME type: ${mimeType}`);
+    }
+
+    // Base64文字列から空白・改行を削除
+    const cleanBase64 = base64Image.replace(/[\r\n\s]/g, '');
+
     const response: GenerateContentResponse = await ai.models.generateContent({
       model: 'gemini-2.5-flash-image',
       contents: {
         parts: [
           {
             inlineData: {
-              data: base64Image,
+              data: cleanBase64,
               mimeType: mimeType,
             },
           },
@@ -146,6 +180,14 @@ export const generateFacialExpression = async (
     throw new Error('No image was generated for the facial expression.');
   } catch (error) {
     console.error(`Error generating ${expression} expression:`, error);
-    throw new Error(`Failed to generate ${expression} expression. Please check the console for details.`);
+
+    // より詳細なエラーメッセージを提供
+    if (error instanceof Error) {
+      if (error.message.includes('did not match')) {
+        throw new Error(`Invalid image format. Please ensure you upload a valid PNG, JPEG, or WebP image.`);
+      }
+      throw error;
+    }
+    throw new Error(`Failed to generate ${expression} expression. Please try again.`);
   }
 };
