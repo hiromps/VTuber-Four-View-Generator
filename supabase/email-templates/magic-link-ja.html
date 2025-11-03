@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>マジックリンク - VTuber Four View Generator</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif; background-color: #f5f5f5;">
+    <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f5f5f5;">
+        <tr>
+            <td align="center" style="padding: 40px 0;">
+                <table role="presentation" style="width: 600px; max-width: 100%; border-collapse: collapse; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); overflow: hidden;">
+
+                    <!-- ヘッダー -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center;">
+                            <div style="font-size: 48px; margin-bottom: 10px;">✨</div>
+                            <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">
+                                マジックリンクの準備ができました
+                            </h1>
+                            <p style="margin: 10px 0 0 0; color: #e0e7ff; font-size: 16px;">
+                                VTuber Four View Generator
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- コンテンツ -->
+                    <tr>
+                        <td style="padding: 40px 30px;">
+                            <h2 style="margin: 0 0 20px 0; color: #1a202c; font-size: 24px; font-weight: 600;">
+                                パスワード不要でログイン 🚀
+                            </h2>
+
+                            <p style="margin: 0 0 20px 0; color: #4a5568; font-size: 16px; line-height: 1.8;">
+                                ログインリクエストを受け付けました。以下のボタンをクリックすると、パスワードなしですぐにアカウントにアクセスできます！
+                            </p>
+
+                            <!-- CTAボタン -->
+                            <table role="presentation" style="width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <td align="center" style="padding: 0 0 30px 0;">
+                                        <a href="{{ .ConfirmationURL }}" style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 6px rgba(102, 126, 234, 0.4);">
+                                            🔗 今すぐログイン
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- メリット -->
+                            <div style="background-color: #f0fdf4; border-left: 4px solid #10b981; padding: 20px; border-radius: 4px; margin: 0 0 30px 0;">
+                                <h3 style="margin: 0 0 12px 0; color: #065f46; font-size: 16px; font-weight: 600;">
+                                    ✅ マジックリンクのメリット
+                                </h3>
+                                <ul style="margin: 0; padding: 0 0 0 20px; color: #047857; font-size: 14px; line-height: 1.8;">
+                                    <li style="margin-bottom: 6px;">パスワードを覚える必要がない</li>
+                                    <li style="margin-bottom: 6px;">従来のパスワードより安全</li>
+                                    <li style="margin-bottom: 6px;">素早く便利にアクセス可能</li>
+                                    <li style="margin-bottom: 0;">どのデバイスでも使用可能</li>
+                                </ul>
+                            </div>
+
+                            <!-- 代替リンク -->
+                            <p style="margin: 0 0 10px 0; color: #718096; font-size: 14px; line-height: 1.6;">
+                                ボタンが機能しない場合は、このリンクをブラウザにコピー＆ペーストしてください：
+                            </p>
+                            <p style="margin: 0 0 30px 0; word-break: break-all;">
+                                <a href="{{ .ConfirmationURL }}" style="color: #667eea; text-decoration: none; font-size: 14px;">
+                                    {{ .ConfirmationURL }}
+                                </a>
+                            </p>
+
+                            <!-- セキュリティ通知 -->
+                            <div style="background-color: #fef5e7; border-left: 4px solid #f59e0b; padding: 16px; border-radius: 4px; margin: 0 0 20px 0;">
+                                <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.6;">
+                                    <strong>🔒 セキュリティに関する注意：</strong> このリンクは1時間で期限切れになり、一度のみ使用できます。ログインリンクをリクエストした覚えがない場合は、このメールを無視しても問題ありません。
+                                </p>
+                            </div>
+
+                            <!-- ヘルプセクション -->
+                            <div style="background-color: #f7fafc; border-radius: 8px; padding: 20px; margin: 0;">
+                                <h3 style="margin: 0 0 12px 0; color: #2d3748; font-size: 16px; font-weight: 600;">
+                                    💡 ヒント
+                                </h3>
+                                <ul style="margin: 0; padding: 0 0 0 20px; color: #4a5568; font-size: 14px; line-height: 1.8;">
+                                    <li style="margin-bottom: 6px;">リンクをリクエストしたデバイスで使用してください</li>
+                                    <li style="margin-bottom: 6px;">メールが見つからない場合は迷惑メールフォルダを確認</li>
+                                    <li style="margin-bottom: 0;">期限切れの場合は新しいリンクをリクエスト</li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- フッター -->
+                    <tr>
+                        <td style="background-color: #f7fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+                            <p style="margin: 0 0 10px 0; color: #718096; font-size: 14px;">
+                                お困りの際は
+                                <a href="mailto:support@example.com" style="color: #667eea; text-decoration: none;">support@example.com</a>
+                                までお問い合わせください
+                            </p>
+                            <p style="margin: 0; color: #a0aec0; font-size: 13px;">
+                                © 2025 VTuber Four View Generator. All rights reserved.
+                            </p>
+                            <p style="margin: 10px 0 0 0; color: #cbd5e0; font-size: 12px;">
+                                Supabaseによるパスワードレスログイン
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- メールアドレス -->
+                <table role="presentation" style="width: 600px; max-width: 100%; margin-top: 20px;">
+                    <tr>
+                        <td style="text-align: center; padding: 0 20px;">
+                            <p style="margin: 0; color: #a0aec0; font-size: 12px;">
+                                このメールは {{ .Email }} に送信されました
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
