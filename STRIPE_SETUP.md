@@ -32,6 +32,20 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_xxxxxxxxxxxxx
 STRIPE_SECRET_KEY=sk_test_xxxxxxxxxxxxx
 ```
 
+3. **重要**: Supabase Service Role Keyの追加
+   - [Supabase Dashboard](https://supabase.com/dashboard)にログイン
+   - プロジェクトを選択
+   - 「Settings」→「API」を開く
+   - 「Project API keys」セクションで`service_role`キー（secret）をコピー
+   - ⚠️ **警告**: このキーは絶対に公開しないでください
+   - `.env.local`に追加：
+
+```env
+SUPABASE_SERVICE_ROLE_KEY=eyJhbG...（service_roleキー全体）
+```
+
+このキーはWebhook処理でデータベースへの書き込みに必要です。
+
 ## ステップ4: Stripe CLIのインストール（ローカル開発用）
 
 ### Windows

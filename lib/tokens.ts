@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 
 // Token costs for each generation type
 export const TOKEN_COSTS = {
@@ -119,7 +119,8 @@ export async function addTokens(
   amount: number,
   stripeSessionId: string
 ): Promise<{ success: boolean; newBalance: number; error?: string }> {
-  const supabase = await createClient()
+  // Use admin client to bypass RLS for webhook processing
+  const supabase = createAdminClient()
 
   try {
     console.log(`Adding tokens: userId=${userId}, amount=${amount}, sessionId=${stripeSessionId}`)
@@ -127,7 +128,19 @@ export async function addTokens(
     // Get current balance, or 0 if user doesn't exist
     let currentTokens = 0
     try {
-      currentTokens = await getUserTokens(userId)
+      // Query directly with admin client
+      const { data, error } = await supabase
+        .from('users')
+        .select('tokens')
+        .eq('id', userId)
+        .single()
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching user tokens:', error)
+        throw error
+      }
+
+      currentTokens = data?.tokens || 0
       console.log(`Current token balance: ${currentTokens}`)
     } catch (error) {
       console.log('User not found in users table, will create new record')
