@@ -122,17 +122,36 @@ export async function addTokens(
   const supabase = await createClient()
 
   try {
-    // Get current balance
-    const currentTokens = await getUserTokens(userId)
+    console.log(`Adding tokens: userId=${userId}, amount=${amount}, sessionId=${stripeSessionId}`)
+
+    // Get current balance, or 0 if user doesn't exist
+    let currentTokens = 0
+    try {
+      currentTokens = await getUserTokens(userId)
+      console.log(`Current token balance: ${currentTokens}`)
+    } catch (error) {
+      console.log('User not found in users table, will create new record')
+      // User doesn't exist yet, will be created with initial balance
+      currentTokens = 0
+    }
+
     const newBalance = currentTokens + amount
+    console.log(`New balance will be: ${newBalance}`)
 
-    // Update user tokens
-    const { error: updateError } = await supabase
+    // Upsert user tokens (insert if not exists, update if exists)
+    const { error: upsertError } = await supabase
       .from('users')
-      .update({ tokens: newBalance })
-      .eq('id', userId)
+      .upsert(
+        { id: userId, tokens: newBalance },
+        { onConflict: 'id' }
+      )
 
-    if (updateError) throw updateError
+    if (upsertError) {
+      console.error('Error upserting user tokens:', upsertError)
+      throw upsertError
+    }
+
+    console.log('User tokens updated successfully')
 
     // Record transaction
     const { error: transactionError } = await supabase
@@ -145,15 +164,22 @@ export async function addTokens(
         stripe_session_id: stripeSessionId,
       })
 
-    if (transactionError) throw transactionError
+    if (transactionError) {
+      console.error('Error recording transaction:', transactionError)
+      throw transactionError
+    }
+
+    console.log('Transaction recorded successfully')
+    console.log(`Tokens added successfully. New balance: ${newBalance}`)
 
     return { success: true, newBalance }
   } catch (error) {
     console.error('Error adding tokens:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Failed to add tokens'
     return {
       success: false,
       newBalance: 0,
-      error: 'Failed to add tokens',
+      error: errorMessage,
     }
   }
 }
