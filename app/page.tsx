@@ -110,12 +110,52 @@ export default function Home() {
         const success = searchParams.get('success')
         const canceled = searchParams.get('canceled')
 
+        let pollingIntervalId: NodeJS.Timeout | null = null
+
         if (success === 'true') {
             setPaymentSuccess(true)
-            // Refresh tokens
-            if (user) {
-                fetchTokens()
-            }
+
+            // Poll for token updates (webhook processing may take a few seconds)
+            const initialTokens = tokens
+            const maxAttempts = 10 // Poll for up to 30 seconds
+            let attempts = 0
+
+            console.log('Payment successful! Starting token polling...')
+            console.log(`Initial tokens: ${initialTokens}`)
+
+            pollingIntervalId = setInterval(async () => {
+                attempts++
+                console.log(`[Token Polling] Attempt ${attempts}/${maxAttempts}`)
+
+                try {
+                    const response = await fetch('/api/tokens')
+                    if (response.ok) {
+                        const data = await response.json()
+                        console.log(`[Token Polling] Current: ${data.tokens}, Initial: ${initialTokens}`)
+
+                        // Update tokens state
+                        setTokens(data.tokens)
+
+                        // If tokens increased, stop polling
+                        if (data.tokens > initialTokens) {
+                            console.log('✅ [Token Polling] Tokens updated successfully!')
+                            if (pollingIntervalId) clearInterval(pollingIntervalId)
+                        }
+                    }
+                } catch (error) {
+                    console.error('❌ [Token Polling] Error:', error)
+                }
+
+                if (attempts >= maxAttempts) {
+                    console.log('⏱️ [Token Polling] Max attempts reached. Stopping...')
+                    console.warn('⚠️ If tokens did not update, check:')
+                    console.warn('  1. Stripe webhook is configured correctly')
+                    console.warn('  2. Webhook endpoint is accessible')
+                    console.warn('  3. STRIPE_WEBHOOK_SECRET is set correctly')
+                    if (pollingIntervalId) clearInterval(pollingIntervalId)
+                }
+            }, 3000) // Poll every 3 seconds
+
             // Clear URL parameter after 10 seconds
             setTimeout(() => {
                 setPaymentSuccess(false)
@@ -131,7 +171,14 @@ export default function Home() {
                 window.history.replaceState({}, document.title, window.location.pathname)
             }, 5000)
         }
-    }, [user])
+
+        // Cleanup interval on unmount
+        return () => {
+            if (pollingIntervalId) {
+                clearInterval(pollingIntervalId)
+            }
+        }
+    }, [user, tokens])
 
     // Check authentication and fetch tokens
     useEffect(() => {
