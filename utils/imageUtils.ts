@@ -1,5 +1,5 @@
 
-import { UploadedFile } from './types';
+import { UploadedFile } from '../types';
 
 export const fileToData = (file: File): Promise<UploadedFile> => {
   return new Promise((resolve, reject) => {

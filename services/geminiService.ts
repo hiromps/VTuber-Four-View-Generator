@@ -1,6 +1,6 @@
 
 import { GoogleGenAI, GenerateContentResponse, Modality } from "@google/genai";
-import { ViewType, AspectRatio, ExpressionType } from './types';
+import { ViewType, AspectRatio, ExpressionType } from '../types';
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
 
@@ -78,8 +78,10 @@ export const generateConceptArt = async (prompt: string, aspectRatio: AspectRati
         });
 
         if (response.generatedImages && response.generatedImages.length > 0) {
-            const base64ImageBytes: string = response.generatedImages[0].image.imageBytes;
-            return `data:image/png;base64,${base64ImageBytes}`;
+            const base64ImageBytes = response.generatedImages[0].image?.imageBytes;
+            if (base64ImageBytes) {
+                return `data:image/png;base64,${base64ImageBytes}`;
+            }
         }
         throw new Error('No image was generated for the concept art prompt.');
     } catch (error) {
