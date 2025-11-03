@@ -15,3 +15,12 @@ export interface UploadedFile {
     mimeType: string;
     objectURL: string;
 }
+
+export type ExpressionType = 'joy' | 'anger' | 'sorrow' | 'surprise';
+
+export interface GeneratedExpressions {
+  joy: string | null;
+  anger: string | null;
+  sorrow: string | null;
+  surprise: string | null;
+}

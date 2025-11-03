@@ -3,11 +3,13 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import JSZip from 'jszip'
 import { fileToData } from '@/utils/imageUtils'
-import { ViewType, GeneratedImages, AspectRatio, UploadedFile } from '@/types'
+import { ViewType, GeneratedImages, AspectRatio, UploadedFile, ExpressionType, GeneratedExpressions } from '@/types'
 import { createClient } from '@/lib/supabase/client'
 import AuthModal from '@/components/AuthModal'
 import TokenDisplay from '@/components/TokenDisplay'
 import BuyTokensModal from '@/components/BuyTokensModal'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
+import { useLanguage } from '@/contexts/LanguageContext'
 import type { User } from '@supabase/supabase-js'
 
 // SVG Icon Components
@@ -37,11 +39,13 @@ const ImagePlaceholder = ({ label }: { label: string }) => (
 )
 
 export default function Home() {
+    const { t } = useLanguage()
     const [user, setUser] = useState<User | null>(null)
     const [tokens, setTokens] = useState(0)
     const [showAuthModal, setShowAuthModal] = useState(false)
     const [showBuyModal, setShowBuyModal] = useState(false)
-    const [activeTab, setActiveTab] = useState<'sheet' | 'concept'>('sheet')
+    const [activeTab, setActiveTab] = useState<'sheet' | 'concept' | 'expressions'>('sheet')
+    const [authError, setAuthError] = useState<string | null>(null)
 
     // Character Sheet State
     const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null)
@@ -49,6 +53,7 @@ export default function Home() {
     const [isSheetLoading, setIsSheetLoading] = useState(false)
     const [isZipping, setIsZipping] = useState(false)
     const [sheetError, setSheetError] = useState<string | null>(null)
+    const [sheetAdditionalPrompt, setSheetAdditionalPrompt] = useState<string>('')
 
     // Concept Art State
     const [prompt, setPrompt] = useState<string>('A cyberpunk VTuber with neon hair and holographic cat ears')
@@ -57,7 +62,47 @@ export default function Home() {
     const [isConceptLoading, setIsConceptLoading] = useState(false)
     const [conceptError, setConceptError] = useState<string | null>(null)
 
+    // Facial Expressions State
+    const [expressionsImages, setExpressionsImages] = useState<GeneratedExpressions>({ joy: null, anger: null, sorrow: null, surprise: null })
+    const [isExpressionsLoading, setIsExpressionsLoading] = useState(false)
+    const [isExpressionsZipping, setIsExpressionsZipping] = useState(false)
+    const [expressionsError, setExpressionsError] = useState<string | null>(null)
+    const [expressionsAdditionalPrompt, setExpressionsAdditionalPrompt] = useState<string>('')
+
+    const expressionLabels: { [key in ExpressionType]: string } = {
+        joy: t('expressions.joy'),
+        anger: t('expressions.anger'),
+        sorrow: t('expressions.sorrow'),
+        surprise: t('expressions.surprise'),
+    }
+
     const supabase = createClient()
+
+    // Check for auth errors in URL
+    useEffect(() => {
+        const hashParams = new URLSearchParams(window.location.hash.substring(1))
+        const error = hashParams.get('error')
+        const errorDescription = hashParams.get('error_description')
+        const errorCode = hashParams.get('error_code')
+
+        if (error) {
+            let message = 'Authentication error occurred.'
+
+            if (errorCode === 'otp_expired') {
+                message = t('auth.otpExpired')
+            } else if (errorDescription) {
+                message = decodeURIComponent(errorDescription)
+            }
+
+            setAuthError(message)
+
+            // Clear error from URL after 5 seconds
+            setTimeout(() => {
+                setAuthError(null)
+                window.history.replaceState({}, document.title, window.location.pathname)
+            }, 5000)
+        }
+    }, [])
 
     // Check authentication and fetch tokens
     useEffect(() => {
@@ -109,9 +154,13 @@ export default function Home() {
                 setUploadedFile(data)
                 setGeneratedImages({ front: null, back: null, left: null, right: null })
                 setSheetError(null)
+                setExpressionsImages({ joy: null, anger: null, sorrow: null, surprise: null })
+                setExpressionsError(null)
             } catch (error) {
                 console.error("Error processing file:", error)
-                setSheetError("Failed to load image. Please try another file.")
+                const errorMessage = t('errors.uploadImage')
+                setSheetError(errorMessage)
+                setExpressionsError(errorMessage)
             }
         }
     }
@@ -123,12 +172,12 @@ export default function Home() {
         }
 
         if (!uploadedFile) {
-            setSheetError("Please upload an image first.")
+            setSheetError(t('errors.uploadImage'))
             return
         }
 
         if (tokens < 4) {
-            setSheetError("Insufficient tokens. You need 4 tokens to generate a character sheet.")
+            setSheetError(t('errors.insufficientTokensSheet'))
             setShowBuyModal(true)
             return
         }
@@ -144,6 +193,7 @@ export default function Home() {
                 body: JSON.stringify({
                     base64Image: uploadedFile.base64,
                     mimeType: uploadedFile.mimeType,
+                    additionalPrompt: sheetAdditionalPrompt,
                 }),
             })
 
@@ -174,12 +224,12 @@ export default function Home() {
         }
 
         if (!prompt) {
-            setConceptError("Please enter a prompt.")
+            setConceptError(t('errors.enterPrompt'))
             return
         }
 
         if (tokens < 1) {
-            setConceptError("Insufficient tokens. You need 1 token to generate concept art.")
+            setConceptError(t('errors.insufficientTokensConcept'))
             setShowBuyModal(true)
             return
         }
@@ -210,6 +260,55 @@ export default function Home() {
             setIsConceptLoading(false)
         }
     }, [user, prompt, aspectRatio, tokens])
+
+    const handleGenerateExpressions = useCallback(async () => {
+        if (!user) {
+            setShowAuthModal(true)
+            return
+        }
+
+        if (!uploadedFile) {
+            setExpressionsError(t('errors.uploadImage'))
+            return
+        }
+
+        if (tokens < 4) {
+            setExpressionsError(t('errors.insufficientTokensExpressions'))
+            setShowBuyModal(true)
+            return
+        }
+
+        setIsExpressionsLoading(true)
+        setExpressionsError(null)
+        setExpressionsImages({ joy: null, anger: null, sorrow: null, surprise: null })
+
+        try {
+            const response = await fetch('/api/generate/expressions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    base64Image: uploadedFile.base64,
+                    mimeType: uploadedFile.mimeType,
+                    additionalPrompt: expressionsAdditionalPrompt,
+                }),
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to generate facial expressions')
+            }
+
+            setTokens(data.tokens)
+            setExpressionsImages(data.images)
+
+        } catch (error) {
+            console.error("Error generating facial expressions:", error)
+            setExpressionsError(error instanceof Error ? error.message : "An unknown error occurred.")
+        } finally {
+            setIsExpressionsLoading(false)
+        }
+    }, [user, uploadedFile, tokens])
 
     const handleDownloadSingle = (src: string, filename: string) => {
         if (!src) return
@@ -245,15 +344,46 @@ export default function Home() {
             URL.revokeObjectURL(url)
         } catch (error) {
             console.error("Error creating zip file:", error)
-            setSheetError("Failed to create zip file.")
+            setSheetError(t('errors.failedZip'))
         } finally {
             setIsZipping(false)
         }
     }, [generatedImages])
 
-    const hasAnyGeneratedImages = Object.values(generatedImages).some(img => img !== null)
+    const handleDownloadAllExpressions = useCallback(async () => {
+        const imagesToZip = Object.entries(expressionsImages).filter((entry): entry is [string, string] => entry[1] !== null)
+        if (imagesToZip.length === 0) return
 
-    const TabButton: React.FC<{ tabId: 'sheet' | 'concept'; children: React.ReactNode }> = ({ tabId, children }) => (
+        setIsExpressionsZipping(true)
+        try {
+            const zip = new JSZip()
+
+            const fetchPromises = imagesToZip.map(([expression, src]) =>
+                fetch(src)
+                    .then((res) => res.blob())
+                    .then((blob) => {
+                        const fileExtension = blob.type.split('/')[1] || 'png'
+                        zip.file(`${expression}.${fileExtension}`, blob)
+                    })
+            )
+
+            await Promise.all(fetchPromises)
+            const zipBlob = await zip.generateAsync({ type: 'blob' })
+            const url = URL.createObjectURL(zipBlob)
+            handleDownloadSingle(url, 'vtuber-expressions.zip')
+            URL.revokeObjectURL(url)
+        } catch (error) {
+            console.error("Error creating zip file:", error)
+            setExpressionsError(t('errors.failedZip'))
+        } finally {
+            setIsExpressionsZipping(false)
+        }
+    }, [expressionsImages])
+
+    const hasAnyGeneratedImages = Object.values(generatedImages).some(img => img !== null)
+    const hasAnyGeneratedExpressionImages = Object.values(expressionsImages).some(img => img !== null)
+
+    const TabButton: React.FC<{ tabId: 'sheet' | 'concept' | 'expressions'; children: React.ReactNode }> = ({ tabId, children }) => (
         <button
             onClick={() => setActiveTab(tabId)}
             className={`px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 ${
@@ -271,9 +401,10 @@ export default function Home() {
             <header className="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700 p-4 sticky top-0 z-10">
                 <div className="container mx-auto flex justify-between items-center">
                     <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">
-                        VTuber Four-View Generator
+                        {t('app.title')}
                     </h1>
                     <div className="flex items-center space-x-4">
+                        <LanguageSwitcher />
                         {user ? (
                             <>
                                 <TokenDisplay tokens={tokens} onBuyTokens={() => setShowBuyModal(true)} />
@@ -281,7 +412,7 @@ export default function Home() {
                                     onClick={handleLogout}
                                     className="text-gray-300 hover:text-white transition"
                                 >
-                                    Logout
+                                    {t('app.logout')}
                                 </button>
                             </>
                         ) : (
@@ -289,30 +420,55 @@ export default function Home() {
                                 onClick={() => setShowAuthModal(true)}
                                 className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-lg transition"
                             >
-                                Sign In
+                                {t('app.signIn')}
                             </button>
                         )}
                     </div>
                 </div>
             </header>
 
+            {/* Auth Error Banner */}
+            {authError && (
+                <div className="bg-red-500/10 border-l-4 border-red-500 p-4">
+                    <div className="container mx-auto flex items-start">
+                        <div className="flex-shrink-0">
+                            <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                            </svg>
+                        </div>
+                        <div className="ml-3">
+                            <p className="text-sm text-red-400">{authError}</p>
+                        </div>
+                        <button
+                            onClick={() => setAuthError(null)}
+                            className="ml-auto flex-shrink-0 text-red-400 hover:text-red-300"
+                        >
+                            <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            )}
+
             <main className="container mx-auto p-4 md:p-8">
-                <div className="flex justify-center mb-6 space-x-4">
-                    <TabButton tabId="sheet">Character Sheet Generator</TabButton>
-                    <TabButton tabId="concept">Concept Art Generator</TabButton>
+                <div className="flex justify-center mb-6 space-x-2 md:space-x-4 flex-wrap gap-y-2">
+                    <TabButton tabId="sheet">{t('tabs.characterSheet')}</TabButton>
+                    <TabButton tabId="expressions">{t('tabs.expressions')}</TabButton>
+                    <TabButton tabId="concept">{t('tabs.conceptArt')}</TabButton>
                 </div>
 
                 {activeTab === 'sheet' && (
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         {/* Controls */}
                         <div className="lg:col-span-1 bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col space-y-6 h-fit">
-                            <h2 className="text-xl font-semibold border-b border-gray-600 pb-3">1. Upload Character</h2>
+                            <h2 className="text-xl font-semibold border-b border-gray-600 pb-3">1. {t('upload.title')}</h2>
                             <div className="flex items-center justify-center w-full">
                                 <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600 transition-colors">
                                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
                                         <UploadIcon />
-                                        <p className="mb-2 text-sm text-gray-400"><span className="font-semibold">Click to upload</span> or drag and drop</p>
-                                        <p className="text-xs text-gray-500">PNG, JPG, WEBP (MAX. 5MB)</p>
+                                        <p className="mb-2 text-sm text-gray-400"><span className="font-semibold">{t('upload.clickToUpload')}</span> {t('upload.dragAndDrop')}</p>
+                                        <p className="text-xs text-gray-500">{t('upload.fileTypes')}</p>
                                     </div>
                                     <input id="dropzone-file" type="file" className="hidden" accept="image/png, image/jpeg, image/webp" onChange={handleFileChange} />
                                 </label>
@@ -320,21 +476,39 @@ export default function Home() {
 
                             {uploadedFile?.objectURL && (
                                 <div className="mt-4">
-                                    <p className="text-sm font-medium text-gray-300 mb-2">Preview:</p>
+                                    <p className="text-sm font-medium text-gray-300 mb-2">{t('upload.preview')}</p>
                                     <img src={uploadedFile.objectURL} alt="Uploaded preview" className="rounded-lg w-full max-h-64 object-contain" />
                                 </div>
                             )}
 
-                            <h2 className="text-xl font-semibold border-b border-gray-600 pb-3">2. Generate Sheet</h2>
+                            <h2 className="text-xl font-semibold border-b border-gray-600 pb-3">2. {t('customize.title')}</h2>
+                            <div>
+                                <label htmlFor="sheet-additional-prompt" className="block text-sm font-medium text-gray-300 mb-2">
+                                    {t('customize.additionalInstructions')}
+                                </label>
+                                <textarea
+                                    id="sheet-additional-prompt"
+                                    rows={3}
+                                    value={sheetAdditionalPrompt}
+                                    onChange={(e) => setSheetAdditionalPrompt(e.target.value)}
+                                    placeholder={t('customize.placeholder')}
+                                    className="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white placeholder-gray-400 focus:ring-purple-500 focus:border-purple-500 transition"
+                                />
+                                <p className="text-xs text-gray-400 mt-1">
+                                    {t('customize.hint')}
+                                </p>
+                            </div>
+
+                            <h2 className="text-xl font-semibold border-b border-gray-600 pb-3">3. {t('generate.sheetTitle')}</h2>
                             <div className="bg-gray-700 p-3 rounded-lg text-sm text-gray-300">
-                                Cost: <span className="font-bold text-yellow-400">4 tokens</span>
+                                {t('generate.cost')} <span className="font-bold text-yellow-400">4 {t('generate.tokens')}</span>
                             </div>
                             <button
                                 onClick={handleGenerateSheet}
                                 disabled={!uploadedFile || isSheetLoading}
                                 className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center"
                             >
-                                {isSheetLoading ? 'Generating...' : 'Generate 4-View Sheet'}
+                                {isSheetLoading ? t('generate.generating') : t('generate.generateSheet')}
                             </button>
                             {sheetError && <p className="text-red-400 text-sm mt-2">{sheetError}</p>}
                         </div>
@@ -342,7 +516,7 @@ export default function Home() {
                         {/* Results */}
                         <div className="lg:col-span-2 bg-gray-800 p-6 rounded-lg shadow-lg">
                             <div className="flex justify-between items-center mb-4">
-                                <h2 className="text-xl font-semibold">Generated Views</h2>
+                                <h2 className="text-xl font-semibold">{t('results.generatedViews')}</h2>
                                 {hasAnyGeneratedImages && (
                                     <button
                                         onClick={handleDownloadAll}
@@ -350,7 +524,7 @@ export default function Home() {
                                         className="bg-green-600 hover:bg-green-700 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center text-sm gap-2"
                                     >
                                         <DownloadIcon />
-                                        <span>{isZipping ? 'Zipping...' : 'Download All'}</span>
+                                        <span>{isZipping ? t('results.zipping') : t('results.downloadAll')}</span>
                                     </button>
                                 )}
                             </div>
@@ -392,35 +566,143 @@ export default function Home() {
                     </div>
                 )}
 
+                {activeTab === 'expressions' && (
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        {/* Controls */}
+                        <div className="lg:col-span-1 bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col space-y-6 h-fit">
+                            <h2 className="text-xl font-semibold border-b border-gray-600 pb-3">1. {t('upload.title')}</h2>
+                            <div className="flex items-center justify-center w-full">
+                                <label htmlFor="dropzone-file-expressions" className="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600 transition-colors">
+                                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <UploadIcon />
+                                        <p className="mb-2 text-sm text-gray-400"><span className="font-semibold">{t('upload.clickToUpload')}</span> {t('upload.dragAndDrop')}</p>
+                                        <p className="text-xs text-gray-500">{t('upload.fileTypes')}</p>
+                                    </div>
+                                    <input id="dropzone-file-expressions" type="file" className="hidden" accept="image/png, image/jpeg, image/webp" onChange={handleFileChange} />
+                                </label>
+                            </div>
+
+                            {uploadedFile?.objectURL && (
+                                <div className="mt-4">
+                                    <p className="text-sm font-medium text-gray-300 mb-2">{t('upload.preview')}</p>
+                                    <img src={uploadedFile.objectURL} alt="Uploaded preview" className="rounded-lg w-full max-h-64 object-contain" />
+                                </div>
+                            )}
+
+                            <h2 className="text-xl font-semibold border-b border-gray-600 pb-3">2. {t('customize.title')}</h2>
+                            <div>
+                                <label htmlFor="expressions-additional-prompt" className="block text-sm font-medium text-gray-300 mb-2">
+                                    {t('customize.additionalInstructions')}
+                                </label>
+                                <textarea
+                                    id="expressions-additional-prompt"
+                                    rows={3}
+                                    value={expressionsAdditionalPrompt}
+                                    onChange={(e) => setExpressionsAdditionalPrompt(e.target.value)}
+                                    placeholder={t('customize.placeholder')}
+                                    className="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white placeholder-gray-400 focus:ring-purple-500 focus:border-purple-500 transition"
+                                />
+                                <p className="text-xs text-gray-400 mt-1">
+                                    {t('customize.hint')}
+                                </p>
+                            </div>
+
+                            <h2 className="text-xl font-semibold border-b border-gray-600 pb-3">3. {t('generate.expressionsTitle')}</h2>
+                            <div className="bg-gray-700 p-3 rounded-lg text-sm text-gray-300">
+                                {t('generate.cost')} <span className="font-bold text-yellow-400">4 {t('generate.tokens')}</span>
+                            </div>
+                            <button
+                                onClick={handleGenerateExpressions}
+                                disabled={!uploadedFile || isExpressionsLoading}
+                                className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center"
+                            >
+                                {isExpressionsLoading ? t('generate.generating') : t('generate.generateExpressions')}
+                            </button>
+                            {expressionsError && <p className="text-red-400 text-sm mt-2">{expressionsError}</p>}
+                        </div>
+
+                        {/* Results */}
+                        <div className="lg:col-span-2 bg-gray-800 p-6 rounded-lg shadow-lg">
+                            <div className="flex justify-between items-center mb-4">
+                                <h2 className="text-xl font-semibold">{t('results.generatedExpressions')}</h2>
+                                {hasAnyGeneratedExpressionImages && (
+                                    <button
+                                        onClick={handleDownloadAllExpressions}
+                                        disabled={isExpressionsZipping || isExpressionsLoading}
+                                        className="bg-green-600 hover:bg-green-700 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center text-sm gap-2"
+                                    >
+                                        <DownloadIcon />
+                                        <span>{isExpressionsZipping ? t('results.zipping') : t('results.downloadAll')}</span>
+                                    </button>
+                                )}
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                {isExpressionsLoading && (Object.keys(expressionsImages) as ExpressionType[]).map(exp => (
+                                     <div key={exp} className="flex flex-col items-center space-y-2">
+                                        <div className="w-full aspect-square bg-gray-700 rounded-lg flex items-center justify-center"><LoadingSpinner/></div>
+                                        <p className="text-sm text-gray-400 capitalize">{expressionLabels[exp]}</p>
+                                    </div>
+                                ))}
+                                {!isExpressionsLoading && (Object.keys(expressionsImages) as ExpressionType[]).map((key) => {
+                                    const src = expressionsImages[key]
+                                    return (
+                                        <div key={key} className="flex flex-col items-center space-y-2">
+                                            <div className="w-full aspect-square relative group bg-gray-700 rounded-lg">
+                                                {src ? (
+                                                    <>
+                                                        <img src={src} alt={`${key} expression`} className="w-full h-full object-cover rounded-lg" />
+                                                        <button
+                                                            onClick={() => handleDownloadSingle(src, `${key}.png`)}
+                                                            className="absolute bottom-2 right-2 bg-black bg-opacity-60 hover:bg-opacity-80 text-white p-1.5 rounded-full transition-opacity duration-200 opacity-0 group-hover:opacity-100 focus:opacity-100"
+                                                            aria-label={`Download ${key} expression`}
+                                                            title={`Download ${key} expression`}
+                                                        >
+                                                            <DownloadIcon />
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <ImagePlaceholder label={expressionLabels[key]} />
+                                                )}
+                                            </div>
+                                            <p className="text-sm text-gray-400 capitalize">{expressionLabels[key]}</p>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {activeTab === 'concept' && (
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <div className="lg:col-span-1 bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col space-y-6 h-fit">
-                            <h2 className="text-xl font-semibold border-b border-gray-600 pb-3">1. Describe Your Vision</h2>
+                            <h2 className="text-xl font-semibold border-b border-gray-600 pb-3">1. {t('concept.describeVision')}</h2>
                             <div>
-                                <label htmlFor="prompt" className="block text-sm font-medium text-gray-300 mb-2">Prompt</label>
+                                <label htmlFor="prompt" className="block text-sm font-medium text-gray-300 mb-2">{t('concept.prompt')}</label>
                                 <textarea id="prompt" rows={4} value={prompt} onChange={(e) => setPrompt(e.target.value)} className="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus:ring-purple-500 focus:border-purple-500 transition"></textarea>
                             </div>
                             <div>
-                                <label htmlFor="aspectRatio" className="block text-sm font-medium text-gray-300 mb-2">Aspect Ratio</label>
+                                <label htmlFor="aspectRatio" className="block text-sm font-medium text-gray-300 mb-2">{t('concept.aspectRatio')}</label>
                                 <select id="aspectRatio" value={aspectRatio} onChange={(e) => setAspectRatio(e.target.value as AspectRatio)} className="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus:ring-purple-500 focus:border-purple-500 transition">
-                                    <option value="1:1">Square (1:1)</option>
-                                    <option value="3:4">Portrait (3:4)</option>
-                                    <option value="4:3">Landscape (4:3)</option>
-                                    <option value="9:16">Tall (9:16)</option>
-                                    <option value="16:9">Widescreen (16:9)</option>
+                                    <option value="1:1">{t('concept.ratios.square')}</option>
+                                    <option value="3:4">{t('concept.ratios.portrait')}</option>
+                                    <option value="4:3">{t('concept.ratios.landscape')}</option>
+                                    <option value="9:16">{t('concept.ratios.tall')}</option>
+                                    <option value="16:9">{t('concept.ratios.widescreen')}</option>
                                 </select>
                             </div>
                             <div className="bg-gray-700 p-3 rounded-lg text-sm text-gray-300">
-                                Cost: <span className="font-bold text-yellow-400">1 token</span>
+                                {t('generate.cost')} <span className="font-bold text-yellow-400">1 {t('generate.token')}</span>
                             </div>
                             <button onClick={handleGenerateConcept} disabled={isConceptLoading} className="w-full bg-pink-600 hover:bg-pink-700 disabled:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition-colors flex justify-center items-center">
-                                {isConceptLoading ? 'Generating...' : 'Generate Concept Art'}
+                                {isConceptLoading ? t('generate.generating') : t('generate.generateConcept')}
                             </button>
                             {conceptError && <p className="text-red-400 text-sm mt-2">{conceptError}</p>}
                         </div>
 
                         <div className="lg:col-span-2 bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col justify-center items-center">
-                            <h2 className="text-xl font-semibold mb-4 w-full">Generated Concept</h2>
+                            <h2 className="text-xl font-semibold mb-4 w-full">{t('results.generatedConcept')}</h2>
                             <div className="w-full h-full min-h-[400px] flex justify-center items-center relative group">
                                 {isConceptLoading ? (
                                     <LoadingSpinner />
@@ -437,7 +719,7 @@ export default function Home() {
                                         </button>
                                     </>
                                 ) : (
-                                    <ImagePlaceholder label="Your concept art will appear here" />
+                                    <ImagePlaceholder label={t('results.placeholder')} />
                                 )}
                             </div>
                         </div>

@@ -49,6 +49,12 @@ CREATE POLICY "Users can view their own transactions"
   FOR SELECT
   USING (auth.uid() = user_id);
 
+-- Users can insert their own transactions
+CREATE POLICY "Users can insert their own transactions"
+  ON public.transactions
+  FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
 -- Create indexes
 CREATE INDEX IF NOT EXISTS idx_transactions_user_id ON public.transactions(user_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_created_at ON public.transactions(created_at DESC);

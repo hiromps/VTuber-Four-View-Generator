@@ -1,0 +1,107 @@
+{
+  "app": {
+    "title": "VTuber Four-View Generator",
+    "signIn": "Sign In",
+    "logout": "Logout"
+  },
+  "tabs": {
+    "characterSheet": "Character Sheet Generator",
+    "expressions": "Facial Expressions Generator",
+    "conceptArt": "Concept Art Generator"
+  },
+  "upload": {
+    "title": "Upload Character",
+    "clickToUpload": "Click to upload",
+    "dragAndDrop": "or drag and drop",
+    "fileTypes": "PNG, JPG, WEBP (MAX. 5MB)",
+    "preview": "Preview:"
+  },
+  "customize": {
+    "title": "Customize (Optional)",
+    "additionalInstructions": "Additional Instructions",
+    "placeholder": "e.g. Remove glasses completely / Change hair color to blue / Add a hat",
+    "hint": "💡 Hint: Clear and specific English instructions work best"
+  },
+  "generate": {
+    "sheetTitle": "Generate Sheet",
+    "expressionsTitle": "Generate Expressions",
+    "conceptTitle": "Generate Concept Art",
+    "cost": "Cost:",
+    "tokens": "tokens",
+    "token": "token",
+    "generating": "Generating...",
+    "generateSheet": "Generate 4-View Sheet",
+    "generateExpressions": "Generate 4 Expressions",
+    "generateConcept": "Generate Concept Art"
+  },
+  "results": {
+    "generatedViews": "Generated Views",
+    "generatedExpressions": "Generated Expressions",
+    "generatedConcept": "Generated Concept",
+    "downloadAll": "Download All",
+    "zipping": "Zipping...",
+    "placeholder": "Your concept art will appear here"
+  },
+  "views": {
+    "front": "Front",
+    "back": "Back",
+    "left": "Left",
+    "right": "Right"
+  },
+  "expressions": {
+    "joy": "Joy",
+    "anger": "Anger",
+    "sorrow": "Sorrow",
+    "surprise": "Surprise"
+  },
+  "concept": {
+    "describeVision": "Describe Your Vision",
+    "prompt": "Prompt",
+    "aspectRatio": "Aspect Ratio",
+    "ratios": {
+      "square": "Square (1:1)",
+      "portrait": "Portrait (3:4)",
+      "landscape": "Landscape (4:3)",
+      "tall": "Tall (9:16)",
+      "widescreen": "Widescreen (16:9)"
+    }
+  },
+  "auth": {
+    "signInTitle": "Sign In",
+    "description": "Enter your email to receive a magic link for passwordless sign in.",
+    "email": "Email Address",
+    "emailPlaceholder": "you@example.com",
+    "sendMagicLink": "Send Magic Link",
+    "sending": "Sending...",
+    "successMessage": "Check your email for the magic link!",
+    "errorMessage": "An error occurred. Please try again.",
+    "failedToSend": "Failed to send magic link",
+    "otpExpired": "The email link has expired. Please sign in again.",
+    "freeTokens": "New users will automatically receive 5 free tokens upon sign up!",
+    "close": "Close"
+  },
+  "tokens": {
+    "buyTokens": "Buy Tokens",
+    "yourTokens": "Your Tokens",
+    "tokensLabel": "tokens",
+    "usage": "Token Usage:",
+    "characterSheet": "Character Sheet (4 views):",
+    "conceptArt": "Concept Art (1 image):",
+    "mostPopular": "MOST POPULAR",
+    "buyNow": "Buy Now",
+    "processing": "Processing...",
+    "securePayment": "Secure payment powered by Stripe",
+    "failedCheckout": "Failed to create checkout session",
+    "stripeFailed": "Stripe failed to load",
+    "purchaseError": "An error occurred"
+  },
+  "errors": {
+    "uploadImage": "Please upload an image first.",
+    "insufficientTokensSheet": "Insufficient tokens. You need 4 tokens to generate a character sheet.",
+    "insufficientTokensExpressions": "Insufficient tokens. You need 4 tokens to generate facial expressions.",
+    "insufficientTokensConcept": "Insufficient tokens. You need 1 token to generate concept art.",
+    "enterPrompt": "Please enter a prompt.",
+    "failedGenerate": "Failed to generate. Please try again.",
+    "failedZip": "Failed to create zip file."
+  }
+}

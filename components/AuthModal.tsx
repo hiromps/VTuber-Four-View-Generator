@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 interface AuthModalProps {
   isOpen: boolean
@@ -8,6 +9,7 @@ interface AuthModalProps {
 }
 
 export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
+  const { t } = useLanguage()
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
@@ -29,13 +31,13 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
       const data = await response.json()
 
       if (response.ok) {
-        setMessage({ type: 'success', text: data.message })
+        setMessage({ type: 'success', text: t('auth.successMessage') })
         setEmail('')
       } else {
-        setMessage({ type: 'error', text: data.error || 'Failed to send magic link' })
+        setMessage({ type: 'error', text: data.error || t('auth.failedToSend') })
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'An error occurred. Please try again.' })
+      setMessage({ type: 'error', text: t('auth.errorMessage') })
     } finally {
       setLoading(false)
     }
@@ -45,7 +47,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-gray-800 rounded-lg p-8 max-w-md w-full mx-4">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-white">Sign In</h2>
+          <h2 className="text-2xl font-bold text-white">{t('auth.signInTitle')}</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-white transition"
@@ -57,13 +59,13 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
         </div>
 
         <p className="text-gray-300 mb-6">
-          Enter your email to receive a magic link for passwordless sign in.
+          {t('auth.description')}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
-              Email Address
+              {t('auth.email')}
             </label>
             <input
               type="email"
@@ -72,7 +74,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               onChange={(e) => setEmail(e.target.value)}
               required
               className="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-white focus:ring-purple-500 focus:border-purple-500 transition"
-              placeholder="you@example.com"
+              placeholder={t('auth.emailPlaceholder')}
             />
           </div>
 
@@ -93,12 +95,12 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             disabled={loading}
             className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition"
           >
-            {loading ? 'Sending...' : 'Send Magic Link'}
+            {loading ? t('auth.sending') : t('auth.sendMagicLink')}
           </button>
         </form>
 
         <p className="text-gray-400 text-sm mt-4">
-          New users will automatically receive 5 free tokens upon sign up!
+          {t('auth.freeTokens')}
         </p>
       </div>
     </div>

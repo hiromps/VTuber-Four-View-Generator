@@ -2,8 +2,9 @@ import { createClient } from '@/lib/supabase/server'
 
 // Token costs for each generation type
 export const TOKEN_COSTS = {
-  CHARACTER_SHEET: 4, // 4 images (front, back, left, right)
-  CONCEPT_ART: 1,     // 1 image
+  CHARACTER_SHEET: 4,     // 4 images (front, back, left, right)
+  FACIAL_EXPRESSIONS: 4,  // 4 images (joy, anger, sorrow, surprise)
+  CONCEPT_ART: 1,         // 1 image
 } as const
 
 export type GenerationType = keyof typeof TOKEN_COSTS
@@ -18,7 +19,15 @@ export async function getUserTokens(userId: string): Promise<number> {
     .eq('id', userId)
     .single()
 
-  if (error) throw error
+  if (error) {
+    console.error('Error fetching user tokens:', error)
+    throw new Error(`Failed to fetch user tokens: ${error.message}`)
+  }
+
+  if (!data) {
+    throw new Error('User not found in database')
+  }
+
   return data.tokens
 }
 
@@ -40,10 +49,14 @@ export async function consumeTokens(
   const cost = TOKEN_COSTS[type]
 
   try {
+    console.log(`Consuming tokens: userId=${userId}, type=${type}, cost=${cost}`)
+
     // Get current balance
     const currentTokens = await getUserTokens(userId)
+    console.log(`Current token balance: ${currentTokens}`)
 
     if (currentTokens < cost) {
+      console.log(`Insufficient tokens: need ${cost}, have ${currentTokens}`)
       return {
         success: false,
         newBalance: currentTokens,
@@ -53,17 +66,25 @@ export async function consumeTokens(
 
     // Deduct tokens
     const newBalance = currentTokens - cost
+    console.log(`Deducting tokens: new balance will be ${newBalance}`)
+
     const { error: updateError } = await supabase
       .from('users')
       .update({ tokens: newBalance })
       .eq('id', userId)
 
-    if (updateError) throw updateError
+    if (updateError) {
+      console.error('Error updating user tokens:', updateError)
+      throw updateError
+    }
 
     // Record transaction
-    const transactionType = type === 'CHARACTER_SHEET'
-      ? 'generation_sheet'
-      : 'generation_concept'
+    const transactionType =
+      type === 'CHARACTER_SHEET' ? 'generation_sheet' :
+      type === 'FACIAL_EXPRESSIONS' ? 'generation_expressions' :
+      'generation_concept'
+
+    console.log(`Recording transaction: type=${transactionType}, amount=${-cost}`)
 
     const { error: transactionError } = await supabase
       .from('transactions')
@@ -74,15 +95,20 @@ export async function consumeTokens(
         balance_after: newBalance,
       })
 
-    if (transactionError) throw transactionError
+    if (transactionError) {
+      console.error('Error recording transaction:', transactionError)
+      throw transactionError
+    }
 
+    console.log('Token consumption successful')
     return { success: true, newBalance }
   } catch (error) {
     console.error('Error consuming tokens:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Failed to consume tokens'
     return {
       success: false,
       newBalance: 0,
-      error: 'Failed to consume tokens',
+      error: errorMessage,
     }
   }
 }

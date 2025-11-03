@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
@@ -38,6 +39,7 @@ interface BuyTokensModalProps {
 }
 
 export default function BuyTokensModal({ isOpen, onClose }: BuyTokensModalProps) {
+  const { t } = useLanguage()
   const [loading, setLoading] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -57,12 +59,12 @@ export default function BuyTokensModal({ isOpen, onClose }: BuyTokensModalProps)
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to create checkout session')
+        throw new Error(data.error || t('tokens.failedCheckout'))
       }
 
       const stripe = await stripePromise
       if (!stripe) {
-        throw new Error('Stripe failed to load')
+        throw new Error(t('tokens.stripeFailed'))
       }
 
       // Redirect to Stripe Checkout
@@ -75,7 +77,7 @@ export default function BuyTokensModal({ isOpen, onClose }: BuyTokensModalProps)
       }
     } catch (err) {
       console.error('Purchase error:', err)
-      setError(err instanceof Error ? err.message : 'An error occurred')
+      setError(err instanceof Error ? err.message : t('tokens.purchaseError'))
     } finally {
       setLoading(null)
     }
@@ -85,7 +87,7 @@ export default function BuyTokensModal({ isOpen, onClose }: BuyTokensModalProps)
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
       <div className="bg-gray-800 rounded-lg p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-white">Buy Tokens</h2>
+          <h2 className="text-2xl font-bold text-white">{t('tokens.buyTokens')}</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-white transition"
@@ -97,10 +99,10 @@ export default function BuyTokensModal({ isOpen, onClose }: BuyTokensModalProps)
         </div>
 
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-300 mb-2">Token Usage:</h3>
+          <h3 className="text-lg font-semibold text-gray-300 mb-2">{t('tokens.usage')}</h3>
           <ul className="text-gray-400 space-y-1">
-            <li>• Character Sheet (4 views): <span className="text-white font-bold">4 tokens</span></li>
-            <li>• Concept Art (1 image): <span className="text-white font-bold">1 token</span></li>
+            <li>• {t('tokens.characterSheet')} <span className="text-white font-bold">4 {t('tokens.tokensLabel')}</span></li>
+            <li>• {t('tokens.conceptArt')} <span className="text-white font-bold">1 {t('tokens.tokensLabel')}</span></li>
           </ul>
         </div>
 
@@ -123,7 +125,7 @@ export default function BuyTokensModal({ isOpen, onClose }: BuyTokensModalProps)
               {pkg.popular && (
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                   <span className="bg-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full">
-                    MOST POPULAR
+                    {t('tokens.mostPopular')}
                   </span>
                 </div>
               )}
@@ -144,7 +146,7 @@ export default function BuyTokensModal({ isOpen, onClose }: BuyTokensModalProps)
                       : 'bg-gray-600 hover:bg-gray-500'
                   } disabled:bg-gray-500 disabled:cursor-not-allowed text-white`}
                 >
-                  {loading === pkg.id ? 'Processing...' : 'Buy Now'}
+                  {loading === pkg.id ? t('tokens.processing') : t('tokens.buyNow')}
                 </button>
               </div>
             </div>
@@ -152,7 +154,7 @@ export default function BuyTokensModal({ isOpen, onClose }: BuyTokensModalProps)
         </div>
 
         <p className="text-gray-400 text-sm mt-6 text-center">
-          Secure payment powered by Stripe
+          {t('tokens.securePayment')}
         </p>
       </div>
     </div>

@@ -1,0 +1,107 @@
+{
+  "app": {
+    "title": "VTuber 四面図ジェネレーター",
+    "signIn": "サインイン",
+    "logout": "ログアウト"
+  },
+  "tabs": {
+    "characterSheet": "キャラクターシート生成",
+    "expressions": "表情差分生成",
+    "conceptArt": "コンセプトアート生成"
+  },
+  "upload": {
+    "title": "キャラクター画像をアップロード",
+    "clickToUpload": "クリックしてアップロード",
+    "dragAndDrop": "またはドラッグ＆ドロップ",
+    "fileTypes": "PNG, JPG, WEBP (最大 5MB)",
+    "preview": "プレビュー:"
+  },
+  "customize": {
+    "title": "カスタマイズ（オプション）",
+    "additionalInstructions": "追加の指示",
+    "placeholder": "例: メガネを完全に削除 / 髪の色を青に変更 / 帽子を追加",
+    "hint": "💡 ヒント: 明確で具体的な英語の指示が最も効果的です"
+  },
+  "generate": {
+    "sheetTitle": "シート生成",
+    "expressionsTitle": "表情生成",
+    "conceptTitle": "コンセプトアート生成",
+    "cost": "コスト:",
+    "tokens": "トークン",
+    "token": "トークン",
+    "generating": "生成中...",
+    "generateSheet": "四面図を生成",
+    "generateExpressions": "4つの表情を生成",
+    "generateConcept": "コンセプトアートを生成"
+  },
+  "results": {
+    "generatedViews": "生成された四面図",
+    "generatedExpressions": "生成された表情",
+    "generatedConcept": "生成されたコンセプト",
+    "downloadAll": "すべてダウンロード",
+    "zipping": "圧縮中...",
+    "placeholder": "生成されたコンセプトアートがここに表示されます"
+  },
+  "views": {
+    "front": "正面",
+    "back": "背面",
+    "left": "左側",
+    "right": "右側"
+  },
+  "expressions": {
+    "joy": "喜",
+    "anger": "怒",
+    "sorrow": "哀",
+    "surprise": "驚"
+  },
+  "concept": {
+    "describeVision": "あなたのビジョンを描写してください",
+    "prompt": "プロンプト",
+    "aspectRatio": "アスペクト比",
+    "ratios": {
+      "square": "正方形 (1:1)",
+      "portrait": "縦長 (3:4)",
+      "landscape": "横長 (4:3)",
+      "tall": "縦長ワイド (9:16)",
+      "widescreen": "ワイドスクリーン (16:9)"
+    }
+  },
+  "auth": {
+    "signInTitle": "サインイン",
+    "description": "メールアドレスを入力してマジックリンクを受け取り、パスワードなしでサインインできます。",
+    "email": "メールアドレス",
+    "emailPlaceholder": "you@example.com",
+    "sendMagicLink": "マジックリンクを送信",
+    "sending": "送信中...",
+    "successMessage": "メールでマジックリンクを確認してください！",
+    "errorMessage": "エラーが発生しました。もう一度お試しください。",
+    "failedToSend": "マジックリンクの送信に失敗しました",
+    "otpExpired": "メールリンクの有効期限が切れています。再度サインインしてください。",
+    "freeTokens": "新規ユーザーには登録時に5トークンが無料で付与されます！",
+    "close": "閉じる"
+  },
+  "tokens": {
+    "buyTokens": "トークンを購入",
+    "yourTokens": "所持トークン",
+    "tokensLabel": "トークン",
+    "usage": "トークン使用量：",
+    "characterSheet": "キャラクターシート（四面図）：",
+    "conceptArt": "コンセプトアート（1枚）：",
+    "mostPopular": "人気No.1",
+    "buyNow": "今すぐ購入",
+    "processing": "処理中...",
+    "securePayment": "Stripeによる安全な決済",
+    "failedCheckout": "チェックアウトセッションの作成に失敗しました",
+    "stripeFailed": "Stripeの読み込みに失敗しました",
+    "purchaseError": "エラーが発生しました"
+  },
+  "errors": {
+    "uploadImage": "まず画像をアップロードしてください。",
+    "insufficientTokensSheet": "トークンが不足しています。キャラクターシートの生成には4トークン必要です。",
+    "insufficientTokensExpressions": "トークンが不足しています。表情差分の生成には4トークン必要です。",
+    "insufficientTokensConcept": "トークンが不足しています。コンセプトアートの生成には1トークン必要です。",
+    "enterPrompt": "プロンプトを入力してください。",
+    "failedGenerate": "生成に失敗しました。もう一度お試しください。",
+    "failedZip": "ZIPファイルの作成に失敗しました。"
+  }
+}

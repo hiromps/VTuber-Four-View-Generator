@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { consumeTokens } from '@/lib/tokens'
-import { generateCharacterSheetView } from '@/services/geminiService'
-import { ViewType } from '@/types'
+import { generateFacialExpression } from '@/services/geminiService'
+import { ExpressionType } from '@/types'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
@@ -25,8 +25,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Consume tokens (4 tokens for character sheet - all 4 views)
-    const result = await consumeTokens(user.id, 'CHARACTER_SHEET')
+    // Consume tokens (4 tokens for facial expressions - all 4 expressions)
+    const result = await consumeTokens(user.id, 'FACIAL_EXPRESSIONS')
 
     if (!result.success) {
       return NextResponse.json(
@@ -35,24 +35,24 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Generate all 4 views in parallel
+    // Generate all 4 expressions in parallel
     try {
-      const views: ViewType[] = ['front', 'back', 'left', 'right']
+      const expressions: ExpressionType[] = ['joy', 'anger', 'sorrow', 'surprise']
 
-      const imagePromises = views.map((view) =>
-        generateCharacterSheetView(base64Image, mimeType, view, additionalPrompt || '')
-          .then((imageUrl) => ({ view, imageUrl }))
+      const imagePromises = expressions.map((expression) =>
+        generateFacialExpression(base64Image, mimeType, expression, additionalPrompt || '')
+          .then((imageUrl) => ({ expression, imageUrl }))
       )
 
       const results = await Promise.all(imagePromises)
 
       // Convert results array to object
       const images = results.reduce(
-        (acc, { view, imageUrl }) => {
-          acc[view] = imageUrl
+        (acc, { expression, imageUrl }) => {
+          acc[expression] = imageUrl
           return acc
         },
-        {} as Record<ViewType, string>
+        {} as Record<ExpressionType, string>
       )
 
       return NextResponse.json({
@@ -64,14 +64,14 @@ export async function POST(request: NextRequest) {
       // For now, just return the error
       console.error('Image generation error:', error)
       return NextResponse.json(
-        { error: 'Failed to generate character sheet' },
+        { error: 'Failed to generate facial expressions' },
         { status: 500 }
       )
     }
   } catch (error) {
-    console.error('Character sheet generation error:', error)
+    console.error('Facial expressions generation error:', error)
     return NextResponse.json(
-      { error: 'Failed to generate character sheet' },
+      { error: 'Failed to generate facial expressions' },
       { status: 500 }
     )
   }
