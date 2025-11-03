@@ -85,9 +85,9 @@ export default function BuyTokensModal({ isOpen, onClose }: BuyTokensModalProps)
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
-      <div className="bg-gray-800 rounded-lg p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-white">{t('tokens.buyTokens')}</h2>
+      <div className="bg-gray-800 rounded-lg p-5 md:p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-center mb-4 md:mb-6">
+          <h2 className="text-xl md:text-2xl font-bold text-white">{t('tokens.buyTokens')}</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-white transition"
@@ -98,9 +98,9 @@ export default function BuyTokensModal({ isOpen, onClose }: BuyTokensModalProps)
           </button>
         </div>
 
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-300 mb-2">{t('tokens.usage')}</h3>
-          <ul className="text-gray-400 space-y-1">
+        <div className="mb-4 md:mb-6">
+          <h3 className="text-base md:text-lg font-semibold text-gray-300 mb-2">{t('tokens.usage')}</h3>
+          <ul className="text-sm md:text-base text-gray-400 space-y-1">
             <li>• {t('tokens.characterSheet')} <span className="text-white font-bold">4 {t('tokens.tokensLabel')}</span></li>
             <li>• {t('tokens.conceptArt')} <span className="text-white font-bold">1 {t('tokens.tokensLabel')}</span></li>
           </ul>
@@ -112,11 +112,11 @@ export default function BuyTokensModal({ isOpen, onClose }: BuyTokensModalProps)
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
           {TOKEN_PACKAGES.map((pkg) => (
             <div
               key={pkg.id}
-              className={`relative bg-gray-700 rounded-lg p-6 border-2 transition ${
+              className={`relative bg-gray-700 rounded-lg p-4 md:p-6 border-2 transition ${
                 pkg.popular
                   ? 'border-purple-500'
                   : 'border-transparent hover:border-gray-600'
@@ -131,16 +131,16 @@ export default function BuyTokensModal({ isOpen, onClose }: BuyTokensModalProps)
               )}
 
               <div className="text-center">
-                <h3 className="text-xl font-bold text-white mb-2">{pkg.name}</h3>
-                <div className="text-4xl font-bold text-purple-400 mb-2">
+                <h3 className="text-lg md:text-xl font-bold text-white mb-2">{pkg.name}</h3>
+                <div className="text-3xl md:text-4xl font-bold text-purple-400 mb-2">
                   {pkg.price}
                 </div>
-                <p className="text-gray-400 text-sm mb-6">{pkg.pricePerToken}</p>
+                <p className="text-gray-400 text-xs md:text-sm mb-4 md:mb-6">{pkg.pricePerToken}</p>
 
                 <button
                   onClick={() => handlePurchase(pkg.id)}
                   disabled={loading === pkg.id}
-                  className={`w-full font-bold py-3 px-4 rounded-lg transition ${
+                  className={`w-full font-bold py-2.5 md:py-3 px-4 rounded-lg transition text-sm md:text-base ${
                     pkg.popular
                       ? 'bg-purple-600 hover:bg-purple-700'
                       : 'bg-gray-600 hover:bg-gray-500'
