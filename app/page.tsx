@@ -462,7 +462,7 @@ export default function Home() {
     const TabButton: React.FC<{ tabId: 'sheet' | 'concept' | 'expressions'; children: React.ReactNode }> = ({ tabId, children }) => (
         <button
             onClick={() => setActiveTab(tabId)}
-            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 ${
+            className={`px-3 sm:px-4 md:px-6 py-2 md:py-2.5 text-xs sm:text-sm md:text-base font-medium rounded-md transition-colors duration-200 whitespace-nowrap ${
                 activeTab === tabId
                     ? 'bg-purple-600 text-white'
                     : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
@@ -474,19 +474,19 @@ export default function Home() {
 
     return (
         <div className="min-h-screen bg-gray-900 text-white font-sans">
-            <header className="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700 p-4 sticky top-0 z-10">
-                <div className="container mx-auto flex justify-between items-center">
-                    <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">
+            <header className="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700 p-3 md:p-4 sticky top-0 z-10">
+                <div className="container mx-auto flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0">
+                    <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">
                         {t('app.title')}
                     </h1>
-                    <div className="flex items-center space-x-4">
+                    <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-wrap justify-center">
                         <LanguageSwitcher />
                         {user ? (
                             <>
                                 <TokenDisplay tokens={tokens} onBuyTokens={() => setShowBuyModal(true)} />
                                 <button
                                     onClick={handleLogout}
-                                    className="text-gray-300 hover:text-white transition"
+                                    className="text-sm text-gray-300 hover:text-white transition"
                                 >
                                     {t('app.logout')}
                                 </button>
@@ -494,7 +494,7 @@ export default function Home() {
                         ) : (
                             <button
                                 onClick={() => setShowAuthModal(true)}
-                                className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-lg transition"
+                                className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 md:px-6 rounded-lg transition text-sm md:text-base"
                             >
                                 {t('app.signIn')}
                             </button>
@@ -505,21 +505,21 @@ export default function Home() {
 
             {/* Auth Error Banner */}
             {authError && (
-                <div className="bg-red-500/10 border-l-4 border-red-500 p-4">
-                    <div className="container mx-auto flex items-start">
+                <div className="bg-red-500/10 border-l-4 border-red-500 p-3 md:p-4">
+                    <div className="container mx-auto flex items-start gap-2 md:gap-3">
                         <div className="flex-shrink-0">
-                            <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <svg className="h-4 w-4 md:h-5 md:w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                             </svg>
                         </div>
-                        <div className="ml-3">
-                            <p className="text-sm text-red-400">{authError}</p>
+                        <div className="flex-1 min-w-0">
+                            <p className="text-xs md:text-sm text-red-400 break-words">{authError}</p>
                         </div>
                         <button
                             onClick={() => setAuthError(null)}
-                            className="ml-auto flex-shrink-0 text-red-400 hover:text-red-300"
+                            className="flex-shrink-0 text-red-400 hover:text-red-300"
                         >
-                            <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <svg className="h-4 w-4 md:h-5 md:w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                 <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                             </svg>
                         </button>
@@ -529,21 +529,21 @@ export default function Home() {
 
             {/* Payment Success Banner */}
             {paymentSuccess && (
-                <div className="bg-green-500/10 border-l-4 border-green-500 p-4">
-                    <div className="container mx-auto flex items-start">
+                <div className="bg-green-500/10 border-l-4 border-green-500 p-3 md:p-4">
+                    <div className="container mx-auto flex items-start gap-2 md:gap-3">
                         <div className="flex-shrink-0">
-                            <svg className="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <svg className="h-4 w-4 md:h-5 md:w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                             </svg>
                         </div>
-                        <div className="ml-3">
-                            <p className="text-sm text-green-400">{t('tokens.paymentSuccess')}</p>
+                        <div className="flex-1 min-w-0">
+                            <p className="text-xs md:text-sm text-green-400 break-words">{t('tokens.paymentSuccess')}</p>
                         </div>
                         <button
                             onClick={() => setPaymentSuccess(false)}
-                            className="ml-auto flex-shrink-0 text-green-400 hover:text-green-300"
+                            className="flex-shrink-0 text-green-400 hover:text-green-300"
                         >
-                            <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <svg className="h-4 w-4 md:h-5 md:w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                 <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                             </svg>
                         </button>
@@ -553,21 +553,21 @@ export default function Home() {
 
             {/* Payment Canceled Banner */}
             {paymentCanceled && (
-                <div className="bg-yellow-500/10 border-l-4 border-yellow-500 p-4">
-                    <div className="container mx-auto flex items-start">
+                <div className="bg-yellow-500/10 border-l-4 border-yellow-500 p-3 md:p-4">
+                    <div className="container mx-auto flex items-start gap-2 md:gap-3">
                         <div className="flex-shrink-0">
-                            <svg className="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <svg className="h-4 w-4 md:h-5 md:w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                 <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                             </svg>
                         </div>
-                        <div className="ml-3">
-                            <p className="text-sm text-yellow-400">{t('tokens.paymentCanceled')}</p>
+                        <div className="flex-1 min-w-0">
+                            <p className="text-xs md:text-sm text-yellow-400 break-words">{t('tokens.paymentCanceled')}</p>
                         </div>
                         <button
                             onClick={() => setPaymentCanceled(false)}
-                            className="ml-auto flex-shrink-0 text-yellow-400 hover:text-yellow-300"
+                            className="flex-shrink-0 text-yellow-400 hover:text-yellow-300"
                         >
-                            <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <svg className="h-4 w-4 md:h-5 md:w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                 <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                             </svg>
                         </button>
@@ -575,18 +575,18 @@ export default function Home() {
                 </div>
             )}
 
-            <main className="container mx-auto p-4 md:p-8">
-                <div className="flex justify-center mb-6 space-x-2 md:space-x-4 flex-wrap gap-y-2">
+            <main className="container mx-auto p-3 sm:p-4 md:p-8">
+                <div className="flex justify-center mb-4 md:mb-6 gap-2 md:gap-4 flex-wrap">
                     <TabButton tabId="sheet">{t('tabs.characterSheet')}</TabButton>
                     <TabButton tabId="expressions">{t('tabs.expressions')}</TabButton>
                     <TabButton tabId="concept">{t('tabs.conceptArt')}</TabButton>
                 </div>
 
                 {activeTab === 'sheet' && (
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
                         {/* Controls */}
-                        <div className="lg:col-span-1 bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col space-y-6 h-fit">
-                            <h2 className="text-xl font-semibold border-b border-gray-600 pb-3">1. {t('upload.title')}</h2>
+                        <div className="lg:col-span-1 bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg flex flex-col space-y-4 md:space-y-6 h-fit">
+                            <h2 className="text-lg md:text-xl font-semibold border-b border-gray-600 pb-2 md:pb-3">1. {t('upload.title')}</h2>
                             <div className="flex items-center justify-center w-full">
                                 <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600 transition-colors">
                                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
@@ -605,7 +605,7 @@ export default function Home() {
                                 </div>
                             )}
 
-                            <h2 className="text-xl font-semibold border-b border-gray-600 pb-3">2. {t('customize.title')}</h2>
+                            <h2 className="text-lg md:text-xl font-semibold border-b border-gray-600 pb-2 md:pb-3">2. {t('customize.title')}</h2>
                             <div>
                                 <label htmlFor="sheet-additional-prompt" className="block text-sm font-medium text-gray-300 mb-2">
                                     {t('customize.additionalInstructions')}
@@ -623,14 +623,14 @@ export default function Home() {
                                 </p>
                             </div>
 
-                            <h2 className="text-xl font-semibold border-b border-gray-600 pb-3">3. {t('generate.sheetTitle')}</h2>
+                            <h2 className="text-lg md:text-xl font-semibold border-b border-gray-600 pb-2 md:pb-3">3. {t('generate.sheetTitle')}</h2>
                             <div className="bg-gray-700 p-3 rounded-lg text-sm text-gray-300">
                                 {t('generate.cost')} <span className="font-bold text-yellow-400">4 {t('generate.tokens')}</span>
                             </div>
                             <button
                                 onClick={handleGenerateSheet}
                                 disabled={!uploadedFile || isSheetLoading}
-                                className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center"
+                                className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-2.5 md:py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center text-sm md:text-base"
                             >
                                 {isSheetLoading ? t('generate.generating') : t('generate.generateSheet')}
                             </button>
@@ -638,14 +638,14 @@ export default function Home() {
                         </div>
 
                         {/* Results */}
-                        <div className="lg:col-span-2 bg-gray-800 p-6 rounded-lg shadow-lg">
-                            <div className="flex justify-between items-center mb-4">
-                                <h2 className="text-xl font-semibold">{t('results.generatedViews')}</h2>
+                        <div className="lg:col-span-2 bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg">
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4">
+                                <h2 className="text-lg md:text-xl font-semibold">{t('results.generatedViews')}</h2>
                                 {hasAnyGeneratedImages && (
                                     <button
                                         onClick={handleDownloadAll}
                                         disabled={isZipping || isSheetLoading}
-                                        className="bg-green-600 hover:bg-green-700 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center text-sm gap-2"
+                                        className="bg-green-600 hover:bg-green-700 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-2 px-3 md:px-4 rounded-lg transition-all duration-200 flex items-center justify-center text-xs md:text-sm gap-1.5 md:gap-2 w-full sm:w-auto"
                                     >
                                         <DownloadIcon />
                                         <span>{isZipping ? t('results.zipping') : t('results.downloadAll')}</span>
@@ -653,7 +653,7 @@ export default function Home() {
                                 )}
                             </div>
 
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
                                 {isSheetLoading && (['front', 'back', 'left', 'right'] as ViewType[]).map(view => (
                                      <div key={view} className="flex flex-col items-center space-y-2">
                                         <div className="w-full aspect-square bg-gray-700 rounded-lg flex items-center justify-center"><LoadingSpinner/></div>
@@ -691,10 +691,10 @@ export default function Home() {
                 )}
 
                 {activeTab === 'expressions' && (
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
                         {/* Controls */}
-                        <div className="lg:col-span-1 bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col space-y-6 h-fit">
-                            <h2 className="text-xl font-semibold border-b border-gray-600 pb-3">1. {t('upload.title')}</h2>
+                        <div className="lg:col-span-1 bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg flex flex-col space-y-4 md:space-y-6 h-fit">
+                            <h2 className="text-lg md:text-xl font-semibold border-b border-gray-600 pb-2 md:pb-3">1. {t('upload.title')}</h2>
                             <div className="flex items-center justify-center w-full">
                                 <label htmlFor="dropzone-file-expressions" className="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600 transition-colors">
                                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
@@ -713,7 +713,7 @@ export default function Home() {
                                 </div>
                             )}
 
-                            <h2 className="text-xl font-semibold border-b border-gray-600 pb-3">2. {t('customize.title')}</h2>
+                            <h2 className="text-lg md:text-xl font-semibold border-b border-gray-600 pb-2 md:pb-3">2. {t('customize.title')}</h2>
                             <div>
                                 <label htmlFor="expressions-additional-prompt" className="block text-sm font-medium text-gray-300 mb-2">
                                     {t('customize.additionalInstructions')}
@@ -731,14 +731,14 @@ export default function Home() {
                                 </p>
                             </div>
 
-                            <h2 className="text-xl font-semibold border-b border-gray-600 pb-3">3. {t('generate.expressionsTitle')}</h2>
+                            <h2 className="text-lg md:text-xl font-semibold border-b border-gray-600 pb-2 md:pb-3">3. {t('generate.expressionsTitle')}</h2>
                             <div className="bg-gray-700 p-3 rounded-lg text-sm text-gray-300">
                                 {t('generate.cost')} <span className="font-bold text-yellow-400">4 {t('generate.tokens')}</span>
                             </div>
                             <button
                                 onClick={handleGenerateExpressions}
                                 disabled={!uploadedFile || isExpressionsLoading}
-                                className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center"
+                                className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-2.5 md:py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center text-sm md:text-base"
                             >
                                 {isExpressionsLoading ? t('generate.generating') : t('generate.generateExpressions')}
                             </button>
@@ -746,14 +746,14 @@ export default function Home() {
                         </div>
 
                         {/* Results */}
-                        <div className="lg:col-span-2 bg-gray-800 p-6 rounded-lg shadow-lg">
-                            <div className="flex justify-between items-center mb-4">
-                                <h2 className="text-xl font-semibold">{t('results.generatedExpressions')}</h2>
+                        <div className="lg:col-span-2 bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg">
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4">
+                                <h2 className="text-lg md:text-xl font-semibold">{t('results.generatedExpressions')}</h2>
                                 {hasAnyGeneratedExpressionImages && (
                                     <button
                                         onClick={handleDownloadAllExpressions}
                                         disabled={isExpressionsZipping || isExpressionsLoading}
-                                        className="bg-green-600 hover:bg-green-700 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center text-sm gap-2"
+                                        className="bg-green-600 hover:bg-green-700 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-2 px-3 md:px-4 rounded-lg transition-all duration-200 flex items-center justify-center text-xs md:text-sm gap-1.5 md:gap-2 w-full sm:w-auto"
                                     >
                                         <DownloadIcon />
                                         <span>{isExpressionsZipping ? t('results.zipping') : t('results.downloadAll')}</span>
@@ -761,7 +761,7 @@ export default function Home() {
                                 )}
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
                                 {isExpressionsLoading && (Object.keys(expressionsImages) as ExpressionType[]).map(exp => (
                                      <div key={exp} className="flex flex-col items-center space-y-2">
                                         <div className="w-full aspect-square bg-gray-700 rounded-lg flex items-center justify-center"><LoadingSpinner/></div>
@@ -799,9 +799,9 @@ export default function Home() {
                 )}
 
                 {activeTab === 'concept' && (
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        <div className="lg:col-span-1 bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col space-y-6 h-fit">
-                            <h2 className="text-xl font-semibold border-b border-gray-600 pb-3">1. {t('concept.describeVision')}</h2>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
+                        <div className="lg:col-span-1 bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg flex flex-col space-y-4 md:space-y-6 h-fit">
+                            <h2 className="text-lg md:text-xl font-semibold border-b border-gray-600 pb-2 md:pb-3">1. {t('concept.describeVision')}</h2>
                             <div>
                                 <label htmlFor="prompt" className="block text-sm font-medium text-gray-300 mb-2">{t('concept.prompt')}</label>
                                 <textarea id="prompt" rows={4} value={prompt} onChange={(e) => setPrompt(e.target.value)} className="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white focus:ring-purple-500 focus:border-purple-500 transition"></textarea>
@@ -819,14 +819,14 @@ export default function Home() {
                             <div className="bg-gray-700 p-3 rounded-lg text-sm text-gray-300">
                                 {t('generate.cost')} <span className="font-bold text-yellow-400">1 {t('generate.token')}</span>
                             </div>
-                            <button onClick={handleGenerateConcept} disabled={isConceptLoading} className="w-full bg-pink-600 hover:bg-pink-700 disabled:bg-gray-500 text-white font-bold py-3 px-4 rounded-lg transition-colors flex justify-center items-center">
+                            <button onClick={handleGenerateConcept} disabled={isConceptLoading} className="w-full bg-pink-600 hover:bg-pink-700 disabled:bg-gray-500 text-white font-bold py-2.5 md:py-3 px-4 rounded-lg transition-colors flex justify-center items-center text-sm md:text-base">
                                 {isConceptLoading ? t('generate.generating') : t('generate.generateConcept')}
                             </button>
                             {conceptError && <p className="text-red-400 text-sm mt-2">{conceptError}</p>}
                         </div>
 
-                        <div className="lg:col-span-2 bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col justify-center items-center">
-                            <h2 className="text-xl font-semibold mb-4 w-full">{t('results.generatedConcept')}</h2>
+                        <div className="lg:col-span-2 bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg flex flex-col justify-center items-center">
+                            <h2 className="text-lg md:text-xl font-semibold mb-3 md:mb-4 w-full">{t('results.generatedConcept')}</h2>
                             <div className="w-full h-full min-h-[400px] flex justify-center items-center relative group">
                                 {isConceptLoading ? (
                                     <LoadingSpinner />

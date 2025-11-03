@@ -47,10 +47,10 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-gray-800 rounded-lg p-8 max-w-md w-full mx-4">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-white">{t('auth.signInTitle')}</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+      <div className="bg-gray-800 rounded-lg p-5 md:p-8 max-w-md w-full">
+        <div className="flex justify-between items-center mb-4 md:mb-6">
+          <h2 className="text-xl md:text-2xl font-bold text-white">{t('auth.signInTitle')}</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-white transition"
@@ -61,11 +61,11 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           </button>
         </div>
 
-        <p className="text-gray-300 mb-6">
+        <p className="text-sm md:text-base text-gray-300 mb-4 md:mb-6">
           {t('auth.description')}
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
               {t('auth.email')}
@@ -76,7 +76,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full bg-gray-700 border border-gray-600 rounded-lg p-3 text-white focus:ring-purple-500 focus:border-purple-500 transition"
+              className="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 md:p-3 text-sm md:text-base text-white focus:ring-purple-500 focus:border-purple-500 transition"
               placeholder={t('auth.emailPlaceholder')}
             />
           </div>
@@ -96,7 +96,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-lg transition"
+            className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-2.5 md:py-3 px-4 rounded-lg transition text-sm md:text-base"
           >
             {loading ? t('auth.sending') : t('auth.sendMagicLink')}
           </button>
