@@ -125,13 +125,15 @@ export async function addTokens(
   try {
     console.log(`Adding tokens: userId=${userId}, amount=${amount}, sessionId=${stripeSessionId}`)
 
-    // Get current balance, or 0 if user doesn't exist
+    // Get current user data
     let currentTokens = 0
+    let userEmail: string | null = null
+
     try {
       // Query directly with admin client
       const { data, error } = await supabase
         .from('users')
-        .select('tokens')
+        .select('tokens, email')
         .eq('id', userId)
         .single()
 
@@ -141,10 +143,13 @@ export async function addTokens(
       }
 
       currentTokens = data?.tokens || 0
+      userEmail = data?.email || null
       console.log(`Current token balance: ${currentTokens}`)
     } catch (error) {
-      console.log('User not found in users table, will create new record')
-      // User doesn't exist yet, will be created with initial balance
+      console.log('User not found in users table, will fetch from auth')
+      // User doesn't exist in users table, get email from auth.users
+      const { data: authData } = await supabase.auth.admin.getUserById(userId)
+      userEmail = authData?.user?.email || null
       currentTokens = 0
     }
 
@@ -152,12 +157,19 @@ export async function addTokens(
     console.log(`New balance will be: ${newBalance}`)
 
     // Upsert user tokens (insert if not exists, update if exists)
+    const upsertData: { id: string; tokens: number; email?: string } = {
+      id: userId,
+      tokens: newBalance
+    }
+
+    // Include email if available
+    if (userEmail) {
+      upsertData.email = userEmail
+    }
+
     const { error: upsertError } = await supabase
       .from('users')
-      .upsert(
-        { id: userId, tokens: newBalance },
-        { onConflict: 'id' }
-      )
+      .upsert(upsertData, { onConflict: 'id' })
 
     if (upsertError) {
       console.error('Error upserting user tokens:', upsertError)
