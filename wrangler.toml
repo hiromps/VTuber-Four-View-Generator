@@ -4,6 +4,10 @@ compatibility_date = "2024-11-01"
 # Pages設定
 pages_build_output_dir = ".vercel/output/static"
 
+# ビルドコマンド
+[build]
+command = "npm run pages:build"
+
 # 環境変数のバインディング
 # これらは Cloudflare Pages ダッシュボードで設定します
 [env.production.vars]
