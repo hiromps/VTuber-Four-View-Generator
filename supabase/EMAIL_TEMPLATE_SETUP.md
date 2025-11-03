@@ -24,8 +24,12 @@
 
 ```
 supabase/email-templates/
-├── confirm-signup.html       # 英語版テンプレート
-├── confirm-signup-ja.html    # 日本語版テンプレート
+├── confirm-signup.html       # サインアップ確認（英語）
+├── confirm-signup-ja.html    # サインアップ確認（日本語）
+├── magic-link.html           # マジックリンク（英語）
+├── magic-link-ja.html        # マジックリンク（日本語）
+├── reset-password.html       # パスワードリセット（英語）
+├── reset-password-ja.html    # パスワードリセット（日本語）
 └── EMAIL_TEMPLATE_SETUP.md   # このドキュメント
 ```
 
@@ -45,9 +49,23 @@ supabase/email-templates/
 
 ### ステップ3: テンプレートを編集
 
+#### サインアップ確認メール
 1. **Confirm signup** テンプレートを選択
 2. 既存のHTMLを削除
 3. `confirm-signup.html` または `confirm-signup-ja.html` の内容をコピー＆ペースト
+4. **Save** をクリック
+
+#### Magic Link（パスワードレスログイン）
+1. **Magic Link** テンプレートを選択
+2. 既存のHTMLを削除
+3. `magic-link.html` または `magic-link-ja.html` の内容をコピー＆ペースト
+4. **Save** をクリック
+
+#### パスワードリセット
+1. **Reset Password** テンプレートを選択
+2. 既存のHTMLを削除
+3. `reset-password.html` または `reset-password-ja.html` の内容をコピー＆ペースト
+4. **Save** をクリック
 
 ### ステップ4: 変数の確認
 
@@ -179,12 +197,30 @@ supabase/email-templates/
 
 ## その他のテンプレート
 
-同様の手順で以下のテンプレートもカスタマイズできます：
+### ✅ 用意されているテンプレート
 
-1. **Magic Link** - パスワードレスログイン
-2. **Change Email Address** - メールアドレス変更確認
-3. **Reset Password** - パスワードリセット
-4. **Invite User** - ユーザー招待
+以下のテンプレートはすぐに使用できます：
+
+1. **✨ Confirm Signup** - サインアップ確認
+   - ファイル: `confirm-signup.html` / `confirm-signup-ja.html`
+   - 用途: 新規ユーザーのメールアドレス確認
+
+2. **🔗 Magic Link** - パスワードレスログイン
+   - ファイル: `magic-link.html` / `magic-link-ja.html`
+   - 用途: パスワード不要の簡単ログイン
+
+3. **🔒 Reset Password** - パスワードリセット
+   - ファイル: `reset-password.html` / `reset-password-ja.html`
+   - 用途: パスワードを忘れた場合のリセット
+
+### 📝 追加でカスタマイズ可能なテンプレート
+
+Supabaseでは以下のテンプレートもカスタマイズできます：
+
+1. **Change Email Address** - メールアドレス変更確認
+2. **Invite User** - ユーザー招待
+
+これらも同様の手順でカスタマイズ可能です。
 
 ---
 
