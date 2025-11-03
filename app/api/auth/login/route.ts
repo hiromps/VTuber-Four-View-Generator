@@ -1,6 +1,27 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { normalizeEmail, isValidEmail } from '@/lib/email-utils'
+import en from '@/locales/en.json'
+import ja from '@/locales/ja.json'
+
+// Get translation based on Accept-Language header
+function getTranslation(request: NextRequest, key: string): string {
+  const language = request.headers.get('accept-language') || 'en'
+  const translations = language.startsWith('ja') ? ja : en
+
+  const keys = key.split('.')
+  let value: any = translations
+
+  for (const k of keys) {
+    if (value && typeof value === 'object' && k in value) {
+      value = value[k]
+    } else {
+      return key
+    }
+  }
+
+  return typeof value === 'string' ? value : key
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,7 +37,7 @@ export async function POST(request: NextRequest) {
     // Validate email format
     if (!isValidEmail(email)) {
       return NextResponse.json(
-        { error: 'Invalid email format' },
+        { error: getTranslation(request, 'auth.invalidEmailFormat') },
         { status: 400 }
       )
     }
@@ -28,7 +49,7 @@ export async function POST(request: NextRequest) {
     } catch (error) {
       console.error('Email normalization error:', error)
       return NextResponse.json(
-        { error: 'Invalid email format' },
+        { error: getTranslation(request, 'auth.invalidEmailFormat') },
         { status: 400 }
       )
     }
@@ -81,8 +102,7 @@ export async function POST(request: NextRequest) {
       )
       return NextResponse.json(
         {
-          error:
-            'An account with this email address already exists. Email aliases (e.g., user+tag@example.com) are not allowed.',
+          error: getTranslation(request, 'auth.emailAliasNotAllowed'),
         },
         { status: 409 }
       )
@@ -108,8 +128,7 @@ export async function POST(request: NextRequest) {
         )
         return NextResponse.json(
           {
-            error:
-              'An account with this email address already exists. Email aliases (e.g., user+tag@example.com) are not allowed.',
+            error: getTranslation(request, 'auth.emailAliasNotAllowed'),
           },
           { status: 409 }
         )
@@ -133,8 +152,7 @@ export async function POST(request: NextRequest) {
       if (error.message.includes('already exists')) {
         return NextResponse.json(
           {
-            error:
-              'An account with this email address already exists. Email aliases are not allowed.',
+            error: getTranslation(request, 'auth.emailAliasNotAllowed'),
           },
           { status: 409 }
         )

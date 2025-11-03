@@ -78,7 +78,9 @@
     "failedToSend": "マジックリンクの送信に失敗しました",
     "otpExpired": "メールリンクの有効期限が切れています。再度サインインしてください。",
     "freeTokens": "新規ユーザーには登録時に5トークンが無料で付与されます！",
-    "close": "閉じる"
+    "close": "閉じる",
+    "emailAliasNotAllowed": "このメールアドレスは既に登録されています。メールエイリアス（例: user+tag@example.com）は使用できません。",
+    "invalidEmailFormat": "無効なメールアドレス形式です。"
   },
   "tokens": {
     "buyTokens": "トークンを購入",

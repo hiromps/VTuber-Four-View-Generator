@@ -24,7 +24,10 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept-Language': typeof window !== 'undefined' ? localStorage.getItem('language') || 'en' : 'en'
+        },
         body: JSON.stringify({ email }),
       })
 

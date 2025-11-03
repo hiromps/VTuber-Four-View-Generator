@@ -78,7 +78,9 @@
     "failedToSend": "Failed to send magic link",
     "otpExpired": "The email link has expired. Please sign in again.",
     "freeTokens": "New users will automatically receive 5 free tokens upon sign up!",
-    "close": "Close"
+    "close": "Close",
+    "emailAliasNotAllowed": "An account with this email address already exists. Email aliases (e.g., user+tag@example.com) are not allowed.",
+    "invalidEmailFormat": "Invalid email format."
   },
   "tokens": {
     "buyTokens": "Buy Tokens",
