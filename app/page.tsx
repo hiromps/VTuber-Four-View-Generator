@@ -737,7 +737,11 @@ export default function Home() {
                                         <button
                                             onClick={() => setShowSheetPromptMenu(!showSheetPromptMenu)}
                                             disabled={isEnhancingSheetPrompt}
-                                            className="bg-gray-600 hover:bg-gray-500 disabled:bg-gray-700 disabled:cursor-not-allowed text-white p-1.5 rounded-full transition-all duration-200 flex items-center justify-center"
+                                            className={`${
+                                                sheetAdditionalPrompt && sheetAdditionalPrompt.trim() !== ''
+                                                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600'
+                                                    : 'bg-gray-600 hover:bg-gray-500'
+                                            } disabled:bg-gray-700 disabled:cursor-not-allowed text-white p-1.5 rounded-full transition-all duration-200 flex items-center justify-center`}
                                             title="プロンプトツール"
                                         >
                                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -885,7 +889,11 @@ export default function Home() {
                                         <button
                                             onClick={() => setShowExpressionsPromptMenu(!showExpressionsPromptMenu)}
                                             disabled={isEnhancingExpressionsPrompt}
-                                            className="bg-gray-600 hover:bg-gray-500 disabled:bg-gray-700 disabled:cursor-not-allowed text-white p-1.5 rounded-full transition-all duration-200 flex items-center justify-center"
+                                            className={`${
+                                                expressionsAdditionalPrompt && expressionsAdditionalPrompt.trim() !== ''
+                                                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600'
+                                                    : 'bg-gray-600 hover:bg-gray-500'
+                                            } disabled:bg-gray-700 disabled:cursor-not-allowed text-white p-1.5 rounded-full transition-all duration-200 flex items-center justify-center`}
                                             title="プロンプトツール"
                                         >
                                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
