@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { composeGridImages, generateTwitterShareUrl } from '@/lib/imageComposer'
 
 interface ImageHistoryItem {
   id: string
@@ -98,6 +99,50 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
     })
   }
 
+  const handleShareToX = async (item: ImageHistoryItem) => {
+    try {
+      let imageToShare: string
+      let filename: string
+      let shareText: string
+
+      if (typeof item.images === 'string') {
+        // コンセプトアート（1枚画像）
+        imageToShare = item.images
+        filename = 'vtuber-concept-art.png'
+        shareText = `VTuberのコンセプトアートを生成しました！\n\n#四面図AI #VTuber #AIart`
+      } else {
+        // キャラクターシートまたは表情差分（4枚画像）
+        const labels = item.generation_type === 'character_sheet'
+          ? { front: '正面', back: '背面', left: '左側', right: '右側' }
+          : { joy: '喜', anger: '怒', sorrow: '哀', surprise: '驚' }
+
+        imageToShare = await composeGridImages(item.images, labels)
+        filename = item.generation_type === 'character_sheet'
+          ? 'vtuber-four-view.png'
+          : 'vtuber-expressions.png'
+        shareText = item.generation_type === 'character_sheet'
+          ? `VTuberの四面図を生成しました！\n\n#四面図AI #VTuber #AIart`
+          : `VTuberの表情差分を生成しました！\n\n#四面図AI #VTuber #AIart`
+      }
+
+      // 画像をダウンロード
+      const link = document.createElement('a')
+      link.href = imageToShare
+      link.download = filename
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+
+      // Xシェア画面を開く
+      const appUrl = window.location.origin
+      const twitterUrl = generateTwitterShareUrl(shareText, appUrl)
+      window.open(twitterUrl, '_blank', 'noopener,noreferrer')
+    } catch (error) {
+      console.error('Error sharing to X:', error)
+      alert('シェア用画像の生成に失敗しました')
+    }
+  }
+
   if (!isOpen) return null
 
   return (
@@ -173,28 +218,46 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
                       <span className="text-xs bg-purple-600/90 backdrop-blur-sm text-white px-2 py-1 rounded shadow-lg whitespace-nowrap">
                         {getGenerationTypeLabel(item.generation_type)}
                       </span>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleDelete(item.id)
-                        }}
-                        className="bg-red-500/90 backdrop-blur-sm text-white hover:bg-red-600 transition flex-shrink-0 p-1.5 rounded shadow-lg"
-                        aria-label="削除"
-                      >
-                        <svg
-                          className="h-3.5 w-3.5"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
+                      <div className="flex gap-1">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleShareToX(item)
+                          }}
+                          className="bg-black/90 backdrop-blur-sm text-white hover:bg-gray-900 transition flex-shrink-0 p-1.5 rounded shadow-lg"
+                          aria-label="Xでシェア"
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                          />
-                        </svg>
-                      </button>
+                          <svg
+                            className="h-3.5 w-3.5"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                          >
+                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                          </svg>
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleDelete(item.id)
+                          }}
+                          className="bg-red-500/90 backdrop-blur-sm text-white hover:bg-red-600 transition flex-shrink-0 p-1.5 rounded shadow-lg"
+                          aria-label="削除"
+                        >
+                          <svg
+                            className="h-3.5 w-3.5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                   </div>
 
@@ -227,12 +290,23 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
             >
               {/* Detail Header */}
               <div className="flex justify-between items-start p-4 sm:p-6 border-b border-gray-700 flex-shrink-0">
-                <h3 className="text-lg sm:text-xl font-bold text-white">
-                  {getGenerationTypeLabel(selectedItem.generation_type)}
-                </h3>
+                <div className="flex flex-col gap-2 flex-1">
+                  <h3 className="text-lg sm:text-xl font-bold text-white">
+                    {getGenerationTypeLabel(selectedItem.generation_type)}
+                  </h3>
+                  <button
+                    onClick={() => handleShareToX(selectedItem)}
+                    className="bg-black hover:bg-gray-900 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-sm w-full sm:w-auto"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
+                    <span>Xでシェア</span>
+                  </button>
+                </div>
                 <button
                   onClick={() => setSelectedItem(null)}
-                  className="text-gray-400 hover:text-white transition p-1 flex-shrink-0"
+                  className="text-gray-400 hover:text-white transition p-1 flex-shrink-0 ml-4"
                   aria-label="閉じる"
                 >
                   <svg className="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
