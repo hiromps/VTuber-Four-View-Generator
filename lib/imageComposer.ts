@@ -62,12 +62,21 @@ export async function composeGridImages(
   if (validImages.length === 0) return canvas.toDataURL('image/png', 0.95)
 
   // 各画像の幅を計算（高さは固定、アスペクト比を保持）
-  const imageHeight = availableHeight
-  const imageWidths = validImages.map(data => imageHeight * data.aspectRatio)
-  const totalWidth = imageWidths.reduce((sum, width) => sum + width, 0) + gap * (validImages.length - 1)
+  let imageHeight = availableHeight
+  let imageWidths = validImages.map(data => imageHeight * data.aspectRatio)
+  let totalWidth = imageWidths.reduce((sum, width) => sum + width, 0) + gap * (validImages.length - 1)
+
+  // 幅がキャンバスを超える場合、高さをスケールダウン
+  const maxWidth = canvasWidth - 40 // 左右に20pxずつマージン
+  if (totalWidth > maxWidth) {
+    const scale = maxWidth / totalWidth
+    imageHeight = imageHeight * scale
+    imageWidths = validImages.map(data => imageHeight * data.aspectRatio)
+    totalWidth = imageWidths.reduce((sum, width) => sum + width, 0) + gap * (validImages.length - 1)
+  }
 
   const startX = (canvasWidth - totalWidth) / 2
-  const startY = titleHeight
+  const startY = titleHeight + (availableHeight - imageHeight) / 2 // 垂直方向で中央揃え
 
   // 画像を描画
   let currentX = startX
