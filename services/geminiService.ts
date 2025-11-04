@@ -57,9 +57,10 @@ export const generateCharacterSheetView = async (
     const cleanBase64 = base64Image.replace(/[\r\n\s]/g, '');
     console.log(`[Gemini] Base64 length: ${cleanBase64.length}, MIME: ${mimeType}`);
 
-    console.log('[Gemini] Calling Gemini API with model: gemini-2.0-flash-exp');
+    // Gemini 2.5 Flash with image generation support
+    console.log('[Gemini] Calling Gemini API with model: gemini-2.5-flash');
     const response: GenerateContentResponse = await ai.models.generateContent({
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-2.5-flash',
       contents: {
         parts: [
           {
@@ -172,9 +173,10 @@ export const generateFacialExpression = async (
     // Base64文字列から空白・改行を削除
     const cleanBase64 = base64Image.replace(/[\r\n\s]/g, '');
 
-    console.log('[Gemini] Calling Gemini API with model: gemini-2.0-flash-exp');
+    // Gemini 2.5 Flash with image generation support
+    console.log('[Gemini] Calling Gemini API with model: gemini-2.5-flash');
     const response: GenerateContentResponse = await ai.models.generateContent({
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-2.5-flash',
       contents: {
         parts: [
           {
