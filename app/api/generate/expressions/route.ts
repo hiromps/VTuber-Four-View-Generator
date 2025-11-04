@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { base64Image, mimeType, additionalPrompt } = await request.json()
+    const { base64Image, mimeType, additionalPrompt, attachedImageBase64, attachedImageMimeType } = await request.json()
 
     if (!base64Image || !mimeType) {
       return NextResponse.json(
@@ -50,8 +50,14 @@ export async function POST(request: NextRequest) {
       const expressions: ExpressionType[] = ['joy', 'anger', 'sorrow', 'surprise']
 
       const imagePromises = expressions.map((expression) =>
-        generateFacialExpression(base64Image, mimeType, expression, additionalPrompt || '')
-          .then((imageUrl) => ({ expression, imageUrl }))
+        generateFacialExpression(
+          base64Image,
+          mimeType,
+          expression,
+          additionalPrompt || '',
+          attachedImageBase64,
+          attachedImageMimeType
+        ).then((imageUrl) => ({ expression, imageUrl }))
       )
 
       const results = await Promise.all(imagePromises)

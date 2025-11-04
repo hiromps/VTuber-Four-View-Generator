@@ -79,6 +79,10 @@ export default function Home() {
     const [showSheetPromptMenu, setShowSheetPromptMenu] = useState(false)
     const [showExpressionsPromptMenu, setShowExpressionsPromptMenu] = useState(false)
 
+    // Attached Item Image State
+    const [sheetAttachedImage, setSheetAttachedImage] = useState<UploadedFile | null>(null)
+    const [expressionsAttachedImage, setExpressionsAttachedImage] = useState<UploadedFile | null>(null)
+
     const expressionLabels: { [key in ExpressionType]: string } = {
         joy: t('expressions.joy'),
         anger: t('expressions.anger'),
@@ -292,6 +296,8 @@ export default function Home() {
                     base64Image: uploadedFile.base64,
                     mimeType: uploadedFile.mimeType,
                     additionalPrompt: sheetAdditionalPrompt,
+                    attachedImageBase64: sheetAttachedImage?.base64,
+                    attachedImageMimeType: sheetAttachedImage?.mimeType,
                 }),
             })
 
@@ -325,7 +331,7 @@ export default function Home() {
         } finally {
             setIsSheetLoading(false)
         }
-    }, [user, uploadedFile, tokens])
+    }, [user, uploadedFile, tokens, sheetAdditionalPrompt, sheetAttachedImage])
 
     const handleGenerateConcept = useCallback(async () => {
         if (!user) {
@@ -400,6 +406,8 @@ export default function Home() {
                     base64Image: uploadedFile.base64,
                     mimeType: uploadedFile.mimeType,
                     additionalPrompt: expressionsAdditionalPrompt,
+                    attachedImageBase64: expressionsAttachedImage?.base64,
+                    attachedImageMimeType: expressionsAttachedImage?.mimeType,
                 }),
             })
 
@@ -430,7 +438,7 @@ export default function Home() {
         } finally {
             setIsExpressionsLoading(false)
         }
-    }, [user, uploadedFile, tokens])
+    }, [user, uploadedFile, tokens, expressionsAdditionalPrompt, expressionsAttachedImage])
 
     const handleDownloadSingle = (src: string, filename: string) => {
         if (!src) return
@@ -559,6 +567,34 @@ export default function Home() {
             setIsEnhancingExpressionsPrompt(false)
         }
     }, [expressionsAdditionalPrompt])
+
+    const handleSheetAttachFile = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0]
+        if (file) {
+            try {
+                const data = await fileToData(file)
+                setSheetAttachedImage(data)
+                setShowSheetPromptMenu(false)
+            } catch (error) {
+                console.error("Error processing attached file:", error)
+                setSheetError(error instanceof Error ? error.message : "Failed to process attached file")
+            }
+        }
+    }, [])
+
+    const handleExpressionsAttachFile = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0]
+        if (file) {
+            try {
+                const data = await fileToData(file)
+                setExpressionsAttachedImage(data)
+                setShowExpressionsPromptMenu(false)
+            } catch (error) {
+                console.error("Error processing attached file:", error)
+                setExpressionsError(error instanceof Error ? error.message : "Failed to process attached file")
+            }
+        }
+    }, [])
 
     const hasAnyGeneratedImages = Object.values(generatedImages).some(img => img !== null)
     const hasAnyGeneratedExpressionImages = Object.values(expressionsImages).some(img => img !== null)
@@ -772,6 +808,18 @@ export default function Home() {
                                                         </>
                                                     )}
                                                 </button>
+                                                <label className="w-full px-3 py-2 text-left text-sm text-white hover:bg-gray-700 transition-colors flex items-center gap-2 cursor-pointer">
+                                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                                    </svg>
+                                                    <span>Attach File</span>
+                                                    <input
+                                                        type="file"
+                                                        className="hidden"
+                                                        accept="image/png, image/jpeg, image/webp"
+                                                        onChange={handleSheetAttachFile}
+                                                    />
+                                                </label>
                                             </div>
                                         )}
                                     </div>
@@ -779,6 +827,27 @@ export default function Home() {
                                 <p className="text-xs text-gray-400 mt-1">
                                     {t('customize.hint')}
                                 </p>
+                                {sheetAttachedImage?.objectURL && (
+                                    <div className="mt-3 relative">
+                                        <p className="text-xs font-medium text-gray-300 mb-1.5">添付画像:</p>
+                                        <div className="relative inline-block">
+                                            <img
+                                                src={sheetAttachedImage.objectURL}
+                                                alt="Attached item"
+                                                className="rounded-lg max-h-24 object-contain border border-gray-600"
+                                            />
+                                            <button
+                                                onClick={() => setSheetAttachedImage(null)}
+                                                className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 transition-colors"
+                                                title="削除"
+                                            >
+                                                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             <h2 className="text-lg md:text-xl font-semibold border-b border-gray-600 pb-2 md:pb-3">3. {t('generate.sheetTitle')}</h2>
@@ -924,6 +993,18 @@ export default function Home() {
                                                         </>
                                                     )}
                                                 </button>
+                                                <label className="w-full px-3 py-2 text-left text-sm text-white hover:bg-gray-700 transition-colors flex items-center gap-2 cursor-pointer">
+                                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                                    </svg>
+                                                    <span>Attach File</span>
+                                                    <input
+                                                        type="file"
+                                                        className="hidden"
+                                                        accept="image/png, image/jpeg, image/webp"
+                                                        onChange={handleExpressionsAttachFile}
+                                                    />
+                                                </label>
                                             </div>
                                         )}
                                     </div>
@@ -931,6 +1012,27 @@ export default function Home() {
                                 <p className="text-xs text-gray-400 mt-1">
                                     {t('customize.hint')}
                                 </p>
+                                {expressionsAttachedImage?.objectURL && (
+                                    <div className="mt-3 relative">
+                                        <p className="text-xs font-medium text-gray-300 mb-1.5">添付画像:</p>
+                                        <div className="relative inline-block">
+                                            <img
+                                                src={expressionsAttachedImage.objectURL}
+                                                alt="Attached item"
+                                                className="rounded-lg max-h-24 object-contain border border-gray-600"
+                                            />
+                                            <button
+                                                onClick={() => setExpressionsAttachedImage(null)}
+                                                className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 transition-colors"
+                                                title="削除"
+                                            >
+                                                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             <h2 className="text-lg md:text-xl font-semibold border-b border-gray-600 pb-2 md:pb-3">3. {t('generate.expressionsTitle')}</h2>

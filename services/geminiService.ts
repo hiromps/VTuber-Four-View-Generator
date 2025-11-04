@@ -13,10 +13,15 @@ console.log('[Gemini] API_KEY is set:', process.env.API_KEY ? 'Yes (length: ' + 
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
 
-function getPromptForView(view: ViewType, additionalPrompt: string = ''): string {
+function getPromptForView(view: ViewType, additionalPrompt: string = '', hasAttachedImage: boolean = false): string {
   // 追加の指示を最初に配置して強調
   const criticalInstructions = additionalPrompt
     ? `CRITICAL REQUIREMENT - YOU MUST APPLY THESE MODIFICATIONS: ${additionalPrompt}. `
+    : '';
+
+  // 添付画像がある場合の指示
+  const attachedImageInstructions = hasAttachedImage
+    ? `IMPORTANT: A reference image is provided showing items/accessories/clothing. Apply these items to the character naturally and appropriately. `
     : '';
 
   const commonPrompt = "Using the provided image of a character's front view, generate a high-quality, clean illustration of the character's";
@@ -25,13 +30,13 @@ function getPromptForView(view: ViewType, additionalPrompt: string = ''): string
 
   switch (view) {
     case 'front':
-      return `${criticalInstructions}${commonPrompt} front view, but standardized in a T-pose ${stylePrompt} ${framingPrompt}`;
+      return `${criticalInstructions}${attachedImageInstructions}${commonPrompt} front view, but standardized in a T-pose ${stylePrompt} ${framingPrompt}`;
     case 'back':
-      return `${criticalInstructions}${commonPrompt} back view ${stylePrompt} ${framingPrompt}`;
+      return `${criticalInstructions}${attachedImageInstructions}${commonPrompt} back view ${stylePrompt} ${framingPrompt}`;
     case 'left':
-      return `${criticalInstructions}${commonPrompt} left side view ${stylePrompt} ${framingPrompt}`;
+      return `${criticalInstructions}${attachedImageInstructions}${commonPrompt} left side view ${stylePrompt} ${framingPrompt}`;
     case 'right':
-      return `${criticalInstructions}${commonPrompt} right side view ${stylePrompt} ${framingPrompt}`;
+      return `${criticalInstructions}${attachedImageInstructions}${commonPrompt} right side view ${stylePrompt} ${framingPrompt}`;
   }
 }
 
@@ -39,7 +44,9 @@ export const generateCharacterSheetView = async (
   base64Image: string,
   mimeType: string,
   view: ViewType,
-  additionalPrompt: string = ''
+  additionalPrompt: string = '',
+  attachedImageBase64?: string,
+  attachedImageMimeType?: string
 ): Promise<string> => {
   try {
     console.log(`[Gemini] Generating ${view} view...`);
@@ -58,22 +65,48 @@ export const generateCharacterSheetView = async (
     const cleanBase64 = base64Image.replace(/[\r\n\s]/g, '');
     console.log(`[Gemini] Base64 length: ${cleanBase64.length}, MIME: ${mimeType}`);
 
+    // 添付画像がある場合は検証
+    let cleanAttachedBase64: string | undefined;
+    if (attachedImageBase64 && attachedImageMimeType) {
+      if (!validMimeTypes.includes(attachedImageMimeType)) {
+        throw new Error(`Invalid attached image MIME type: ${attachedImageMimeType}`);
+      }
+      cleanAttachedBase64 = attachedImageBase64.replace(/[\r\n\s]/g, '');
+      console.log(`[Gemini] Attached image Base64 length: ${cleanAttachedBase64.length}, MIME: ${attachedImageMimeType}`);
+    }
+
     // Gemini 2.5 Flash Image モデルを使用
     console.log('[Gemini] Calling Gemini API with model: gemini-2.5-flash-image');
+
+    // パーツの配列を構築
+    const parts: any[] = [
+      {
+        inlineData: {
+          data: cleanBase64,
+          mimeType: mimeType,
+        },
+      },
+    ];
+
+    // 添付画像がある場合は追加
+    if (cleanAttachedBase64 && attachedImageMimeType) {
+      parts.push({
+        inlineData: {
+          data: cleanAttachedBase64,
+          mimeType: attachedImageMimeType,
+        },
+      });
+    }
+
+    // テキストプロンプトを追加
+    parts.push({
+      text: getPromptForView(view, additionalPrompt, !!cleanAttachedBase64),
+    });
+
     const response: GenerateContentResponse = await ai.models.generateContent({
       model: 'gemini-2.5-flash-image',
       contents: {
-        parts: [
-          {
-            inlineData: {
-              data: cleanBase64,
-              mimeType: mimeType,
-            },
-          },
-          {
-            text: getPromptForView(view, additionalPrompt),
-          },
-        ],
+        parts,
       },
       config: {
         responseModalities: [Modality.IMAGE],
@@ -133,10 +166,15 @@ export const generateConceptArt = async (prompt: string, aspectRatio: AspectRati
     }
 };
 
-function getPromptForExpression(expression: ExpressionType, additionalPrompt: string = ''): string {
+function getPromptForExpression(expression: ExpressionType, additionalPrompt: string = '', hasAttachedImage: boolean = false): string {
   // 追加の指示を最初に配置して強調
   const criticalInstructions = additionalPrompt
     ? `CRITICAL REQUIREMENT - YOU MUST APPLY THESE MODIFICATIONS: ${additionalPrompt}. `
+    : '';
+
+  // 添付画像がある場合の指示
+  const attachedImageInstructions = hasAttachedImage
+    ? `IMPORTANT: A reference image is provided showing items/accessories/clothing. Apply these items to the character naturally and appropriately. `
     : '';
 
   const commonPrompt = "Using the provided image of a character, generate a high-quality, clean illustration of the character's face with a";
@@ -145,13 +183,13 @@ function getPromptForExpression(expression: ExpressionType, additionalPrompt: st
 
   switch (expression) {
     case 'joy':
-      return `${criticalInstructions}${commonPrompt} joyful, happy, smiling ${stylePrompt} ${framingPrompt}`;
+      return `${criticalInstructions}${attachedImageInstructions}${commonPrompt} joyful, happy, smiling ${stylePrompt} ${framingPrompt}`;
     case 'anger':
-      return `${criticalInstructions}${commonPrompt} angry, furious, frowning ${stylePrompt} ${framingPrompt}`;
+      return `${criticalInstructions}${attachedImageInstructions}${commonPrompt} angry, furious, frowning ${stylePrompt} ${framingPrompt}`;
     case 'sorrow':
-      return `${criticalInstructions}${commonPrompt} sad, sorrowful, tearful ${stylePrompt} ${framingPrompt}`;
+      return `${criticalInstructions}${attachedImageInstructions}${commonPrompt} sad, sorrowful, tearful ${stylePrompt} ${framingPrompt}`;
     case 'surprise':
-      return `${criticalInstructions}${commonPrompt} surprised, shocked, wide-eyed ${stylePrompt} ${framingPrompt}`;
+      return `${criticalInstructions}${attachedImageInstructions}${commonPrompt} surprised, shocked, wide-eyed ${stylePrompt} ${framingPrompt}`;
   }
 }
 
@@ -159,7 +197,9 @@ export const generateFacialExpression = async (
   base64Image: string,
   mimeType: string,
   expression: ExpressionType,
-  additionalPrompt: string = ''
+  additionalPrompt: string = '',
+  attachedImageBase64?: string,
+  attachedImageMimeType?: string
 ): Promise<string> => {
   try {
     console.log(`[Gemini] Generating ${expression} expression...`);
@@ -178,22 +218,48 @@ export const generateFacialExpression = async (
     const cleanBase64 = base64Image.replace(/[\r\n\s]/g, '');
     console.log(`[Gemini] Base64 length: ${cleanBase64.length}, MIME: ${mimeType}`);
 
+    // 添付画像がある場合は検証
+    let cleanAttachedBase64: string | undefined;
+    if (attachedImageBase64 && attachedImageMimeType) {
+      if (!validMimeTypes.includes(attachedImageMimeType)) {
+        throw new Error(`Invalid attached image MIME type: ${attachedImageMimeType}`);
+      }
+      cleanAttachedBase64 = attachedImageBase64.replace(/[\r\n\s]/g, '');
+      console.log(`[Gemini] Attached image Base64 length: ${cleanAttachedBase64.length}, MIME: ${attachedImageMimeType}`);
+    }
+
     // Gemini 2.5 Flash Image モデルを使用
     console.log('[Gemini] Calling Gemini API with model: gemini-2.5-flash-image');
+
+    // パーツの配列を構築
+    const parts: any[] = [
+      {
+        inlineData: {
+          data: cleanBase64,
+          mimeType: mimeType,
+        },
+      },
+    ];
+
+    // 添付画像がある場合は追加
+    if (cleanAttachedBase64 && attachedImageMimeType) {
+      parts.push({
+        inlineData: {
+          data: cleanAttachedBase64,
+          mimeType: attachedImageMimeType,
+        },
+      });
+    }
+
+    // テキストプロンプトを追加
+    parts.push({
+      text: getPromptForExpression(expression, additionalPrompt, !!cleanAttachedBase64),
+    });
+
     const response: GenerateContentResponse = await ai.models.generateContent({
       model: 'gemini-2.5-flash-image',
       contents: {
-        parts: [
-          {
-            inlineData: {
-              data: cleanBase64,
-              mimeType: mimeType,
-            },
-          },
-          {
-            text: getPromptForExpression(expression, additionalPrompt),
-          },
-        ],
+        parts,
       },
       config: {
         responseModalities: [Modality.IMAGE],

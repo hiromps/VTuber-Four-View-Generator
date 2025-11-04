@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { base64Image, mimeType, additionalPrompt } = await request.json()
+    const { base64Image, mimeType, additionalPrompt, attachedImageBase64, attachedImageMimeType } = await request.json()
 
     if (!base64Image || !mimeType) {
       return NextResponse.json(
@@ -50,8 +50,14 @@ export async function POST(request: NextRequest) {
       const views: ViewType[] = ['front', 'back', 'left', 'right']
 
       const imagePromises = views.map((view) =>
-        generateCharacterSheetView(base64Image, mimeType, view, additionalPrompt || '')
-          .then((imageUrl) => ({ view, imageUrl }))
+        generateCharacterSheetView(
+          base64Image,
+          mimeType,
+          view,
+          additionalPrompt || '',
+          attachedImageBase64,
+          attachedImageMimeType
+        ).then((imageUrl) => ({ view, imageUrl }))
       )
 
       const results = await Promise.all(imagePromises)
