@@ -1,0 +1,164 @@
+/**
+ * 4枚の画像を2x2グリッドで1枚に合成する
+ * Xシェア用に最適化 (1200x1200px)
+ */
+export async function composeGridImages(
+  images: { [key: string]: string | null },
+  labels: { [key: string]: string }
+): Promise<string> {
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')
+  if (!ctx) throw new Error('Canvas context not available')
+
+  // X最適化サイズ: 1200x1200 (正方形)
+  const canvasSize = 1200
+  const imageSize = 560 // 各画像のサイズ
+  const gap = 20 // 画像間の隙間
+  const padding = 20 // 外側の余白
+  const labelHeight = 30 // ラベルの高さ
+
+  canvas.width = canvasSize
+  canvas.height = canvasSize
+
+  // 背景色（ダークグレー）
+  ctx.fillStyle = '#1a1a1a'
+  ctx.fillRect(0, 0, canvasSize, canvasSize)
+
+  // タイトルを追加
+  ctx.fillStyle = '#ffffff'
+  ctx.font = 'bold 32px sans-serif'
+  ctx.textAlign = 'center'
+  ctx.fillText('VTuber Four-View Generator', canvasSize / 2, 50)
+
+  // 4枚の画像を配置
+  const positions = [
+    { key: 'front', x: padding, y: padding + 70 },
+    { key: 'back', x: padding + imageSize + gap, y: padding + 70 },
+    { key: 'left', x: padding, y: padding + imageSize + gap + labelHeight + 70 },
+    { key: 'right', x: padding + imageSize + gap, y: padding + imageSize + gap + labelHeight + 70 },
+  ]
+
+  await Promise.all(
+    positions.map(async ({ key, x, y }) => {
+      const src = images[key]
+      if (!src) return
+
+      return new Promise<void>((resolve, reject) => {
+        const img = new Image()
+        img.crossOrigin = 'anonymous'
+        img.onload = () => {
+          // 画像を描画
+          ctx.drawImage(img, x, y, imageSize, imageSize)
+
+          // ラベルを描画
+          ctx.fillStyle = '#8b5cf6' // 紫色
+          ctx.fillRect(x, y + imageSize, imageSize, labelHeight)
+          ctx.fillStyle = '#ffffff'
+          ctx.font = 'bold 18px sans-serif'
+          ctx.textAlign = 'center'
+          ctx.fillText(labels[key], x + imageSize / 2, y + imageSize + labelHeight / 2 + 6)
+
+          resolve()
+        }
+        img.onerror = reject
+        img.src = src
+      })
+    })
+  )
+
+  // ウォーターマーク
+  ctx.fillStyle = '#666666'
+  ctx.font = '14px sans-serif'
+  ctx.textAlign = 'center'
+  ctx.fillText('vtuber-four-view-generator.vercel.app', canvasSize / 2, canvasSize - 15)
+
+  return canvas.toDataURL('image/png', 0.95)
+}
+
+/**
+ * 4枚の画像を横一列に合成する
+ * Xシェア用に最適化 (1600x500px - 16:5比率)
+ */
+export async function composeRowImages(
+  images: { [key: string]: string | null },
+  labels: { [key: string]: string }
+): Promise<string> {
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')
+  if (!ctx) throw new Error('Canvas context not available')
+
+  const canvasWidth = 1600
+  const canvasHeight = 500
+  const imageSize = 360
+  const gap = 20
+  const padding = 20
+  const labelHeight = 30
+
+  canvas.width = canvasWidth
+  canvas.height = canvasHeight
+
+  // 背景色（ダークグレー）
+  ctx.fillStyle = '#1a1a1a'
+  ctx.fillRect(0, 0, canvasWidth, canvasHeight)
+
+  // タイトルを追加
+  ctx.fillStyle = '#ffffff'
+  ctx.font = 'bold 28px sans-serif'
+  ctx.textAlign = 'center'
+  ctx.fillText('VTuber Four-View Generator', canvasWidth / 2, 40)
+
+  // 4枚の画像を横一列に配置
+  const keys = ['front', 'back', 'left', 'right']
+  const startX = (canvasWidth - (imageSize * 4 + gap * 3)) / 2
+
+  await Promise.all(
+    keys.map(async (key, index) => {
+      const src = images[key]
+      if (!src) return
+
+      const x = startX + (imageSize + gap) * index
+      const y = 70
+
+      return new Promise<void>((resolve, reject) => {
+        const img = new Image()
+        img.crossOrigin = 'anonymous'
+        img.onload = () => {
+          // 画像を描画
+          ctx.drawImage(img, x, y, imageSize, imageSize)
+
+          // ラベルを描画
+          ctx.fillStyle = '#8b5cf6'
+          ctx.fillRect(x, y + imageSize, imageSize, labelHeight)
+          ctx.fillStyle = '#ffffff'
+          ctx.font = 'bold 16px sans-serif'
+          ctx.textAlign = 'center'
+          ctx.fillText(labels[key], x + imageSize / 2, y + imageSize + labelHeight / 2 + 5)
+
+          resolve()
+        }
+        img.onerror = reject
+        img.src = src
+      })
+    })
+  )
+
+  // ウォーターマーク
+  ctx.fillStyle = '#666666'
+  ctx.font = '12px sans-serif'
+  ctx.textAlign = 'center'
+  ctx.fillText('vtuber-four-view-generator.vercel.app', canvasWidth / 2, canvasHeight - 10)
+
+  return canvas.toDataURL('image/png', 0.95)
+}
+
+/**
+ * Xシェア用のURLを生成
+ */
+export function generateTwitterShareUrl(text: string, url?: string): string {
+  const params = new URLSearchParams()
+  params.append('text', text)
+  if (url) {
+    params.append('url', url)
+  }
+  return `https://twitter.com/intent/tweet?${params.toString()}`
+}

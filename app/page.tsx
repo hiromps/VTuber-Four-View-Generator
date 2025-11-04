@@ -11,6 +11,7 @@ import BuyTokensModal from '@/components/BuyTokensModal'
 import HistoryModal from '@/components/HistoryModal'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import { useLanguage } from '@/contexts/LanguageContext'
+import { composeGridImages, generateTwitterShareUrl } from '@/lib/imageComposer'
 import type { User } from '@supabase/supabase-js'
 
 // SVG Icon Components
@@ -23,6 +24,12 @@ const UploadIcon = () => (
 const DownloadIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
         <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+    </svg>
+)
+
+const XIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
     </svg>
 )
 
@@ -510,6 +517,72 @@ export default function Home() {
         }
     }, [expressionsImages])
 
+    // Xシェア機能 - 四面図
+    const handleShareToX = useCallback(async () => {
+        try {
+            // ラベルを取得
+            const labels = {
+                front: t('views.front'),
+                back: t('views.back'),
+                left: t('views.left'),
+                right: t('views.right'),
+            }
+
+            // 4枚の画像を合成
+            const composedImage = await composeGridImages(generatedImages, labels)
+
+            // 合成画像をダウンロード
+            const link = document.createElement('a')
+            link.href = composedImage
+            link.download = 'vtuber-four-view.png'
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+
+            // Xシェア用URLを開く
+            const shareText = `VTuberの四面図を生成しました！\n\n#四面図AI #VTuber #AIart`
+            const appUrl = window.location.origin
+            const twitterUrl = generateTwitterShareUrl(shareText, appUrl)
+            window.open(twitterUrl, '_blank', 'noopener,noreferrer')
+        } catch (error) {
+            console.error('Error sharing to X:', error)
+            setSheetError('シェア用画像の生成に失敗しました')
+        }
+    }, [generatedImages, t])
+
+    // Xシェア機能 - 表情差分
+    const handleShareExpressionsToX = useCallback(async () => {
+        try {
+            // ラベルを取得
+            const labels = {
+                joy: t('expressions.joy'),
+                anger: t('expressions.anger'),
+                sorrow: t('expressions.sorrow'),
+                surprise: t('expressions.surprise'),
+            }
+
+            // 4枚の画像を合成
+            const composedImage = await composeGridImages(expressionsImages, labels)
+
+            // 合成画像をダウンロード
+            const link = document.createElement('a')
+            link.href = composedImage
+            link.download = 'vtuber-expressions.png'
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+
+            // Xシェア用URLを開く
+            const shareText = `VTuberの表情差分を生成しました！\n\n#四面図AI #VTuber #AIart`
+            const appUrl = window.location.origin
+            const twitterUrl = generateTwitterShareUrl(shareText, appUrl)
+            window.open(twitterUrl, '_blank', 'noopener,noreferrer')
+        } catch (error) {
+            console.error('Error sharing to X:', error)
+            setExpressionsError('シェア用画像の生成に失敗しました')
+        }
+    }, [expressionsImages, t])
+
     const handleEnhanceSheetPrompt = useCallback(async () => {
         if (!sheetAdditionalPrompt || sheetAdditionalPrompt.trim() === '') {
             return
@@ -869,14 +942,24 @@ export default function Home() {
                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4">
                                 <h2 className="text-lg md:text-xl font-semibold">{t('results.generatedViews')}</h2>
                                 {hasAnyGeneratedImages && (
-                                    <button
-                                        onClick={handleDownloadAll}
-                                        disabled={isZipping || isSheetLoading}
-                                        className="bg-green-600 hover:bg-green-700 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-2 px-3 md:px-4 rounded-lg transition-all duration-200 flex items-center justify-center text-xs md:text-sm gap-1.5 md:gap-2 w-full sm:w-auto"
-                                    >
-                                        <DownloadIcon />
-                                        <span>{isZipping ? t('results.zipping') : t('results.downloadAll')}</span>
-                                    </button>
+                                    <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                                        <button
+                                            onClick={handleDownloadAll}
+                                            disabled={isZipping || isSheetLoading}
+                                            className="bg-green-600 hover:bg-green-700 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-2 px-3 md:px-4 rounded-lg transition-all duration-200 flex items-center justify-center text-xs md:text-sm gap-1.5 md:gap-2"
+                                        >
+                                            <DownloadIcon />
+                                            <span>{isZipping ? t('results.zipping') : t('results.downloadAll')}</span>
+                                        </button>
+                                        <button
+                                            onClick={handleShareToX}
+                                            disabled={isSheetLoading}
+                                            className="bg-black hover:bg-gray-900 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-2 px-3 md:px-4 rounded-lg transition-all duration-200 flex items-center justify-center text-xs md:text-sm gap-1.5 md:gap-2"
+                                        >
+                                            <XIcon />
+                                            <span>{t('results.shareToX')}</span>
+                                        </button>
+                                    </div>
                                 )}
                             </div>
 
@@ -1054,14 +1137,24 @@ export default function Home() {
                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4">
                                 <h2 className="text-lg md:text-xl font-semibold">{t('results.generatedExpressions')}</h2>
                                 {hasAnyGeneratedExpressionImages && (
-                                    <button
-                                        onClick={handleDownloadAllExpressions}
-                                        disabled={isExpressionsZipping || isExpressionsLoading}
-                                        className="bg-green-600 hover:bg-green-700 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-2 px-3 md:px-4 rounded-lg transition-all duration-200 flex items-center justify-center text-xs md:text-sm gap-1.5 md:gap-2 w-full sm:w-auto"
-                                    >
-                                        <DownloadIcon />
-                                        <span>{isExpressionsZipping ? t('results.zipping') : t('results.downloadAll')}</span>
-                                    </button>
+                                    <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                                        <button
+                                            onClick={handleDownloadAllExpressions}
+                                            disabled={isExpressionsZipping || isExpressionsLoading}
+                                            className="bg-green-600 hover:bg-green-700 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-2 px-3 md:px-4 rounded-lg transition-all duration-200 flex items-center justify-center text-xs md:text-sm gap-1.5 md:gap-2"
+                                        >
+                                            <DownloadIcon />
+                                            <span>{isExpressionsZipping ? t('results.zipping') : t('results.downloadAll')}</span>
+                                        </button>
+                                        <button
+                                            onClick={handleShareExpressionsToX}
+                                            disabled={isExpressionsLoading}
+                                            className="bg-black hover:bg-gray-900 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-2 px-3 md:px-4 rounded-lg transition-all duration-200 flex items-center justify-center text-xs md:text-sm gap-1.5 md:gap-2"
+                                        >
+                                            <XIcon />
+                                            <span>{t('results.shareToX')}</span>
+                                        </button>
+                                    </div>
                                 )}
                             </div>
 
