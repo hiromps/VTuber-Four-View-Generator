@@ -102,7 +102,7 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
-      <div className="bg-gray-800 rounded-lg w-full max-w-7xl h-[95vh] sm:h-auto sm:max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="bg-gray-800 rounded-lg w-full max-w-7xl h-[85vh] sm:h-auto sm:max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex justify-between items-center p-3 sm:p-4 md:p-6 border-b border-gray-700 flex-shrink-0">
           <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white">生成履歴</h2>
@@ -220,7 +220,7 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
             onClick={() => setSelectedItem(null)}
           >
             <div
-              className="bg-gray-800 rounded-lg w-full max-w-5xl h-[95vh] sm:h-auto sm:max-h-[90vh] overflow-hidden flex flex-col"
+              className="bg-gray-800 rounded-lg w-full max-w-5xl h-[85vh] sm:h-auto sm:max-h-[90vh] overflow-hidden flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Detail Header */}
@@ -254,17 +254,17 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
                       <img
                         src={selectedItem.images}
                         alt="Generated"
-                        className="w-full rounded-lg max-h-[70vh] object-contain mx-auto"
+                        className="w-full rounded-lg max-h-[60vh] object-contain mx-auto"
                       />
                     </div>
                   ) : (
                     Object.entries(selectedItem.images).map(([key, url]) => (
-                      <div key={key} className="flex flex-col">
-                        <p className="text-xs sm:text-sm text-gray-400 mb-2 capitalize font-semibold">{key}</p>
+                      <div key={key} className="flex flex-col gap-2">
+                        <p className="text-xs sm:text-sm text-gray-400 capitalize font-semibold bg-gray-700 px-3 py-1.5 rounded">{key}</p>
                         <img
                           src={url}
                           alt={key}
-                          className="w-full rounded-lg object-contain"
+                          className="w-full rounded-lg object-contain max-h-[45vh]"
                         />
                       </div>
                     ))
