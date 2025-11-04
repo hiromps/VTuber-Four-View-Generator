@@ -20,7 +20,9 @@
     "title": "Customize (Optional)",
     "additionalInstructions": "Additional Instructions",
     "placeholder": "e.g. Remove glasses completely / Change hair color to blue / Add a hat",
-    "hint": "💡 Hint: Clear and specific English instructions work best"
+    "hint": "💡 Hint: Clear and specific English instructions work best",
+    "enhancePrompt": "Enhance Prompt",
+    "attachFile": "Attach File"
   },
   "generate": {
     "sheetTitle": "Generate Sheet",

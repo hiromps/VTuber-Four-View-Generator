@@ -20,7 +20,9 @@
     "title": "カスタマイズ（オプション）",
     "additionalInstructions": "追加の指示",
     "placeholder": "例: メガネを完全に削除 / 髪の色を青に変更 / 帽子を追加",
-    "hint": "💡 ヒント: 明確で具体的な英語の指示が最も効果的です"
+    "hint": "💡 ヒント: 明確で具体的な英語の指示が最も効果的です",
+    "enhancePrompt": "プロンプト強化",
+    "attachFile": "ファイル添付"
   },
   "generate": {
     "sheetTitle": "シート生成",
