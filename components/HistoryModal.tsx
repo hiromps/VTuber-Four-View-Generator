@@ -101,8 +101,8 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
-      <div className="bg-gray-800 rounded-lg w-full max-w-7xl h-[85vh] sm:h-auto sm:max-h-[90vh] overflow-hidden flex flex-col">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start sm:items-center justify-center z-50 p-0 sm:p-4 pt-2 sm:pt-4">
+      <div className="bg-gray-800 rounded-lg w-full max-w-7xl max-h-[80vh] sm:max-h-[85vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex justify-between items-center p-3 sm:p-4 md:p-6 border-b border-gray-700 flex-shrink-0">
           <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white">生成履歴</h2>
@@ -167,12 +167,10 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
                           ))}
                       </div>
                     )}
-                  </div>
 
-                  {/* Info */}
-                  <div className="p-2 sm:p-3 flex-shrink-0">
-                    <div className="flex justify-between items-start mb-2 gap-2">
-                      <span className="text-xs bg-purple-600 text-white px-2 py-1 rounded whitespace-nowrap">
+                    {/* Overlay Labels */}
+                    <div className="absolute top-0 left-0 right-0 p-2 flex justify-between items-start gap-2 z-10">
+                      <span className="text-xs bg-purple-600/90 backdrop-blur-sm text-white px-2 py-1 rounded shadow-lg whitespace-nowrap">
                         {getGenerationTypeLabel(item.generation_type)}
                       </span>
                       <button
@@ -180,11 +178,11 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
                           e.stopPropagation()
                           handleDelete(item.id)
                         }}
-                        className="text-red-400 hover:text-red-300 transition flex-shrink-0 p-1"
+                        className="bg-red-500/90 backdrop-blur-sm text-white hover:bg-red-600 transition flex-shrink-0 p-1.5 rounded shadow-lg"
                         aria-label="削除"
                       >
                         <svg
-                          className="h-4 w-4"
+                          className="h-3.5 w-3.5"
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -198,6 +196,10 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
                         </svg>
                       </button>
                     </div>
+                  </div>
+
+                  {/* Info */}
+                  <div className="p-2 sm:p-3 flex-shrink-0">
                     {item.prompt && (
                       <p className="text-xs sm:text-sm text-gray-300 line-clamp-2 mb-2">
                         {item.prompt}
@@ -216,11 +218,11 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
         {/* Detail Modal */}
         {selectedItem && (
           <div
-            className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[60] p-2 sm:p-4"
+            className="fixed inset-0 bg-black bg-opacity-75 flex items-start sm:items-center justify-center z-[60] p-0 sm:p-4 pt-2 sm:pt-4"
             onClick={() => setSelectedItem(null)}
           >
             <div
-              className="bg-gray-800 rounded-lg w-full max-w-5xl h-[85vh] sm:h-auto sm:max-h-[90vh] overflow-hidden flex flex-col"
+              className="bg-gray-800 rounded-lg w-full max-w-5xl max-h-[80vh] sm:max-h-[85vh] overflow-hidden flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Detail Header */}
@@ -259,13 +261,17 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
                     </div>
                   ) : (
                     Object.entries(selectedItem.images).map(([key, url]) => (
-                      <div key={key} className="flex flex-col gap-2">
-                        <p className="text-xs sm:text-sm text-gray-400 capitalize font-semibold bg-gray-700 px-3 py-1.5 rounded">{key}</p>
+                      <div key={key} className="relative">
                         <img
                           src={url}
                           alt={key}
-                          className="w-full rounded-lg object-contain max-h-[45vh]"
+                          className="w-full rounded-lg object-contain max-h-[50vh]"
                         />
+                        <div className="absolute top-2 left-2">
+                          <span className="text-xs sm:text-sm text-white capitalize font-semibold bg-purple-600/90 backdrop-blur-sm px-3 py-1.5 rounded shadow-lg">
+                            {key}
+                          </span>
+                        </div>
                       </div>
                     ))
                   )}
