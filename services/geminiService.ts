@@ -2,6 +2,12 @@
 import { GoogleGenAI, GenerateContentResponse, Modality } from "@google/genai";
 import { ViewType, AspectRatio, ExpressionType } from '../types';
 
+// 環境変数のチェック
+if (!process.env.API_KEY) {
+  console.error('ERROR: API_KEY is not set in environment variables');
+  throw new Error('API_KEY environment variable is required');
+}
+
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
 
 function getPromptForView(view: ViewType, additionalPrompt: string = ''): string {
@@ -32,6 +38,8 @@ export const generateCharacterSheetView = async (
   additionalPrompt: string = ''
 ): Promise<string> => {
   try {
+    console.log(`[Gemini] Generating ${view} view...`);
+
     // Base64文字列とMIMEタイプの検証
     if (!base64Image || base64Image.trim() === '') {
       throw new Error('Base64 image data is empty');
@@ -44,7 +52,9 @@ export const generateCharacterSheetView = async (
 
     // Base64文字列から空白・改行を削除
     const cleanBase64 = base64Image.replace(/[\r\n\s]/g, '');
+    console.log(`[Gemini] Base64 length: ${cleanBase64.length}, MIME: ${mimeType}`);
 
+    console.log('[Gemini] Calling Gemini API...');
     const response: GenerateContentResponse = await ai.models.generateContent({
       model: 'gemini-2.5-flash-image',
       contents: {
@@ -65,17 +75,24 @@ export const generateCharacterSheetView = async (
       },
     });
 
+    console.log('[Gemini] API call successful, processing response...');
     for (const part of response.candidates?.[0]?.content?.parts || []) {
       if (part.inlineData) {
+        console.log(`[Gemini] Image generated for ${view} view successfully`);
         return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
       }
     }
     throw new Error('No image was generated for the character sheet view.');
   } catch (error) {
-    console.error(`Error generating ${view} view:`, error);
+    console.error(`[Gemini] Error generating ${view} view:`, error);
 
     // より詳細なエラーメッセージを提供
     if (error instanceof Error) {
+      console.error(`[Gemini] Error details:`, {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
       if (error.message.includes('did not match')) {
         throw new Error(`Invalid image format. Please ensure you upload a valid PNG, JPEG, or WebP image.`);
       }

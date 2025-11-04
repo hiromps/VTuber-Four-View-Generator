@@ -72,15 +72,27 @@ export async function POST(request: NextRequest) {
       // If generation fails, we should ideally refund the tokens
       // For now, just return the error
       console.error('Image generation error:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to generate character sheet'
+      console.error('Error details:', {
+        message: errorMessage,
+        stack: error instanceof Error ? error.stack : undefined,
+        error: error
+      })
       return NextResponse.json(
-        { error: 'Failed to generate character sheet' },
+        { error: errorMessage },
         { status: 500 }
       )
     }
   } catch (error) {
     console.error('Character sheet generation error:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Failed to generate character sheet'
+    console.error('Error details:', {
+      message: errorMessage,
+      stack: error instanceof Error ? error.stack : undefined,
+      error: error
+    })
     return NextResponse.json(
-      { error: 'Failed to generate character sheet' },
+      { error: errorMessage },
       { status: 500 }
     )
   }
