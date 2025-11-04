@@ -500,29 +500,29 @@ export default function Home() {
 
     return (
         <div className="min-h-screen bg-gray-900 text-white font-sans">
-            <header className="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700 p-3 md:p-4 sticky top-0 z-10">
-                <div className="container mx-auto flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0">
-                    <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">
+            <header className="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700 p-2 sm:p-3 md:p-4 sticky top-0 z-10">
+                <div className="container mx-auto flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-0">
+                    <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 text-center sm:text-left">
                         {t('app.title')}
                     </h1>
-                    <div className="flex items-center gap-2 sm:gap-3 md:gap-4 flex-wrap justify-center">
+                    <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 w-full sm:w-auto justify-center sm:justify-end">
                         <LanguageSwitcher />
                         {user ? (
                             <>
                                 <TokenDisplay tokens={tokens} onBuyTokens={() => setShowBuyModal(true)} />
                                 <button
                                     onClick={() => setShowHistoryModal(true)}
-                                    className="text-sm text-gray-300 hover:text-white transition flex items-center gap-1"
+                                    className="text-xs sm:text-sm text-gray-300 hover:text-white transition flex items-center gap-1 px-2 py-1.5 sm:px-3 sm:py-2 rounded hover:bg-gray-700/50"
                                     title="生成履歴"
                                 >
-                                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                     <span className="hidden md:inline">履歴</span>
                                 </button>
                                 <button
                                     onClick={handleLogout}
-                                    className="text-sm text-gray-300 hover:text-white transition"
+                                    className="text-xs sm:text-sm text-gray-300 hover:text-white transition px-2 py-1.5 sm:px-3 sm:py-2 rounded hover:bg-gray-700/50"
                                 >
                                     {t('app.logout')}
                                 </button>
@@ -530,7 +530,7 @@ export default function Home() {
                         ) : (
                             <button
                                 onClick={() => setShowAuthModal(true)}
-                                className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 md:px-6 rounded-lg transition text-sm md:text-base"
+                                className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-1.5 px-3 sm:py-2 sm:px-4 md:px-6 rounded-lg transition text-xs sm:text-sm md:text-base"
                             >
                                 {t('app.signIn')}
                             </button>
