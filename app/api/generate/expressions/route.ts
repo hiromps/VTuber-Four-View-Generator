@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { consumeTokens } from '@/lib/tokens'
 import { generateFacialExpression } from '@/services/geminiService'
+import { uploadImageToStorage, saveImageHistory } from '@/lib/storage'
 import { ExpressionType } from '@/types'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -64,8 +65,35 @@ export async function POST(request: NextRequest) {
         {} as Record<ExpressionType, string>
       )
 
+      // 画像をStorageに保存して公開URLを取得
+      const storageUrls: Record<ExpressionType, string> = {} as Record<ExpressionType, string>
+
+      try {
+        for (const [expression, dataUrl] of Object.entries(images)) {
+          const publicUrl = await uploadImageToStorage(
+            user.id,
+            dataUrl,
+            `facial_expression_${expression}.png`
+          )
+          storageUrls[expression as ExpressionType] = publicUrl
+        }
+
+        // 履歴に保存
+        await saveImageHistory({
+          userId: user.id,
+          generationType: 'facial_expressions',
+          additionalPrompt: additionalPrompt || undefined,
+          images: storageUrls,
+        })
+
+        console.log('[Storage] Facial expression images saved to history')
+      } catch (storageError) {
+        console.error('[Storage] Failed to save to storage:', storageError)
+        // Storageエラーでも生成した画像は返す
+      }
+
       return NextResponse.json({
-        images,
+        images: storageUrls,
         tokens: result.newBalance,
       })
     } catch (error) {

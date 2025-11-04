@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/client'
 import AuthModal from '@/components/AuthModal'
 import TokenDisplay from '@/components/TokenDisplay'
 import BuyTokensModal from '@/components/BuyTokensModal'
+import HistoryModal from '@/components/HistoryModal'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import { useLanguage } from '@/contexts/LanguageContext'
 import type { User } from '@supabase/supabase-js'
@@ -44,6 +45,7 @@ export default function Home() {
     const [tokens, setTokens] = useState(0)
     const [showAuthModal, setShowAuthModal] = useState(false)
     const [showBuyModal, setShowBuyModal] = useState(false)
+    const [showHistoryModal, setShowHistoryModal] = useState(false)
     const [activeTab, setActiveTab] = useState<'sheet' | 'concept' | 'expressions'>('sheet')
     const [authError, setAuthError] = useState<string | null>(null)
     const [paymentSuccess, setPaymentSuccess] = useState(false)
@@ -509,6 +511,16 @@ export default function Home() {
                             <>
                                 <TokenDisplay tokens={tokens} onBuyTokens={() => setShowBuyModal(true)} />
                                 <button
+                                    onClick={() => setShowHistoryModal(true)}
+                                    className="text-sm text-gray-300 hover:text-white transition flex items-center gap-1"
+                                    title="生成履歴"
+                                >
+                                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span className="hidden md:inline">履歴</span>
+                                </button>
+                                <button
                                     onClick={handleLogout}
                                     className="text-sm text-gray-300 hover:text-white transition"
                                 >
@@ -877,6 +889,7 @@ export default function Home() {
 
             <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
             <BuyTokensModal isOpen={showBuyModal} onClose={() => setShowBuyModal(false)} />
+            <HistoryModal isOpen={showHistoryModal} onClose={() => setShowHistoryModal(false)} />
         </div>
     )
 }

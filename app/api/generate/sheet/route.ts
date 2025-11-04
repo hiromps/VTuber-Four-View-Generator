@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { consumeTokens } from '@/lib/tokens'
 import { generateCharacterSheetView } from '@/services/geminiService'
+import { uploadImageToStorage, saveImageHistory } from '@/lib/storage'
 import { ViewType } from '@/types'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -64,8 +65,35 @@ export async function POST(request: NextRequest) {
         {} as Record<ViewType, string>
       )
 
+      // 画像をStorageに保存して公開URLを取得
+      const storageUrls: Record<ViewType, string> = {} as Record<ViewType, string>
+
+      try {
+        for (const [view, dataUrl] of Object.entries(images)) {
+          const publicUrl = await uploadImageToStorage(
+            user.id,
+            dataUrl,
+            `character_sheet_${view}.png`
+          )
+          storageUrls[view as ViewType] = publicUrl
+        }
+
+        // 履歴に保存
+        await saveImageHistory({
+          userId: user.id,
+          generationType: 'character_sheet',
+          additionalPrompt: additionalPrompt || undefined,
+          images: storageUrls,
+        })
+
+        console.log('[Storage] Character sheet images saved to history')
+      } catch (storageError) {
+        console.error('[Storage] Failed to save to storage:', storageError)
+        // Storageエラーでも生成した画像は返す
+      }
+
       return NextResponse.json({
-        images,
+        images: storageUrls,
         tokens: result.newBalance,
       })
     } catch (error) {
