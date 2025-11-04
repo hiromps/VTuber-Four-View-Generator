@@ -20,17 +20,18 @@ function getPromptForView(view: ViewType, additionalPrompt: string = ''): string
     : '';
 
   const commonPrompt = "Using the provided image of a character's front view, generate a high-quality, clean illustration of the character's";
+  const framingPrompt = "IMPORTANT: The ENTIRE character must be FULLY VISIBLE within the frame from head to toe. DO NOT crop any part of the character. Leave appropriate margin space around the character. The full body must fit completely within the image boundaries.";
   const stylePrompt = "in the exact same art style, color palette, and character details. The character should be in a neutral T-pose. The background must be a solid, neutral gray (#808080).";
 
   switch (view) {
     case 'front':
-      return `${criticalInstructions}${commonPrompt} front view, but standardized in a T-pose ${stylePrompt}`;
+      return `${criticalInstructions}${commonPrompt} front view, but standardized in a T-pose ${stylePrompt} ${framingPrompt}`;
     case 'back':
-      return `${criticalInstructions}${commonPrompt} back view ${stylePrompt}`;
+      return `${criticalInstructions}${commonPrompt} back view ${stylePrompt} ${framingPrompt}`;
     case 'left':
-      return `${criticalInstructions}${commonPrompt} left side view ${stylePrompt}`;
+      return `${criticalInstructions}${commonPrompt} left side view ${stylePrompt} ${framingPrompt}`;
     case 'right':
-      return `${criticalInstructions}${commonPrompt} right side view ${stylePrompt}`;
+      return `${criticalInstructions}${commonPrompt} right side view ${stylePrompt} ${framingPrompt}`;
   }
 }
 
@@ -139,17 +140,18 @@ function getPromptForExpression(expression: ExpressionType, additionalPrompt: st
     : '';
 
   const commonPrompt = "Using the provided image of a character, generate a high-quality, clean illustration of the character's face with a";
+  const framingPrompt = "IMPORTANT: The character's head and upper body must be FULLY VISIBLE within the frame. DO NOT crop the top of the head, chin, or shoulders. Leave appropriate margin space around the character. The entire head and face must fit completely within the image boundaries.";
   const stylePrompt = "expression, in the exact same art style, color palette, and character details. Keep the same viewing angle and pose. The background must be a solid, neutral gray (#808080).";
 
   switch (expression) {
     case 'joy':
-      return `${criticalInstructions}${commonPrompt} joyful, happy, smiling ${stylePrompt}`;
+      return `${criticalInstructions}${commonPrompt} joyful, happy, smiling ${stylePrompt} ${framingPrompt}`;
     case 'anger':
-      return `${criticalInstructions}${commonPrompt} angry, furious, frowning ${stylePrompt}`;
+      return `${criticalInstructions}${commonPrompt} angry, furious, frowning ${stylePrompt} ${framingPrompt}`;
     case 'sorrow':
-      return `${criticalInstructions}${commonPrompt} sad, sorrowful, tearful ${stylePrompt}`;
+      return `${criticalInstructions}${commonPrompt} sad, sorrowful, tearful ${stylePrompt} ${framingPrompt}`;
     case 'surprise':
-      return `${criticalInstructions}${commonPrompt} surprised, shocked, wide-eyed ${stylePrompt}`;
+      return `${criticalInstructions}${commonPrompt} surprised, shocked, wide-eyed ${stylePrompt} ${framingPrompt}`;
   }
 }
 
