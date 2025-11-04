@@ -5,8 +5,11 @@ import { ViewType, AspectRatio, ExpressionType } from '../types';
 // 環境変数のチェック
 if (!process.env.API_KEY) {
   console.error('ERROR: API_KEY is not set in environment variables');
+  console.error('Available env vars:', Object.keys(process.env).filter(k => k.includes('API') || k.includes('GEMINI')));
   throw new Error('API_KEY environment variable is required');
 }
+
+console.log('[Gemini] API_KEY is set:', process.env.API_KEY ? 'Yes (length: ' + process.env.API_KEY.length + ')' : 'No');
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
 
@@ -54,9 +57,9 @@ export const generateCharacterSheetView = async (
     const cleanBase64 = base64Image.replace(/[\r\n\s]/g, '');
     console.log(`[Gemini] Base64 length: ${cleanBase64.length}, MIME: ${mimeType}`);
 
-    console.log('[Gemini] Calling Gemini API...');
+    console.log('[Gemini] Calling Gemini API with model: gemini-2.0-flash-exp');
     const response: GenerateContentResponse = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-image',
+      model: 'gemini-2.0-flash-exp',
       contents: {
         parts: [
           {
@@ -169,8 +172,9 @@ export const generateFacialExpression = async (
     // Base64文字列から空白・改行を削除
     const cleanBase64 = base64Image.replace(/[\r\n\s]/g, '');
 
+    console.log('[Gemini] Calling Gemini API with model: gemini-2.0-flash-exp');
     const response: GenerateContentResponse = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-image',
+      model: 'gemini-2.0-flash-exp',
       contents: {
         parts: [
           {
