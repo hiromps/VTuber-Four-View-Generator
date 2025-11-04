@@ -244,19 +244,29 @@ export const enhancePrompt = async (prompt: string): Promise<string> => {
       contents: {
         parts: [
           {
-            text: `You are an expert prompt engineer specializing in image generation prompts.
+            text: `You are an expert at translating and optimizing image modification instructions.
 
-Your task is to:
-1. Translate the following prompt from Japanese to English (if it's in Japanese)
-2. Optimize it for AI image generation by making it more descriptive and specific
-3. Keep the core meaning and intent of the original prompt
-4. Make it concise but detailed (around 50-100 words)
-5. Return ONLY the optimized English prompt without any explanations or additional text
+IMPORTANT: The user is providing ADDITIONAL INSTRUCTIONS to modify an existing character image.
+This is NOT a complete image description - it's just a modification request.
 
-Original prompt:
+Your task:
+1. Translate from Japanese to English (if in Japanese)
+2. Convert the modification instruction into concise, descriptive keywords
+3. Focus ONLY on the requested change/addition, not the entire image
+4. Keep it brief (5-15 words maximum)
+5. Use descriptive adjectives that work well for AI image generation
+6. Return ONLY the optimized keywords without explanations
+
+Examples:
+- Input: "髪色を金色に変えてください" → Output: "vibrant golden blonde hair"
+- Input: "背景を青空にして" → Output: "clear blue sky background"
+- Input: "笑顔にしてください" → Output: "bright cheerful smile"
+- Input: "猫耳を追加" → Output: "cute cat ears"
+
+User's modification instruction:
 ${prompt}
 
-Optimized prompt:`,
+Optimized keywords:`,
           },
         ],
       },
