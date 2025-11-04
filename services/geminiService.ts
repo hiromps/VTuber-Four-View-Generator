@@ -1,5 +1,5 @@
 
-import { GoogleGenAI, GenerateContentResponse, Modality } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 import { ViewType, AspectRatio, ExpressionType } from '../types';
 
 // 環境変数のチェック
