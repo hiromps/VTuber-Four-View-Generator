@@ -13,9 +13,10 @@ export async function composeGridImages(
   // X最適化サイズ: 1200x675 (16:9)
   const canvasWidth = 1200
   const canvasHeight = 675
-  const imageSize = 280 // 各画像のサイズ
   const gap = 10 // 画像間の隙間
   const labelHeight = 32 // ラベルの高さ
+  const titleHeight = 70 // タイトル領域
+  const bottomMargin = 30 // 下部マージン
 
   canvas.width = canvasWidth
   canvas.height = canvasHeight
@@ -32,40 +33,60 @@ export async function composeGridImages(
 
   // 4枚の画像を横一列に配置（front, back, left, right の順）
   const keys = ['front', 'back', 'left', 'right']
-  const totalWidth = imageSize * 4 + gap * 3
-  const startX = (canvasWidth - totalWidth) / 2
-  const startY = 160
 
-  await Promise.all(
-    keys.map(async (key, index) => {
+  // 利用可能な高さを計算（タイトル、ラベル、マージンを除く）
+  const availableHeight = canvasHeight - titleHeight - labelHeight - bottomMargin
+
+  // まず全ての画像を読み込んでアスペクト比を取得
+  const imageData = await Promise.all(
+    keys.map(async (key) => {
       const src = images[key]
-      if (!src) return
+      if (!src) return null
 
-      const x = startX + (imageSize + gap) * index
-      const y = startY
-
-      return new Promise<void>((resolve, reject) => {
+      return new Promise<{ key: string; img: HTMLImageElement; aspectRatio: number } | null>((resolve, reject) => {
         const img = new Image()
         img.crossOrigin = 'anonymous'
         img.onload = () => {
-          // 画像を描画
-          ctx.drawImage(img, x, y, imageSize, imageSize)
-
-          // ラベルを描画
-          ctx.fillStyle = '#8b5cf6' // 紫色
-          ctx.fillRect(x, y + imageSize, imageSize, labelHeight)
-          ctx.fillStyle = '#ffffff'
-          ctx.font = 'bold 16px sans-serif'
-          ctx.textAlign = 'center'
-          ctx.fillText(labels[key], x + imageSize / 2, y + imageSize + labelHeight / 2 + 5)
-
-          resolve()
+          const aspectRatio = img.width / img.height
+          resolve({ key, img, aspectRatio })
         }
         img.onerror = reject
         img.src = src
       })
     })
   )
+
+  // nullを除外
+  const validImages = imageData.filter((data): data is { key: string; img: HTMLImageElement; aspectRatio: number } => data !== null)
+
+  if (validImages.length === 0) return canvas.toDataURL('image/png', 0.95)
+
+  // 各画像の幅を計算（高さは固定、アスペクト比を保持）
+  const imageHeight = availableHeight
+  const imageWidths = validImages.map(data => imageHeight * data.aspectRatio)
+  const totalWidth = imageWidths.reduce((sum, width) => sum + width, 0) + gap * (validImages.length - 1)
+
+  const startX = (canvasWidth - totalWidth) / 2
+  const startY = titleHeight
+
+  // 画像を描画
+  let currentX = startX
+  validImages.forEach(({ key, img, aspectRatio }, index) => {
+    const imageWidth = imageWidths[index]
+
+    // 画像を描画
+    ctx.drawImage(img, currentX, startY, imageWidth, imageHeight)
+
+    // ラベルを描画
+    ctx.fillStyle = '#8b5cf6' // 紫色
+    ctx.fillRect(currentX, startY + imageHeight, imageWidth, labelHeight)
+    ctx.fillStyle = '#ffffff'
+    ctx.font = 'bold 16px sans-serif'
+    ctx.textAlign = 'center'
+    ctx.fillText(labels[key], currentX + imageWidth / 2, startY + imageHeight + labelHeight / 2 + 6)
+
+    currentX += imageWidth + gap
+  })
 
   // ウォーターマーク
   ctx.fillStyle = '#666666'
