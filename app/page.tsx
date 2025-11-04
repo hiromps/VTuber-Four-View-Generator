@@ -76,6 +76,8 @@ export default function Home() {
     // Enhance Prompt State
     const [isEnhancingSheetPrompt, setIsEnhancingSheetPrompt] = useState(false)
     const [isEnhancingExpressionsPrompt, setIsEnhancingExpressionsPrompt] = useState(false)
+    const [showSheetPromptMenu, setShowSheetPromptMenu] = useState(false)
+    const [showExpressionsPromptMenu, setShowExpressionsPromptMenu] = useState(false)
 
     const expressionLabels: { [key in ExpressionType]: string } = {
         joy: t('expressions.joy'),
@@ -85,6 +87,20 @@ export default function Home() {
     }
 
     const supabase = createClient()
+
+    // Close prompt menus when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            const target = event.target as HTMLElement
+            if (!target.closest('.prompt-menu-container')) {
+                setShowSheetPromptMenu(false)
+                setShowExpressionsPromptMenu(false)
+            }
+        }
+
+        document.addEventListener('mousedown', handleClickOutside)
+        return () => document.removeEventListener('mousedown', handleClickOutside)
+    }, [])
 
     // Check for auth errors and payment status in URL
     useEffect(() => {
@@ -491,6 +507,7 @@ export default function Home() {
             return
         }
 
+        setShowSheetPromptMenu(false)
         setIsEnhancingSheetPrompt(true)
         try {
             const response = await fetch('/api/enhance-prompt', {
@@ -519,6 +536,7 @@ export default function Home() {
             return
         }
 
+        setShowExpressionsPromptMenu(false)
         setIsEnhancingExpressionsPrompt(true)
         try {
             const response = await fetch('/api/enhance-prompt', {
@@ -715,29 +733,44 @@ export default function Home() {
                                         placeholder={t('customize.placeholder')}
                                         className="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white placeholder-gray-400 focus:ring-purple-500 focus:border-purple-500 transition"
                                     />
-                                    <button
-                                        onClick={handleEnhanceSheetPrompt}
-                                        disabled={!sheetAdditionalPrompt || sheetAdditionalPrompt.trim() === '' || isEnhancingSheetPrompt}
-                                        className="absolute bottom-2 left-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:from-gray-500 disabled:to-gray-600 disabled:cursor-not-allowed text-white text-xs font-medium py-1 px-2.5 rounded transition-all duration-200 flex items-center gap-1"
-                                        title="プロンプトを英語に変換して最適化"
-                                    >
-                                        {isEnhancingSheetPrompt ? (
-                                            <>
-                                                <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                </svg>
-                                                <span>最適化中...</span>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                                </svg>
-                                                <span>Enhance Prompt</span>
-                                            </>
+                                    <div className="absolute bottom-2 left-2 prompt-menu-container">
+                                        <button
+                                            onClick={() => setShowSheetPromptMenu(!showSheetPromptMenu)}
+                                            disabled={isEnhancingSheetPrompt}
+                                            className="bg-gray-600 hover:bg-gray-500 disabled:bg-gray-700 disabled:cursor-not-allowed text-white p-1.5 rounded-full transition-all duration-200 flex items-center justify-center"
+                                            title="プロンプトツール"
+                                        >
+                                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                            </svg>
+                                        </button>
+                                        {showSheetPromptMenu && (
+                                            <div className="absolute bottom-full left-0 mb-1 bg-gray-800 border border-gray-600 rounded-lg shadow-lg overflow-hidden z-10 min-w-[200px]">
+                                                <button
+                                                    onClick={handleEnhanceSheetPrompt}
+                                                    disabled={!sheetAdditionalPrompt || sheetAdditionalPrompt.trim() === '' || isEnhancingSheetPrompt}
+                                                    className="w-full px-3 py-2 text-left text-sm text-white hover:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                                                >
+                                                    {isEnhancingSheetPrompt ? (
+                                                        <>
+                                                            <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                            </svg>
+                                                            <span>最適化中...</span>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                                            </svg>
+                                                            <span>Enhance Prompt</span>
+                                                        </>
+                                                    )}
+                                                </button>
+                                            </div>
                                         )}
-                                    </button>
+                                    </div>
                                 </div>
                                 <p className="text-xs text-gray-400 mt-1">
                                     {t('customize.hint')}
@@ -848,29 +881,44 @@ export default function Home() {
                                         placeholder={t('customize.placeholder')}
                                         className="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white placeholder-gray-400 focus:ring-purple-500 focus:border-purple-500 transition"
                                     />
-                                    <button
-                                        onClick={handleEnhanceExpressionsPrompt}
-                                        disabled={!expressionsAdditionalPrompt || expressionsAdditionalPrompt.trim() === '' || isEnhancingExpressionsPrompt}
-                                        className="absolute bottom-2 left-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:from-gray-500 disabled:to-gray-600 disabled:cursor-not-allowed text-white text-xs font-medium py-1 px-2.5 rounded transition-all duration-200 flex items-center gap-1"
-                                        title="プロンプトを英語に変換して最適化"
-                                    >
-                                        {isEnhancingExpressionsPrompt ? (
-                                            <>
-                                                <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                </svg>
-                                                <span>最適化中...</span>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                                </svg>
-                                                <span>Enhance Prompt</span>
-                                            </>
+                                    <div className="absolute bottom-2 left-2 prompt-menu-container">
+                                        <button
+                                            onClick={() => setShowExpressionsPromptMenu(!showExpressionsPromptMenu)}
+                                            disabled={isEnhancingExpressionsPrompt}
+                                            className="bg-gray-600 hover:bg-gray-500 disabled:bg-gray-700 disabled:cursor-not-allowed text-white p-1.5 rounded-full transition-all duration-200 flex items-center justify-center"
+                                            title="プロンプトツール"
+                                        >
+                                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                            </svg>
+                                        </button>
+                                        {showExpressionsPromptMenu && (
+                                            <div className="absolute bottom-full left-0 mb-1 bg-gray-800 border border-gray-600 rounded-lg shadow-lg overflow-hidden z-10 min-w-[200px]">
+                                                <button
+                                                    onClick={handleEnhanceExpressionsPrompt}
+                                                    disabled={!expressionsAdditionalPrompt || expressionsAdditionalPrompt.trim() === '' || isEnhancingExpressionsPrompt}
+                                                    className="w-full px-3 py-2 text-left text-sm text-white hover:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                                                >
+                                                    {isEnhancingExpressionsPrompt ? (
+                                                        <>
+                                                            <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                            </svg>
+                                                            <span>最適化中...</span>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                                            </svg>
+                                                            <span>Enhance Prompt</span>
+                                                        </>
+                                                    )}
+                                                </button>
+                                            </div>
                                         )}
-                                    </button>
+                                    </div>
                                 </div>
                                 <p className="text-xs text-gray-400 mt-1">
                                     {t('customize.hint')}
