@@ -92,6 +92,8 @@
     "characterSheet": "Character Sheet (4 views):",
     "conceptArt": "Concept Art (1 image):",
     "mostPopular": "MOST POPULAR",
+    "firstTimeOnly": "First Time Only",
+    "checkingHistory": "Loading...",
     "buyNow": "Buy Now",
     "processing": "Processing...",
     "securePayment": "Secure payment powered by Stripe",

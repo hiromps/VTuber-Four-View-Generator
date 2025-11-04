@@ -113,6 +113,30 @@ export async function consumeTokens(
   }
 }
 
+// Check if user has already purchased (for first-time-only packages)
+export async function hasUserPurchased(userId: string): Promise<boolean> {
+  const supabase = await createClient()
+
+  try {
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('type', 'purchase')
+      .limit(1)
+
+    if (error) {
+      console.error('Error checking purchase history:', error)
+      return false
+    }
+
+    return (data?.length ?? 0) > 0
+  } catch (error) {
+    console.error('Error checking purchase history:', error)
+    return false
+  }
+}
+
 // Add tokens (after purchase)
 export async function addTokens(
   userId: string,

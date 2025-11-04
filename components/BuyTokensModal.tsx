@@ -1,12 +1,21 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
 import { useLanguage } from '@/contexts/LanguageContext'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
 const TOKEN_PACKAGES = [
+  {
+    id: '5_tokens_first_time',
+    name: '5 Tokens - First Time Only',
+    tokens: 5,
+    price: '$1.99',
+    pricePerToken: '$0.40/token',
+    popular: false,
+    firstTimeOnly: true,
+  },
   {
     id: '10_tokens',
     name: '10 Tokens',
@@ -42,8 +51,36 @@ export default function BuyTokensModal({ isOpen, onClose }: BuyTokensModalProps)
   const { t } = useLanguage()
   const [loading, setLoading] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [hasPurchased, setHasPurchased] = useState<boolean>(false)
+  const [checkingHistory, setCheckingHistory] = useState<boolean>(true)
+
+  // Check if user has already purchased
+  useEffect(() => {
+    const checkPurchaseHistory = async () => {
+      try {
+        const response = await fetch('/api/user/purchase-history')
+        if (response.ok) {
+          const data = await response.json()
+          setHasPurchased(data.hasPurchased)
+        }
+      } catch (err) {
+        console.error('Failed to check purchase history:', err)
+      } finally {
+        setCheckingHistory(false)
+      }
+    }
+
+    if (isOpen) {
+      checkPurchaseHistory()
+    }
+  }, [isOpen])
 
   if (!isOpen) return null
+
+  // Filter out first-time-only packages if user has already purchased
+  const availablePackages = TOKEN_PACKAGES.filter(
+    pkg => !pkg.firstTimeOnly || !hasPurchased
+  )
 
   const handlePurchase = async (packageId: string) => {
     setLoading(packageId)
@@ -112,46 +149,66 @@ export default function BuyTokensModal({ isOpen, onClose }: BuyTokensModalProps)
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-          {TOKEN_PACKAGES.map((pkg) => (
-            <div
-              key={pkg.id}
-              className={`relative bg-gray-700 rounded-lg p-4 md:p-6 border-2 transition ${
-                pkg.popular
-                  ? 'border-purple-500'
-                  : 'border-transparent hover:border-gray-600'
-              }`}
-            >
-              {pkg.popular && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full">
-                    {t('tokens.mostPopular')}
-                  </span>
-                </div>
-              )}
+        {checkingHistory ? (
+          <div className="text-center py-8">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+            <p className="text-gray-400 mt-2">{t('tokens.checkingHistory') || 'Loading...'}</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+            {availablePackages.map((pkg) => (
+              <div
+                key={pkg.id}
+                className={`relative bg-gray-700 rounded-lg p-4 md:p-6 border-2 transition ${
+                  pkg.popular
+                    ? 'border-purple-500'
+                    : pkg.firstTimeOnly
+                    ? 'border-green-500'
+                    : 'border-transparent hover:border-gray-600'
+                }`}
+              >
+                {pkg.popular && (
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <span className="bg-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                      {t('tokens.mostPopular')}
+                    </span>
+                  </div>
+                )}
+                {pkg.firstTimeOnly && (
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <span className="bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                      {t('tokens.firstTimeOnly') || 'First Time Only'}
+                    </span>
+                  </div>
+                )}
 
-              <div className="text-center">
-                <h3 className="text-lg md:text-xl font-bold text-white mb-2">{pkg.name}</h3>
-                <div className="text-3xl md:text-4xl font-bold text-purple-400 mb-2">
-                  {pkg.price}
-                </div>
-                <p className="text-gray-400 text-xs md:text-sm mb-4 md:mb-6">{pkg.pricePerToken}</p>
+                <div className="text-center">
+                  <h3 className="text-lg md:text-xl font-bold text-white mb-2">{pkg.name}</h3>
+                  <div className={`text-3xl md:text-4xl font-bold mb-2 ${
+                    pkg.firstTimeOnly ? 'text-green-400' : 'text-purple-400'
+                  }`}>
+                    {pkg.price}
+                  </div>
+                  <p className="text-gray-400 text-xs md:text-sm mb-4 md:mb-6">{pkg.pricePerToken}</p>
 
-                <button
-                  onClick={() => handlePurchase(pkg.id)}
-                  disabled={loading === pkg.id}
-                  className={`w-full font-bold py-2.5 md:py-3 px-4 rounded-lg transition text-sm md:text-base ${
-                    pkg.popular
-                      ? 'bg-purple-600 hover:bg-purple-700'
-                      : 'bg-gray-600 hover:bg-gray-500'
-                  } disabled:bg-gray-500 disabled:cursor-not-allowed text-white`}
-                >
-                  {loading === pkg.id ? t('tokens.processing') : t('tokens.buyNow')}
-                </button>
+                  <button
+                    onClick={() => handlePurchase(pkg.id)}
+                    disabled={loading === pkg.id}
+                    className={`w-full font-bold py-2.5 md:py-3 px-4 rounded-lg transition text-sm md:text-base ${
+                      pkg.firstTimeOnly
+                        ? 'bg-green-600 hover:bg-green-700'
+                        : pkg.popular
+                        ? 'bg-purple-600 hover:bg-purple-700'
+                        : 'bg-gray-600 hover:bg-gray-500'
+                    } disabled:bg-gray-500 disabled:cursor-not-allowed text-white`}
+                  >
+                    {loading === pkg.id ? t('tokens.processing') : t('tokens.buyNow')}
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         <p className="text-gray-400 text-sm mt-6 text-center">
           {t('tokens.securePayment')}

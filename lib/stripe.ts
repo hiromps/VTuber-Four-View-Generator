@@ -8,6 +8,15 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 // Token packages
 export const TOKEN_PACKAGES = [
   {
+    id: '5_tokens_first_time',
+    name: '5 Tokens - First Time Only',
+    tokens: 5,
+    price: 199, // $1.99 in cents
+    priceDisplay: '$1.99',
+    pricePerToken: '$0.40',
+    firstTimeOnly: true,
+  },
+  {
     id: '10_tokens',
     name: '10 Tokens',
     tokens: 10,
