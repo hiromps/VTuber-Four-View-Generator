@@ -113,8 +113,8 @@ export async function consumeTokens(
   }
 }
 
-// Check if user has already purchased (for first-time-only packages)
-export async function hasUserPurchased(userId: string): Promise<boolean> {
+// Check if user has already purchased a specific package (for first-time-only packages)
+export async function hasUserPurchasedPackage(userId: string, packageId: string): Promise<boolean> {
   const supabase = await createClient()
 
   try {
@@ -123,16 +123,17 @@ export async function hasUserPurchased(userId: string): Promise<boolean> {
       .select('id')
       .eq('user_id', userId)
       .eq('type', 'purchase')
+      .eq('package_id', packageId)
       .limit(1)
 
     if (error) {
-      console.error('Error checking purchase history:', error)
+      console.error('Error checking purchase history for package:', error)
       return false
     }
 
     return (data?.length ?? 0) > 0
   } catch (error) {
-    console.error('Error checking purchase history:', error)
+    console.error('Error checking purchase history for package:', error)
     return false
   }
 }
@@ -141,7 +142,8 @@ export async function hasUserPurchased(userId: string): Promise<boolean> {
 export async function addTokens(
   userId: string,
   amount: number,
-  stripeSessionId: string
+  stripeSessionId: string,
+  packageId?: string
 ): Promise<{ success: boolean; newBalance: number; error?: string }> {
   // Use admin client to bypass RLS for webhook processing
   const supabase = createAdminClient()
@@ -203,15 +205,22 @@ export async function addTokens(
     console.log('User tokens updated successfully')
 
     // Record transaction
+    const transactionData: any = {
+      user_id: userId,
+      type: 'purchase',
+      amount: amount,
+      balance_after: newBalance,
+      stripe_session_id: stripeSessionId,
+    }
+
+    // Add package_id if provided
+    if (packageId) {
+      transactionData.package_id = packageId
+    }
+
     const { error: transactionError } = await supabase
       .from('transactions')
-      .insert({
-        user_id: userId,
-        type: 'purchase',
-        amount: amount,
-        balance_after: newBalance,
-        stripe_session_id: stripeSessionId,
-      })
+      .insert(transactionData)
 
     if (transactionError) {
       console.error('Error recording transaction:', transactionError)

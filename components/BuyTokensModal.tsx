@@ -51,18 +51,27 @@ export default function BuyTokensModal({ isOpen, onClose }: BuyTokensModalProps)
   const { t } = useLanguage()
   const [loading, setLoading] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [hasPurchased, setHasPurchased] = useState<boolean>(false)
+  const [purchasedPackages, setPurchasedPackages] = useState<Set<string>>(new Set())
   const [checkingHistory, setCheckingHistory] = useState<boolean>(true)
 
-  // Check if user has already purchased
+  // Check purchase history for first-time-only packages
   useEffect(() => {
     const checkPurchaseHistory = async () => {
       try {
-        const response = await fetch('/api/user/purchase-history')
-        if (response.ok) {
-          const data = await response.json()
-          setHasPurchased(data.hasPurchased)
+        const purchased = new Set<string>()
+
+        // Check each first-time-only package
+        for (const pkg of TOKEN_PACKAGES.filter(p => p.firstTimeOnly)) {
+          const response = await fetch(`/api/user/purchase-history?packageId=${pkg.id}`)
+          if (response.ok) {
+            const data = await response.json()
+            if (data.hasPurchased) {
+              purchased.add(pkg.id)
+            }
+          }
         }
+
+        setPurchasedPackages(purchased)
       } catch (err) {
         console.error('Failed to check purchase history:', err)
       } finally {
@@ -71,15 +80,16 @@ export default function BuyTokensModal({ isOpen, onClose }: BuyTokensModalProps)
     }
 
     if (isOpen) {
+      setCheckingHistory(true)
       checkPurchaseHistory()
     }
   }, [isOpen])
 
   if (!isOpen) return null
 
-  // Filter out first-time-only packages if user has already purchased
+  // Filter out packages that have already been purchased (only for first-time-only packages)
   const availablePackages = TOKEN_PACKAGES.filter(
-    pkg => !pkg.firstTimeOnly || !hasPurchased
+    pkg => !pkg.firstTimeOnly || !purchasedPackages.has(pkg.id)
   )
 
   const handlePurchase = async (packageId: string) => {

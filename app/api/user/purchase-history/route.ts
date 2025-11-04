@@ -13,12 +13,24 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Check if user has any purchase transactions
+    // Get packageId from query parameter
+    const { searchParams } = new URL(request.url)
+    const packageId = searchParams.get('packageId')
+
+    if (!packageId) {
+      return NextResponse.json(
+        { error: 'Package ID is required' },
+        { status: 400 }
+      )
+    }
+
+    // Check if user has purchased this specific package
     const { data, error } = await supabase
       .from('transactions')
       .select('id')
       .eq('user_id', user.id)
       .eq('type', 'purchase')
+      .eq('package_id', packageId)
       .limit(1)
 
     if (error) {

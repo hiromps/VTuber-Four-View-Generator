@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { stripe, getTokenPackage } from '@/lib/stripe'
-import { hasUserPurchased } from '@/lib/tokens'
+import { hasUserPurchasedPackage } from '@/lib/tokens'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
@@ -30,12 +30,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid package' }, { status: 400 })
     }
 
-    // Check if this is a first-time-only package and user has already purchased
+    // Check if this is a first-time-only package and user has already purchased this specific package
     if (tokenPackage.firstTimeOnly) {
-      const hasPurchased = await hasUserPurchased(user.id)
+      const hasPurchased = await hasUserPurchasedPackage(user.id, packageId)
       if (hasPurchased) {
         return NextResponse.json(
-          { error: 'This package is only available for first-time purchases' },
+          { error: 'You have already purchased this package. This offer is limited to one purchase per user.' },
           { status: 403 }
         )
       }

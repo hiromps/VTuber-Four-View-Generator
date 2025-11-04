@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
 
     const userId = session.metadata?.userId
     const tokens = parseInt(session.metadata?.tokens || '0', 10)
+    const packageId = session.metadata?.packageId
 
     if (!userId || !tokens) {
       console.error('Missing metadata in checkout session:', session.metadata)
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      const result = await addTokens(userId, tokens, session.id)
+      const result = await addTokens(userId, tokens, session.id, packageId)
 
       if (!result.success) {
         console.error('Failed to add tokens:', result.error)
