@@ -226,3 +226,64 @@ export const generateFacialExpression = async (
     throw new Error(`Failed to generate ${expression} expression. Please try again.`);
   }
 };
+
+/**
+ * Gemini Proモデルを使用してプロンプトを英語に変換し、最適化します
+ */
+export const enhancePrompt = async (prompt: string): Promise<string> => {
+  try {
+    console.log('[Gemini] Enhancing prompt...');
+
+    if (!prompt || prompt.trim() === '') {
+      throw new Error('Prompt is empty');
+    }
+
+    // Gemini 2.0 Flash モデルを使用してテキスト生成
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.0-flash-lite',
+      contents: {
+        parts: [
+          {
+            text: `You are an expert prompt engineer specializing in image generation prompts.
+
+Your task is to:
+1. Translate the following prompt from Japanese to English (if it's in Japanese)
+2. Optimize it for AI image generation by making it more descriptive and specific
+3. Keep the core meaning and intent of the original prompt
+4. Make it concise but detailed (around 50-100 words)
+5. Return ONLY the optimized English prompt without any explanations or additional text
+
+Original prompt:
+${prompt}
+
+Optimized prompt:`,
+          },
+        ],
+      },
+    });
+
+    const enhancedPrompt = response.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+
+    if (!enhancedPrompt) {
+      throw new Error('No enhanced prompt was generated');
+    }
+
+    console.log('[Gemini] Prompt enhanced successfully');
+    console.log('[Gemini] Original:', prompt);
+    console.log('[Gemini] Enhanced:', enhancedPrompt);
+
+    return enhancedPrompt;
+  } catch (error) {
+    console.error('[Gemini] Error enhancing prompt:', error);
+
+    if (error instanceof Error) {
+      console.error('[Gemini] Error details:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
+      throw error;
+    }
+    throw new Error('Failed to enhance prompt. Please try again.');
+  }
+};

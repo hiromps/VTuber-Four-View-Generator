@@ -73,6 +73,10 @@ export default function Home() {
     const [expressionsError, setExpressionsError] = useState<string | null>(null)
     const [expressionsAdditionalPrompt, setExpressionsAdditionalPrompt] = useState<string>('')
 
+    // Enhance Prompt State
+    const [isEnhancingSheetPrompt, setIsEnhancingSheetPrompt] = useState(false)
+    const [isEnhancingExpressionsPrompt, setIsEnhancingExpressionsPrompt] = useState(false)
+
     const expressionLabels: { [key in ExpressionType]: string } = {
         joy: t('expressions.joy'),
         anger: t('expressions.anger'),
@@ -482,6 +486,62 @@ export default function Home() {
         }
     }, [expressionsImages])
 
+    const handleEnhanceSheetPrompt = useCallback(async () => {
+        if (!sheetAdditionalPrompt || sheetAdditionalPrompt.trim() === '') {
+            return
+        }
+
+        setIsEnhancingSheetPrompt(true)
+        try {
+            const response = await fetch('/api/enhance-prompt', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: sheetAdditionalPrompt }),
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to enhance prompt')
+            }
+
+            setSheetAdditionalPrompt(data.enhancedPrompt)
+        } catch (error) {
+            console.error("Error enhancing prompt:", error)
+            setSheetError(error instanceof Error ? error.message : "Failed to enhance prompt")
+        } finally {
+            setIsEnhancingSheetPrompt(false)
+        }
+    }, [sheetAdditionalPrompt])
+
+    const handleEnhanceExpressionsPrompt = useCallback(async () => {
+        if (!expressionsAdditionalPrompt || expressionsAdditionalPrompt.trim() === '') {
+            return
+        }
+
+        setIsEnhancingExpressionsPrompt(true)
+        try {
+            const response = await fetch('/api/enhance-prompt', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: expressionsAdditionalPrompt }),
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to enhance prompt')
+            }
+
+            setExpressionsAdditionalPrompt(data.enhancedPrompt)
+        } catch (error) {
+            console.error("Error enhancing prompt:", error)
+            setExpressionsError(error instanceof Error ? error.message : "Failed to enhance prompt")
+        } finally {
+            setIsEnhancingExpressionsPrompt(false)
+        }
+    }, [expressionsAdditionalPrompt])
+
     const hasAnyGeneratedImages = Object.values(generatedImages).some(img => img !== null)
     const hasAnyGeneratedExpressionImages = Object.values(expressionsImages).some(img => img !== null)
 
@@ -646,14 +706,39 @@ export default function Home() {
                                 <label htmlFor="sheet-additional-prompt" className="block text-sm font-medium text-gray-300 mb-2">
                                     {t('customize.additionalInstructions')}
                                 </label>
-                                <textarea
-                                    id="sheet-additional-prompt"
-                                    rows={3}
-                                    value={sheetAdditionalPrompt}
-                                    onChange={(e) => setSheetAdditionalPrompt(e.target.value)}
-                                    placeholder={t('customize.placeholder')}
-                                    className="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white placeholder-gray-400 focus:ring-purple-500 focus:border-purple-500 transition"
-                                />
+                                <div className="relative">
+                                    <textarea
+                                        id="sheet-additional-prompt"
+                                        rows={3}
+                                        value={sheetAdditionalPrompt}
+                                        onChange={(e) => setSheetAdditionalPrompt(e.target.value)}
+                                        placeholder={t('customize.placeholder')}
+                                        className="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white placeholder-gray-400 focus:ring-purple-500 focus:border-purple-500 transition"
+                                    />
+                                    <button
+                                        onClick={handleEnhanceSheetPrompt}
+                                        disabled={!sheetAdditionalPrompt || sheetAdditionalPrompt.trim() === '' || isEnhancingSheetPrompt}
+                                        className="absolute bottom-2 left-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:from-gray-500 disabled:to-gray-600 disabled:cursor-not-allowed text-white text-xs font-medium py-1 px-2.5 rounded transition-all duration-200 flex items-center gap-1"
+                                        title="プロンプトを英語に変換して最適化"
+                                    >
+                                        {isEnhancingSheetPrompt ? (
+                                            <>
+                                                <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                                <span>最適化中...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                                </svg>
+                                                <span>Enhance Prompt</span>
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
                                 <p className="text-xs text-gray-400 mt-1">
                                     {t('customize.hint')}
                                 </p>
@@ -754,14 +839,39 @@ export default function Home() {
                                 <label htmlFor="expressions-additional-prompt" className="block text-sm font-medium text-gray-300 mb-2">
                                     {t('customize.additionalInstructions')}
                                 </label>
-                                <textarea
-                                    id="expressions-additional-prompt"
-                                    rows={3}
-                                    value={expressionsAdditionalPrompt}
-                                    onChange={(e) => setExpressionsAdditionalPrompt(e.target.value)}
-                                    placeholder={t('customize.placeholder')}
-                                    className="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white placeholder-gray-400 focus:ring-purple-500 focus:border-purple-500 transition"
-                                />
+                                <div className="relative">
+                                    <textarea
+                                        id="expressions-additional-prompt"
+                                        rows={3}
+                                        value={expressionsAdditionalPrompt}
+                                        onChange={(e) => setExpressionsAdditionalPrompt(e.target.value)}
+                                        placeholder={t('customize.placeholder')}
+                                        className="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white placeholder-gray-400 focus:ring-purple-500 focus:border-purple-500 transition"
+                                    />
+                                    <button
+                                        onClick={handleEnhanceExpressionsPrompt}
+                                        disabled={!expressionsAdditionalPrompt || expressionsAdditionalPrompt.trim() === '' || isEnhancingExpressionsPrompt}
+                                        className="absolute bottom-2 left-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:from-gray-500 disabled:to-gray-600 disabled:cursor-not-allowed text-white text-xs font-medium py-1 px-2.5 rounded transition-all duration-200 flex items-center gap-1"
+                                        title="プロンプトを英語に変換して最適化"
+                                    >
+                                        {isEnhancingExpressionsPrompt ? (
+                                            <>
+                                                <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                                <span>最適化中...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                                </svg>
+                                                <span>Enhance Prompt</span>
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
                                 <p className="text-xs text-gray-400 mt-1">
                                     {t('customize.hint')}
                                 </p>
