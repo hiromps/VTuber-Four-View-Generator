@@ -3,8 +3,8 @@
  * Xシェア用に最適化 (1200x1200px)
  */
 export async function composeGridImages(
-  images: { [key: string]: string | null },
-  labels: { [key: string]: string }
+  images: Record<string, string | null>,
+  labels: Record<string, string>
 ): Promise<string> {
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d')
@@ -80,8 +80,8 @@ export async function composeGridImages(
  * Xシェア用に最適化 (1600x500px - 16:5比率)
  */
 export async function composeRowImages(
-  images: { [key: string]: string | null },
-  labels: { [key: string]: string }
+  images: Record<string, string | null>,
+  labels: Record<string, string>
 ): Promise<string> {
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d')
