@@ -22,13 +22,12 @@ export default function TokenDisplay({ tokens, onBuyTokens }: TokenDisplayProps)
       </div>
       <button
         onClick={onBuyTokens}
-        className="bg-green-600 hover:bg-green-700 text-white font-semibold py-1.5 px-2 sm:py-2 sm:px-3 md:px-4 rounded-lg transition flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm md:text-base"
+        className="bg-green-600 hover:bg-green-700 text-white font-semibold py-1.5 px-2 sm:py-2 sm:px-3 md:px-4 rounded-lg transition flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm md:text-base whitespace-nowrap"
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 20 20" fill="currentColor">
           <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
         </svg>
-        <span className="hidden sm:inline">{t('tokens.buyTokens')}</span>
-        <span className="sm:hidden">+</span>
+        <span>{t('tokens.buyTokens')}</span>
       </button>
     </div>
   )
