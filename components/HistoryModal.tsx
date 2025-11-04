@@ -91,17 +91,18 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-800 rounded-lg w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+      <div className="bg-gray-800 rounded-lg w-full max-w-7xl h-[95vh] sm:h-auto sm:max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex justify-between items-center p-4 md:p-6 border-b border-gray-700">
-          <h2 className="text-xl md:text-2xl font-bold text-white">生成履歴</h2>
+        <div className="flex justify-between items-center p-3 sm:p-4 md:p-6 border-b border-gray-700 flex-shrink-0">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white">生成履歴</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white transition"
+            className="text-gray-400 hover:text-white transition p-1"
+            aria-label="閉じる"
           >
             <svg
-              className="h-6 w-6"
+              className="h-5 w-5 sm:h-6 sm:w-6"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -117,7 +118,7 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-6">
+        <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 min-h-0">
           {loading ? (
             <div className="flex justify-center items-center h-64">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
@@ -127,15 +128,15 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
               <p>まだ生成履歴がありません</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
               {history.map((item) => (
                 <div
                   key={item.id}
-                  className="bg-gray-700 rounded-lg overflow-hidden hover:ring-2 hover:ring-purple-500 transition cursor-pointer"
+                  className="bg-gray-700 rounded-lg overflow-hidden hover:ring-2 hover:ring-purple-500 transition cursor-pointer flex flex-col"
                   onClick={() => setSelectedItem(item)}
                 >
                   {/* Thumbnail */}
-                  <div className="aspect-square bg-gray-600 relative">
+                  <div className="aspect-square bg-gray-600 relative flex-shrink-0">
                     {typeof item.images === 'string' ? (
                       <img
                         src={item.images}
@@ -159,9 +160,9 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
                   </div>
 
                   {/* Info */}
-                  <div className="p-3">
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="text-xs bg-purple-600 text-white px-2 py-1 rounded">
+                  <div className="p-2 sm:p-3 flex-shrink-0">
+                    <div className="flex justify-between items-start mb-2 gap-2">
+                      <span className="text-xs bg-purple-600 text-white px-2 py-1 rounded whitespace-nowrap">
                         {getGenerationTypeLabel(item.generation_type)}
                       </span>
                       <button
@@ -169,7 +170,8 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
                           e.stopPropagation()
                           handleDelete(item.id)
                         }}
-                        className="text-red-400 hover:text-red-300 transition"
+                        className="text-red-400 hover:text-red-300 transition flex-shrink-0 p-1"
+                        aria-label="削除"
                       >
                         <svg
                           className="h-4 w-4"
@@ -187,7 +189,7 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
                       </button>
                     </div>
                     {item.prompt && (
-                      <p className="text-sm text-gray-300 line-clamp-2 mb-2">
+                      <p className="text-xs sm:text-sm text-gray-300 line-clamp-2 mb-2">
                         {item.prompt}
                       </p>
                     )}
@@ -204,53 +206,62 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
         {/* Detail Modal */}
         {selectedItem && (
           <div
-            className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[60] p-2 sm:p-4"
             onClick={() => setSelectedItem(null)}
           >
             <div
-              className="bg-gray-800 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+              className="bg-gray-800 rounded-lg w-full max-w-5xl h-[95vh] sm:h-auto sm:max-h-[90vh] overflow-hidden flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-xl font-bold text-white">
-                    {getGenerationTypeLabel(selectedItem.generation_type)}
-                  </h3>
-                  <button
-                    onClick={() => setSelectedItem(null)}
-                    className="text-gray-400 hover:text-white transition"
-                  >
-                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
+              {/* Detail Header */}
+              <div className="flex justify-between items-start p-4 sm:p-6 border-b border-gray-700 flex-shrink-0">
+                <h3 className="text-lg sm:text-xl font-bold text-white">
+                  {getGenerationTypeLabel(selectedItem.generation_type)}
+                </h3>
+                <button
+                  onClick={() => setSelectedItem(null)}
+                  className="text-gray-400 hover:text-white transition p-1 flex-shrink-0"
+                  aria-label="閉じる"
+                >
+                  <svg className="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
 
+              {/* Detail Content */}
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6 min-h-0">
                 {selectedItem.prompt && (
-                  <div className="mb-4">
-                    <p className="text-sm text-gray-400 mb-1">プロンプト:</p>
-                    <p className="text-white">{selectedItem.prompt}</p>
+                  <div className="mb-4 sm:mb-6">
+                    <p className="text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2">プロンプト:</p>
+                    <p className="text-sm sm:text-base text-white break-words">{selectedItem.prompt}</p>
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   {typeof selectedItem.images === 'string' ? (
-                    <img
-                      src={selectedItem.images}
-                      alt="Generated"
-                      className="w-full rounded-lg"
-                    />
+                    <div className="sm:col-span-2">
+                      <img
+                        src={selectedItem.images}
+                        alt="Generated"
+                        className="w-full rounded-lg max-h-[70vh] object-contain mx-auto"
+                      />
+                    </div>
                   ) : (
                     Object.entries(selectedItem.images).map(([key, url]) => (
-                      <div key={key}>
-                        <p className="text-sm text-gray-400 mb-2 capitalize">{key}</p>
-                        <img src={url} alt={key} className="w-full rounded-lg" />
+                      <div key={key} className="flex flex-col">
+                        <p className="text-xs sm:text-sm text-gray-400 mb-2 capitalize font-semibold">{key}</p>
+                        <img
+                          src={url}
+                          alt={key}
+                          className="w-full rounded-lg object-contain"
+                        />
                       </div>
                     ))
                   )}
                 </div>
 
-                <p className="text-xs text-gray-500 mt-4">
+                <p className="text-xs text-gray-500 mt-4 sm:mt-6">
                   生成日時: {formatDate(selectedItem.created_at)}
                 </p>
               </div>
