@@ -4,6 +4,15 @@ import { generateFacialExpression } from '@/services/geminiService'
 import { ExpressionType } from '@/types'
 import { NextRequest, NextResponse } from 'next/server'
 
+// APIルートのボディサイズ制限を10MBに設定
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '10mb',
+    },
+  },
+}
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()

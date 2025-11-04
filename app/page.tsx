@@ -273,6 +273,14 @@ export default function Home() {
                 }),
             })
 
+            // レスポンスのコンテンツタイプをチェック
+            const contentType = response.headers.get('content-type')
+            if (!contentType || !contentType.includes('application/json')) {
+                const text = await response.text()
+                console.error('Non-JSON response:', text)
+                throw new Error('画像サイズが大きすぎるか、サーバーエラーが発生しました。より小さい画像をお試しください。')
+            }
+
             const data = await response.json()
 
             if (!response.ok) {
@@ -287,7 +295,11 @@ export default function Home() {
 
         } catch (error) {
             console.error("Error generating character sheet:", error)
-            setSheetError(error instanceof Error ? error.message : "An unknown error occurred.")
+            if (error instanceof Error && error.message.includes('JSON')) {
+                setSheetError('画像サイズが大きすぎる可能性があります。より小さい画像をお試しください。')
+            } else {
+                setSheetError(error instanceof Error ? error.message : "An unknown error occurred.")
+            }
         } finally {
             setIsSheetLoading(false)
         }
@@ -369,6 +381,14 @@ export default function Home() {
                 }),
             })
 
+            // レスポンスのコンテンツタイプをチェック
+            const contentType = response.headers.get('content-type')
+            if (!contentType || !contentType.includes('application/json')) {
+                const text = await response.text()
+                console.error('Non-JSON response:', text)
+                throw new Error('画像サイズが大きすぎるか、サーバーエラーが発生しました。より小さい画像をお試しください。')
+            }
+
             const data = await response.json()
 
             if (!response.ok) {
@@ -380,7 +400,11 @@ export default function Home() {
 
         } catch (error) {
             console.error("Error generating facial expressions:", error)
-            setExpressionsError(error instanceof Error ? error.message : "An unknown error occurred.")
+            if (error instanceof Error && error.message.includes('JSON')) {
+                setExpressionsError('画像サイズが大きすぎる可能性があります。より小さい画像をお試しください。')
+            } else {
+                setExpressionsError(error instanceof Error ? error.message : "An unknown error occurred.")
+            }
         } finally {
             setIsExpressionsLoading(false)
         }
