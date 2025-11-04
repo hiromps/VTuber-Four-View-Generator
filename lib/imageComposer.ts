@@ -1,6 +1,6 @@
 /**
- * 4枚の画像を2x2グリッドで1枚に合成する
- * Xシェア用に最適化 (1200x1200px)
+ * 4枚の画像を1枚に合成する（16:9横長レイアウト）
+ * Xシェア用に最適化 (1200x675px)
  */
 export async function composeGridImages(
   images: Record<string, string | null>,
@@ -10,32 +10,38 @@ export async function composeGridImages(
   const ctx = canvas.getContext('2d')
   if (!ctx) throw new Error('Canvas context not available')
 
-  // X最適化サイズ: 1200x1200 (正方形)
-  const canvasSize = 1200
-  const imageSize = 560 // 各画像のサイズ
-  const gap = 20 // 画像間の隙間
-  const padding = 20 // 外側の余白
-  const labelHeight = 30 // ラベルの高さ
+  // X最適化サイズ: 1200x675 (16:9)
+  const canvasWidth = 1200
+  const canvasHeight = 675
+  const imageSize = 280 // 各画像のサイズ
+  const gap = 15 // 画像間の隙間
+  const labelHeight = 28 // ラベルの高さ
+  const titleHeight = 60 // タイトル領域の高さ
 
-  canvas.width = canvasSize
-  canvas.height = canvasSize
+  canvas.width = canvasWidth
+  canvas.height = canvasHeight
 
   // 背景色（ダークグレー）
   ctx.fillStyle = '#1a1a1a'
-  ctx.fillRect(0, 0, canvasSize, canvasSize)
+  ctx.fillRect(0, 0, canvasWidth, canvasHeight)
 
   // タイトルを追加
   ctx.fillStyle = '#ffffff'
-  ctx.font = 'bold 32px sans-serif'
+  ctx.font = 'bold 28px sans-serif'
   ctx.textAlign = 'center'
-  ctx.fillText('VTuber Four-View Generator', canvasSize / 2, 50)
+  ctx.fillText('VTuber Four-View Generator', canvasWidth / 2, 40)
 
-  // 4枚の画像を配置
+  // 4枚の画像を2x2グリッドで配置（中央寄せ）
+  const gridWidth = imageSize * 2 + gap
+  const gridHeight = (imageSize + labelHeight) * 2 + gap
+  const startX = (canvasWidth - gridWidth) / 2
+  const startY = titleHeight + (canvasHeight - titleHeight - gridHeight) / 2
+
   const positions = [
-    { key: 'front', x: padding, y: padding + 70 },
-    { key: 'back', x: padding + imageSize + gap, y: padding + 70 },
-    { key: 'left', x: padding, y: padding + imageSize + gap + labelHeight + 70 },
-    { key: 'right', x: padding + imageSize + gap, y: padding + imageSize + gap + labelHeight + 70 },
+    { key: 'front', x: startX, y: startY },
+    { key: 'back', x: startX + imageSize + gap, y: startY },
+    { key: 'left', x: startX, y: startY + imageSize + labelHeight + gap },
+    { key: 'right', x: startX + imageSize + gap, y: startY + imageSize + labelHeight + gap },
   ]
 
   await Promise.all(
@@ -54,9 +60,9 @@ export async function composeGridImages(
           ctx.fillStyle = '#8b5cf6' // 紫色
           ctx.fillRect(x, y + imageSize, imageSize, labelHeight)
           ctx.fillStyle = '#ffffff'
-          ctx.font = 'bold 18px sans-serif'
+          ctx.font = 'bold 16px sans-serif'
           ctx.textAlign = 'center'
-          ctx.fillText(labels[key], x + imageSize / 2, y + imageSize + labelHeight / 2 + 6)
+          ctx.fillText(labels[key], x + imageSize / 2, y + imageSize + labelHeight / 2 + 5)
 
           resolve()
         }
@@ -68,9 +74,9 @@ export async function composeGridImages(
 
   // ウォーターマーク
   ctx.fillStyle = '#666666'
-  ctx.font = '14px sans-serif'
+  ctx.font = '13px sans-serif'
   ctx.textAlign = 'center'
-  ctx.fillText('vtuber-four-view-generator.vercel.app', canvasSize / 2, canvasSize - 15)
+  ctx.fillText('vtuber-four-view-generator.vercel.app', canvasWidth / 2, canvasHeight - 12)
 
   return canvas.toDataURL('image/png', 0.95)
 }
