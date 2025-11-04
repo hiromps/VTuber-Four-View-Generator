@@ -13,9 +13,9 @@ export async function composeGridImages(
   // X最適化サイズ: 1200x675 (16:9)
   const canvasWidth = 1200
   const canvasHeight = 675
-  const imageSize = 270 // 各画像のサイズ
-  const gap = 15 // 画像間の隙間
-  const labelHeight = 28 // ラベルの高さ
+  const imageSize = 280 // 各画像のサイズ
+  const gap = 10 // 画像間の隙間
+  const labelHeight = 32 // ラベルの高さ
 
   canvas.width = canvasWidth
   canvas.height = canvasHeight
@@ -26,15 +26,15 @@ export async function composeGridImages(
 
   // タイトルを追加
   ctx.fillStyle = '#ffffff'
-  ctx.font = 'bold 28px sans-serif'
+  ctx.font = 'bold 32px sans-serif'
   ctx.textAlign = 'center'
-  ctx.fillText('VTuber Four-View Generator', canvasWidth / 2, 40)
+  ctx.fillText('VTuber Four-View Generator', canvasWidth / 2, 45)
 
   // 4枚の画像を横一列に配置（front, back, left, right の順）
   const keys = ['front', 'back', 'left', 'right']
   const totalWidth = imageSize * 4 + gap * 3
   const startX = (canvasWidth - totalWidth) / 2
-  const startY = 90
+  const startY = 160
 
   await Promise.all(
     keys.map(async (key, index) => {
