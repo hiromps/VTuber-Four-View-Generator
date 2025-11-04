@@ -27,6 +27,16 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
   useEffect(() => {
     if (isOpen) {
       fetchHistory()
+      // モバイルで背景がスクロールしないようにする
+      document.body.style.overflow = 'hidden'
+    } else {
+      // モーダルを閉じた時にスクロールを復元
+      document.body.style.overflow = 'unset'
+    }
+
+    // クリーンアップ
+    return () => {
+      document.body.style.overflow = 'unset'
     }
   }, [isOpen])
 
