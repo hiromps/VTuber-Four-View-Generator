@@ -41,7 +41,7 @@ export const generateCharacterSheetView = async (
   additionalPrompt: string = ''
 ): Promise<string> => {
   try {
-    console.log(`[Gemini] Generating ${view} view...`);
+    console.log(`[Imagen] Generating ${view} view...`);
 
     // Base64文字列とMIMEタイプの検証
     if (!base64Image || base64Image.trim() === '') {
@@ -55,44 +55,37 @@ export const generateCharacterSheetView = async (
 
     // Base64文字列から空白・改行を削除
     const cleanBase64 = base64Image.replace(/[\r\n\s]/g, '');
-    console.log(`[Gemini] Base64 length: ${cleanBase64.length}, MIME: ${mimeType}`);
+    console.log(`[Imagen] Base64 length: ${cleanBase64.length}, MIME: ${mimeType}`);
 
-    // Gemini 2.5 Flash with image generation support
-    console.log('[Gemini] Calling Gemini API with model: gemini-2.5-flash');
-    const response: GenerateContentResponse = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: {
-        parts: [
-          {
-            inlineData: {
-              data: cleanBase64,
-              mimeType: mimeType,
-            },
-          },
-          {
-            text: getPromptForView(view, additionalPrompt),
-          },
-        ],
+    // Imagen 4.0を使用して画像編集
+    console.log('[Imagen] Calling Imagen API for image editing...');
+    const response = await ai.models.editImage({
+      model: 'imagen-4.0-generate-001',
+      prompt: getPromptForView(view, additionalPrompt),
+      image: {
+        imageBytes: cleanBase64,
       },
       config: {
-        responseModalities: [Modality.IMAGE],
+        numberOfImages: 1,
+        outputMimeType: 'image/png',
       },
     });
 
-    console.log('[Gemini] API call successful, processing response...');
-    for (const part of response.candidates?.[0]?.content?.parts || []) {
-      if (part.inlineData) {
-        console.log(`[Gemini] Image generated for ${view} view successfully`);
-        return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+    console.log('[Imagen] API call successful, processing response...');
+    if (response.generatedImages && response.generatedImages.length > 0) {
+      const base64ImageBytes = response.generatedImages[0].image?.imageBytes;
+      if (base64ImageBytes) {
+        console.log(`[Imagen] Image generated for ${view} view successfully`);
+        return `data:image/png;base64,${base64ImageBytes}`;
       }
     }
     throw new Error('No image was generated for the character sheet view.');
   } catch (error) {
-    console.error(`[Gemini] Error generating ${view} view:`, error);
+    console.error(`[Imagen] Error generating ${view} view:`, error);
 
     // より詳細なエラーメッセージを提供
     if (error instanceof Error) {
-      console.error(`[Gemini] Error details:`, {
+      console.error(`[Imagen] Error details:`, {
         name: error.name,
         message: error.message,
         stack: error.stack
@@ -160,6 +153,8 @@ export const generateFacialExpression = async (
   additionalPrompt: string = ''
 ): Promise<string> => {
   try {
+    console.log(`[Imagen] Generating ${expression} expression...`);
+
     // Base64文字列とMIMEタイプの検証
     if (!base64Image || base64Image.trim() === '') {
       throw new Error('Base64 image data is empty');
@@ -172,40 +167,41 @@ export const generateFacialExpression = async (
 
     // Base64文字列から空白・改行を削除
     const cleanBase64 = base64Image.replace(/[\r\n\s]/g, '');
+    console.log(`[Imagen] Base64 length: ${cleanBase64.length}, MIME: ${mimeType}`);
 
-    // Gemini 2.5 Flash with image generation support
-    console.log('[Gemini] Calling Gemini API with model: gemini-2.5-flash');
-    const response: GenerateContentResponse = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: {
-        parts: [
-          {
-            inlineData: {
-              data: cleanBase64,
-              mimeType: mimeType,
-            },
-          },
-          {
-            text: getPromptForExpression(expression, additionalPrompt),
-          },
-        ],
+    // Imagen 4.0を使用して画像編集
+    console.log('[Imagen] Calling Imagen API for image editing...');
+    const response = await ai.models.editImage({
+      model: 'imagen-4.0-generate-001',
+      prompt: getPromptForExpression(expression, additionalPrompt),
+      image: {
+        imageBytes: cleanBase64,
       },
       config: {
-        responseModalities: [Modality.IMAGE],
+        numberOfImages: 1,
+        outputMimeType: 'image/png',
       },
     });
 
-    for (const part of response.candidates?.[0]?.content?.parts || []) {
-      if (part.inlineData) {
-        return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+    console.log('[Imagen] API call successful, processing response...');
+    if (response.generatedImages && response.generatedImages.length > 0) {
+      const base64ImageBytes = response.generatedImages[0].image?.imageBytes;
+      if (base64ImageBytes) {
+        console.log(`[Imagen] Image generated for ${expression} expression successfully`);
+        return `data:image/png;base64,${base64ImageBytes}`;
       }
     }
     throw new Error('No image was generated for the facial expression.');
   } catch (error) {
-    console.error(`Error generating ${expression} expression:`, error);
+    console.error(`[Imagen] Error generating ${expression} expression:`, error);
 
     // より詳細なエラーメッセージを提供
     if (error instanceof Error) {
+      console.error(`[Imagen] Error details:`, {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
       if (error.message.includes('did not match')) {
         throw new Error(`Invalid image format. Please ensure you upload a valid PNG, JPEG, or WebP image.`);
       }
