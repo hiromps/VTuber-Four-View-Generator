@@ -112,7 +112,7 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
         shareText = `VTuberのコンセプトアートを生成しました！\n\n#四面図AI #VTuber #AIart`
       } else {
         // キャラクターシートまたは表情差分（4枚画像）
-        const labels = item.generation_type === 'character_sheet'
+        const labels: Record<string, string> = item.generation_type === 'character_sheet'
           ? { front: '正面', back: '背面', left: '左側', right: '右側' }
           : { joy: '喜', anger: '怒', sorrow: '哀', surprise: '驚' }
 
