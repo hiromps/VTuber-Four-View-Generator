@@ -133,6 +133,9 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
       link.click()
       document.body.removeChild(link)
 
+      // ダウンロード完了を待ってからXに遷移
+      await new Promise(resolve => setTimeout(resolve, 500))
+
       // Xシェア画面を開く
       const appUrl = window.location.origin
       const twitterUrl = generateTwitterShareUrl(shareText, appUrl)

@@ -539,6 +539,9 @@ export default function Home() {
             link.click()
             document.body.removeChild(link)
 
+            // ダウンロード完了を待ってからXに遷移
+            await new Promise(resolve => setTimeout(resolve, 500))
+
             // Xシェア用URLを開く
             const shareText = `VTuberの四面図を生成しました！\n\n#四面図AI #VTuber #AIart`
             const appUrl = window.location.origin
@@ -571,6 +574,9 @@ export default function Home() {
             document.body.appendChild(link)
             link.click()
             document.body.removeChild(link)
+
+            // ダウンロード完了を待ってからXに遷移
+            await new Promise(resolve => setTimeout(resolve, 500))
 
             // Xシェア用URLを開く
             const shareText = `VTuberの表情差分を生成しました！\n\n#四面図AI #VTuber #AIart`
