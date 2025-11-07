@@ -1,9 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
-import { consumeTokens } from '@/lib/tokens'
+import { consumeTokens, refundTokens } from '@/lib/tokens'
 import { generateFacialExpression } from '@/services/geminiService'
 import { uploadImageToStorage, saveImageHistory } from '@/lib/storage'
 import { ExpressionType } from '@/types'
 import { NextRequest, NextResponse } from 'next/server'
+import { getErrorMessage, getGenerationErrorMessage, ERROR_MESSAGES } from '@/lib/error-messages'
 
 // APIルートのボディサイズ制限を10MBに設定
 export const config = {
@@ -23,14 +24,14 @@ export async function POST(request: NextRequest) {
     } = await supabase.auth.getUser()
 
     if (userError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: ERROR_MESSAGES.UNAUTHORIZED }, { status: 401 })
     }
 
     const { base64Image, mimeType, additionalPrompt, attachedImageBase64, attachedImageMimeType } = await request.json()
 
     if (!base64Image || !mimeType) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: ERROR_MESSAGES.MISSING_REQUIRED_FIELDS },
         { status: 400 }
       )
     }
@@ -40,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     if (!result.success) {
       return NextResponse.json(
-        { error: result.error || 'Insufficient tokens', tokens: result.newBalance },
+        { error: result.error || ERROR_MESSAGES.INSUFFICIENT_TOKENS, tokens: result.newBalance },
         { status: 402 }
       )
     }
@@ -103,28 +104,45 @@ export async function POST(request: NextRequest) {
         tokens: result.newBalance,
       })
     } catch (error) {
-      // If generation fails, we should ideally refund the tokens
-      // For now, just return the error
+      // Refund tokens when generation fails
       console.error('Image generation error:', error)
-      const errorMessage = error instanceof Error ? error.message : 'Failed to generate facial expressions'
       console.error('Error details:', {
-        message: errorMessage,
+        message: error instanceof Error ? error.message : 'Unknown error',
         stack: error instanceof Error ? error.stack : undefined,
         error: error
       })
+
+      const refundResult = await refundTokens(user.id, 'FACIAL_EXPRESSIONS')
+
+      if (refundResult.success) {
+        console.log(`Tokens refunded successfully. New balance: ${refundResult.newBalance}`)
+      } else {
+        console.error('Failed to refund tokens:', refundResult.error)
+      }
+
+      const errorMessage = getErrorMessage(error)
+      const userMessage = getGenerationErrorMessage('FACIAL_EXPRESSIONS')
+
       return NextResponse.json(
-        { error: errorMessage },
+        {
+          error: userMessage,
+          details: errorMessage,
+          tokens: refundResult.newBalance,
+          refunded: refundResult.success
+        },
         { status: 500 }
       )
     }
   } catch (error) {
     console.error('Facial expressions generation error:', error)
-    const errorMessage = error instanceof Error ? error.message : 'Failed to generate facial expressions'
     console.error('Error details:', {
-      message: errorMessage,
+      message: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : undefined,
       error: error
     })
+
+    const errorMessage = getErrorMessage(error)
+
     return NextResponse.json(
       { error: errorMessage },
       { status: 500 }

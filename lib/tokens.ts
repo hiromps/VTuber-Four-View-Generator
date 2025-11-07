@@ -138,6 +138,70 @@ export async function hasUserPurchasedPackage(userId: string, packageId: string)
   }
 }
 
+// Refund tokens (when generation fails)
+export async function refundTokens(
+  userId: string,
+  type: GenerationType
+): Promise<{ success: boolean; newBalance: number; error?: string }> {
+  const supabase = await createClient()
+  const cost = TOKEN_COSTS[type]
+
+  try {
+    console.log(`Refunding tokens: userId=${userId}, type=${type}, amount=${cost}`)
+
+    // Get current balance
+    const currentTokens = await getUserTokens(userId)
+    console.log(`Current token balance: ${currentTokens}`)
+
+    // Add tokens back
+    const newBalance = currentTokens + cost
+    console.log(`Refunding tokens: new balance will be ${newBalance}`)
+
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({ tokens: newBalance })
+      .eq('id', userId)
+
+    if (updateError) {
+      console.error('Error updating user tokens for refund:', updateError)
+      throw updateError
+    }
+
+    // Record refund transaction
+    const transactionType =
+      type === 'CHARACTER_SHEET' ? 'refund_sheet' :
+      type === 'FACIAL_EXPRESSIONS' ? 'refund_expressions' :
+      'refund_concept'
+
+    console.log(`Recording refund transaction: type=${transactionType}, amount=${cost}`)
+
+    const { error: transactionError } = await supabase
+      .from('transactions')
+      .insert({
+        user_id: userId,
+        type: transactionType,
+        amount: cost,
+        balance_after: newBalance,
+      })
+
+    if (transactionError) {
+      console.error('Error recording refund transaction:', transactionError)
+      throw transactionError
+    }
+
+    console.log('Token refund successful')
+    return { success: true, newBalance }
+  } catch (error) {
+    console.error('Error refunding tokens:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Failed to refund tokens'
+    return {
+      success: false,
+      newBalance: 0,
+      error: errorMessage,
+    }
+  }
+}
+
 // Add tokens (after purchase)
 export async function addTokens(
   userId: string,
