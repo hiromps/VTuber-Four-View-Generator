@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, Suspense } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import ReactGA from 'react-ga4'
 
@@ -65,18 +65,23 @@ export const trackEvents = {
     logEvent('payment_error', 'Error', errorType),
 }
 
-export default function GoogleAnalytics() {
+// useSearchParams()を使用するコンポーネントを分離
+function GAPageTracker() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
-
-  useEffect(() => {
-    initGA()
-  }, [])
 
   useEffect(() => {
     const url = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : '')
     logPageView(url)
   }, [pathname, searchParams])
+
+  return null
+}
+
+export default function GoogleAnalytics() {
+  useEffect(() => {
+    initGA()
+  }, [])
 
   // Google Analytics 4 Script (fallback)
   if (!GA_TRACKING_ID) return null
@@ -100,6 +105,9 @@ export default function GoogleAnalytics() {
           `,
         }}
       />
+      <Suspense fallback={null}>
+        <GAPageTracker />
+      </Suspense>
     </>
   )
 }
