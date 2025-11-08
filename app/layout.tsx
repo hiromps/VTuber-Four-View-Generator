@@ -3,7 +3,6 @@ import { Inter } from 'next/font/google'
 import { Metadata } from 'next'
 import Providers from '@/components/Providers'
 import GoogleAnalytics from '@/components/GoogleAnalytics'
-import { GoogleAdSenseScript } from '@/components/GoogleAdSense'
 import { defaultSEO, organizationSchema, howToSchema } from '@/lib/seo-config'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -80,8 +79,6 @@ export default function RootLayout({
   return (
     <html lang="ja" suppressHydrationWarning>
       <head>
-        {/* Google AdSense */}
-        <GoogleAdSenseScript />
         {/* 構造化データ（Schema.org） - ソフトウェアアプリケーション */}
         <script
           key="schema-software"
