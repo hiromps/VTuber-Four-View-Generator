@@ -1,0 +1,11 @@
+{
+  "name": "VTuber四面図AI - AIキャラクター生成ツール",
+  "short_name": "VTuber AI",
+  "description": "AIを使ってVTuberの四面図、表情差分、コンセプトアートを簡単に生成",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#111827",
+  "theme_color": "#8B5CF6",
+  "orientation": "portrait-primary",
+  "categories": ["productivity", "utilities", "graphics"]
+}

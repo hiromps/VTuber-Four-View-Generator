@@ -69,19 +69,7 @@ export const metadata: Metadata = {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
     yahoo: process.env.NEXT_PUBLIC_YAHOO_SITE_VERIFICATION,
   },
-  icons: {
-    icon: [
-      { url: '/favicon.ico' },
-      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
-      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
-    ],
-    apple: [
-      { url: '/apple-touch-icon.png', sizes: '180x180' },
-    ],
-    other: [
-      { rel: 'manifest', url: '/manifest.json' },
-    ],
-  },
+  manifest: '/manifest.json',
 }
 
 export default function RootLayout({
@@ -108,6 +96,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://pagead2.googlesyndication.com" />
         {/* PWA関連 */}
         <meta name="theme-color" content="#8B5CF6" />
+        <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="VTuber四面図AI" />
