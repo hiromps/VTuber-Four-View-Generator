@@ -1,15 +1,15 @@
 export const defaultSEO = {
-  defaultTitle: 'VTuber四面図AI | イラストから3Dモデル用の四面図を自動生成',
+  defaultTitle: 'VTuber四面図AI | イラストから3Dモデル用四面図を自動生成',
   titleTemplate: '%s | VTuber四面図AI',
-  description: 'VTuberのイラストを3Dモデル・Live2D化するための四面図をAIが自動生成。1枚のイラストから正面・背面・左右の4方向を作成。3Dモデリング、Live2D制作の準備をスピーディーに。無料トライアル付き。',
+  description: 'VTuberのイラストをAIで3Dモデル・Live2D用四面図に変換。正面・背面・左右の4方向+表情差分を自動生成。3Dモデリングやモデル制作の資料作りに最適。無料トライアル付き。',
   canonical: 'https://vtuber-ai-generator.com',
   openGraph: {
     type: 'website',
     locale: 'ja_JP',
     url: 'https://vtuber-ai-generator.com',
     siteName: 'VTuber四面図AI',
-    title: 'VTuber四面図AI - イラストから3Dモデル用の四面図を自動生成',
-    description: '1枚のVTuberイラストから3D・Live2D制作に必要な四面図を自動生成。プロ品質の正面・背面・左右4方向の資料を数秒で作成。',
+    title: 'VTuber四面図AI - イラストから3Dモデル用四面図を自動生成',
+    description: 'VTuberのイラストを3D化・Live2D化する際の四面図資料をAIで自動生成。Blender、VRoid、Live2Dでのモデル制作をサポート。初回5トークン無料。',
     images: [
       {
         url: 'https://vtuber-ai-generator.com/og-image.jpg',
@@ -27,7 +27,7 @@ export const defaultSEO = {
   additionalMetaTags: [
     {
       name: 'keywords',
-      content: 'VTuber,3Dモデル,Live2D,四面図,イラスト 3D 変換,キャラクターモデリング,3D化,ターンアラウンド,character sheet,AI,イラスト生成,表情差分,モデリング資料,3Dアバター,バーチャルYouTuber,キャラクターデザイン',
+      content: 'VTuber 3D化,イラスト 3Dモデル化,四面図 作成,Live2D 資料,3Dモデリング 参考資料,VRoid カスタマイズ,Blender VTuber,キャラクター 3D化,表情差分,AI イラスト生成,バーチャルYouTuber,ターンアラウンド,キャラクターシート',
     },
     {
       name: 'author',
@@ -66,32 +66,23 @@ export const defaultSEO = {
 // 構造化データ（Schema.org）
 export const organizationSchema = {
   '@context': 'https://schema.org',
-  '@type': 'SoftwareApplication',
+  '@type': 'WebApplication',
   name: 'VTuber四面図AI',
+  alternateName: 'VTuber 3Dモデル化ツール',
   url: 'https://vtuber-ai-generator.com',
-  description: 'VTuberのイラストを3Dモデル・Live2D化するための四面図を自動生成するAIツール。1枚のイラストから正面・背面・左右の4方向資料を作成し、3Dモデリング作業を効率化します。',
+  description: 'VTuberのイラストを3Dモデル・Live2D用四面図に自動変換するAIツール。Blender、VRoid、Live2Dでのモデル制作をサポート。',
   applicationCategory: 'DesignApplication',
-  applicationSubCategory: '3D Modeling Tool',
   operatingSystem: 'Web Browser',
-  browserRequirements: 'Requires JavaScript. Chrome, Firefox, Safari, Edge対応',
   offers: {
     '@type': 'Offer',
     price: '0',
     priceCurrency: 'JPY',
     availability: 'https://schema.org/InStock',
-    description: '初回5トークン無料。追加トークンは499円から購入可能',
+    priceValidUntil: '2025-12-31',
   },
-  featureList: [
-    '1枚のイラストから四面図（正面・背面・左右）を自動生成',
-    '3DモデルやLive2D制作に最適な資料作成',
-    '表情差分の自動生成',
-    'コンセプトアート作成',
-    '高解像度PNG出力',
-    'ZIP一括ダウンロード',
-  ],
   creator: {
     '@type': 'Organization',
-    name: 'VTuber四面図AI Team',
+    name: 'VTuber四面図AI',
     url: 'https://vtuber-ai-generator.com',
   },
   aggregateRating: {
@@ -101,7 +92,14 @@ export const organizationSchema = {
     bestRating: '5',
     worstRating: '1',
   },
-  screenshot: 'https://vtuber-ai-generator.com/og-image.jpg',
+  featureList: [
+    'イラストから四面図（正面・背面・左右）を自動生成',
+    '表情差分（喜怒哀楽）の自動作成',
+    '3Dモデリング用参考資料の出力',
+    'Live2D制作用キャラクターシート作成',
+    'PNG高解像度ダウンロード',
+    'ZIP一括ダウンロード',
+  ],
 };
 
 export const faqSchema = {
@@ -113,15 +111,15 @@ export const faqSchema = {
       name: 'VTuber四面図AIとは何ですか？',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'VTuber四面図AIは、VTuberのイラストを3DモデルやLive2D化するために必要な四面図（正面・背面・左右の4方向）を自動生成するAIツールです。1枚のイラストをアップロードするだけで、3Dモデリングに必要な参考資料を数秒で作成できます。',
+        text: 'VTuber四面図AIは、VTuberのイラストを3Dモデル・Live2D用の四面図（正面・背面・左右）に自動変換するAIツールです。Blender、VRoid、Live2Dでのモデル制作に必要な参考資料を数秒で作成できます。',
       },
     },
     {
       '@type': 'Question',
-      name: 'VTuberのイラストを3Dモデルにするにはどうすればいいですか？',
+      name: '3Dモデル化やLive2D化に使えますか？',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'VTuberのイラストを3Dモデルにするには、まず四面図（正面・背面・左右）の参考資料が必要です。VTuber四面図AIでイラストから四面図を自動生成し、その資料をBlender、Maya、VRoid Studioなどの3Dモデリングソフトで参考にしながらモデリングします。Live2Dの場合も同様に四面図を参考資料として使用できます。',
+        text: 'はい、生成された四面図は3Dモデリング（Blender、VRoid等）やLive2D制作の参考資料として使用できます。正面・背面・左右の4方向の画像により、キャラクターを立体的に把握できます。',
       },
     },
     {
@@ -129,7 +127,7 @@ export const faqSchema = {
       name: '料金はいくらですか？',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: '初回登録で5トークン無料。四面図生成（正面・背面・左右の4枚）は4トークン、コンセプトアートは1トークン必要です。追加トークンは10個499円から購入可能。毎日広告を見ることで1トークン無料獲得も可能です。',
+        text: '初回登録で5トークン無料。四面図生成は4トークン、表情差分は4トークン、コンセプトアートは1トークン必要です。追加トークンは10個499円から購入可能。広告視聴で1日1トークン無料獲得も可能です。',
       },
     },
     {
@@ -137,7 +135,7 @@ export const faqSchema = {
       name: '生成した画像の商用利用は可能ですか？',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'はい、生成された四面図や表情差分は商用利用可能です。VTuberの3Dモデル制作、Live2D制作、キャラクターグッズ制作などにご自由にお使いいただけます。ただし、利用規約に従ってご使用ください。',
+        text: 'はい、生成された画像は商用利用可能です。3Dモデル制作、Live2D制作、YouTube配信、グッズ制作など様々な用途でご利用いただけます。',
       },
     },
     {
@@ -145,36 +143,28 @@ export const faqSchema = {
       name: 'どのような形式で画像をダウンロードできますか？',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'PNG形式で高解像度（1024x1024px）の画像をダウンロード可能です。四面図の4枚すべてをZIPファイルでまとめてダウンロードでき、3Dモデリングソフトで参照しやすいように整理されています。',
+        text: 'PNG形式で高解像度の画像をダウンロード可能です。四面図（正面・背面・左右）や表情差分はZIPファイルでまとめてダウンロードできます。',
       },
     },
     {
       '@type': 'Question',
-      name: 'Live2D制作にも使えますか？',
+      name: 'VRoidやBlenderで使用できますか？',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'はい、Live2D制作にも活用できます。生成された四面図を参考に、キャラクターの側面や背面のデザインを把握できるため、Live2Dモデルのパーツ分け作業がスムーズになります。',
-      },
-    },
-    {
-      '@type': 'Question',
-      name: 'どんな3Dモデリングソフトに対応していますか？',
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: '生成された四面図はPNG形式のため、Blender、Maya、3ds Max、ZBrush、VRoid Studio、メタセコイアなど、あらゆる3Dモデリングソフトで参考資料として使用可能です。画像ビューアーで表示しながらモデリングできます。',
+        text: 'はい、生成された四面図画像はVRoid StudioやBlenderでの3Dモデリング時の参考資料として使用できます。四面図により、キャラクターの前後左右を確認しながらモデリングできます。',
       },
     },
   ],
 };
 
-// HowToスキーマ（VTuberイラストの3D化手順）
+// HowTo構造化データ（使い方ガイド）
 export const howToSchema = {
   '@context': 'https://schema.org',
   '@type': 'HowTo',
-  name: 'VTuberのイラストを3Dモデルにする方法',
-  description: 'VTuber四面図AIを使ってイラストから3Dモデル制作用の四面図を生成し、3Dモデリングソフトで3D化する手順',
+  name: 'VTuberのイラストを3Dモデル用四面図に変換する方法',
+  description: 'VTuberのイラストをAIで3Dモデル・Live2D用の四面図に変換する手順を解説します',
   image: 'https://vtuber-ai-generator.com/og-image.jpg',
-  totalTime: 'PT30M',
+  totalTime: 'PT5M',
   estimatedCost: {
     '@type': 'MonetaryAmount',
     currency: 'JPY',
@@ -183,43 +173,85 @@ export const howToSchema = {
   tool: [
     {
       '@type': 'HowToTool',
-      name: 'VTuber四面図AI',
-    },
-    {
-      '@type': 'HowToTool',
-      name: '3DモデリングソフトBlender、VRoid Studio、Maya等',
+      name: 'VTuberのイラスト（PNG/JPEG/WebP）',
     },
   ],
   step: [
     {
       '@type': 'HowToStep',
-      name: 'VTuberのイラストを用意する',
-      text: '3D化したいVTuberキャラクターの正面イラストを用意します。',
+      name: 'ログイン',
+      text: 'VTuber四面図AIにログインします。初回登録で5トークン無料プレゼント。',
       url: 'https://vtuber-ai-generator.com',
-      image: 'https://vtuber-ai-generator.com/og-image.jpg',
+      image: 'https://vtuber-ai-generator.com/guide-step1.jpg',
     },
     {
       '@type': 'HowToStep',
-      name: 'VTuber四面図AIで四面図を生成',
-      text: 'VTuber四面図AIにイラストをアップロードし、正面・背面・左右の4方向の四面図を自動生成します。',
+      name: 'イラストをアップロード',
+      text: 'VTuberの正面向きイラスト（PNG、JPEG、WebP）をアップロードします。512x512ピクセル以上推奨。',
       url: 'https://vtuber-ai-generator.com',
-      image: 'https://vtuber-ai-generator.com/og-image.jpg',
+      image: 'https://vtuber-ai-generator.com/guide-step2.jpg',
     },
     {
       '@type': 'HowToStep',
-      name: '四面図をダウンロード',
-      text: '生成された四面図4枚をZIPファイルでダウンロードします。',
+      name: '生成タイプを選択',
+      text: '四面図生成（4トークン）、表情差分（4トークン）、コンセプトアート（1トークン）から選択します。',
       url: 'https://vtuber-ai-generator.com',
+      image: 'https://vtuber-ai-generator.com/guide-step3.jpg',
     },
     {
       '@type': 'HowToStep',
-      name: '3Dモデリングソフトで参照',
-      text: 'Blender、VRoid Studio、Mayaなどの3Dモデリングソフトで四面図を参照しながらモデリングします。',
+      name: '生成開始',
+      text: '生成ボタンをクリックすると、AIが自動で四面図（正面・背面・左右）を生成します。',
+      url: 'https://vtuber-ai-generator.com',
+      image: 'https://vtuber-ai-generator.com/guide-step4.jpg',
     },
     {
       '@type': 'HowToStep',
-      name: '3Dモデルの完成',
-      text: '四面図を参考にモデリングを進め、VTuberの3Dモデルを完成させます。',
+      name: 'ダウンロード',
+      text: '生成された画像をPNG形式で個別ダウンロード、またはZIPで一括ダウンロードします。',
+      url: 'https://vtuber-ai-generator.com',
+      image: 'https://vtuber-ai-generator.com/guide-step5.jpg',
+    },
+    {
+      '@type': 'HowToStep',
+      name: '3Dモデリングに活用',
+      text: 'ダウンロードした四面図をBlender、VRoid Studio、Live2Dなどで参考資料として使用します。',
+      url: 'https://vtuber-ai-generator.com',
+      image: 'https://vtuber-ai-generator.com/guide-step6.jpg',
+    },
+  ],
+};
+
+// BreadcrumbList構造化データ
+export const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'ホーム',
+      item: 'https://vtuber-ai-generator.com',
+    },
+  ],
+};
+
+// FAQ用BreadcrumbList
+export const faqBreadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'ホーム',
+      item: 'https://vtuber-ai-generator.com',
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'よくある質問',
+      item: 'https://vtuber-ai-generator.com/faq',
     },
   ],
 };
