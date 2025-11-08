@@ -66,6 +66,7 @@ export default function FAQPage() {
     <>
       {/* 構造化データ */}
       <script
+        key="schema-faq"
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(faqSchema),
