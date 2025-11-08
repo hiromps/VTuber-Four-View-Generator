@@ -1,0 +1,17 @@
+# *
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /auth/
+Disallow: /_next/
+
+# Googlebot
+User-agent: Googlebot
+Allow: /
+
+# Host
+Host: https://vtuber-ai-generator.com
+
+# Sitemaps
+Sitemap: https://vtuber-ai-generator.com/sitemap.xml
+Sitemap: https://vtuber-ai-generator.com/server-sitemap.xml
