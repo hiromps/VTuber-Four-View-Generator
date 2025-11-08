@@ -3,7 +3,8 @@ import { Inter } from 'next/font/google'
 import { Metadata } from 'next'
 import Providers from '@/components/Providers'
 import GoogleAnalytics from '@/components/GoogleAnalytics'
-import { defaultSEO, organizationSchema, howToSchema } from '@/lib/seo-config'
+import { GoogleAdSenseScript } from '@/components/GoogleAdSense'
+import { defaultSEO, organizationSchema, howToSchema, breadcrumbSchema } from '@/lib/seo-config'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -79,20 +80,25 @@ export default function RootLayout({
   return (
     <html lang="ja" suppressHydrationWarning>
       <head>
-        {/* 構造化データ（Schema.org） - ソフトウェアアプリケーション */}
+        {/* Google AdSense */}
+        <GoogleAdSenseScript />
+        {/* 構造化データ（Schema.org） */}
         <script
-          key="schema-software"
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(organizationSchema),
           }}
         />
-        {/* 構造化データ（Schema.org） - How To（3D化手順） */}
         <script
-          key="schema-howto"
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(howToSchema),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(breadcrumbSchema),
           }}
         />
         {/* Preconnect to external domains */}
