@@ -1,12 +1,14 @@
 'use client'
 
 import { useEffect } from 'react'
+import { AdRewardButton } from './AdRewardButton'
 
 interface AdSenseProps {
   adSlot: string
   adFormat?: 'auto' | 'fluid' | 'rectangle' | 'vertical' | 'horizontal'
   fullWidthResponsive?: boolean
   style?: React.CSSProperties
+  showRewardButton?: boolean
 }
 
 declare global {
@@ -21,7 +23,8 @@ export function GoogleAdSense({
   adSlot,
   adFormat = 'auto',
   fullWidthResponsive = true,
-  style
+  style,
+  showRewardButton = false
 }: AdSenseProps) {
   useEffect(() => {
     if (!ADSENSE_CLIENT_ID) return
@@ -38,33 +41,39 @@ export function GoogleAdSense({
   if (!ADSENSE_CLIENT_ID) {
     // 開発環境用のプレースホルダー
     return (
-      <div
-        style={{
-          backgroundColor: '#f3f4f6',
-          border: '2px dashed #9ca3af',
-          padding: '20px',
-          textAlign: 'center',
-          color: '#6b7280',
-          ...style
-        }}
-      >
-        広告スペース
+      <div className="space-y-4">
+        <div
+          style={{
+            backgroundColor: '#f3f4f6',
+            border: '2px dashed #9ca3af',
+            padding: '20px',
+            textAlign: 'center',
+            color: '#6b7280',
+            ...style
+          }}
+        >
+          広告スペース
+        </div>
+        {showRewardButton && <AdRewardButton />}
       </div>
     )
   }
 
   return (
-    <ins
-      className="adsbygoogle"
-      style={{
-        display: 'block',
-        ...style
-      }}
-      data-ad-client={ADSENSE_CLIENT_ID}
-      data-ad-slot={adSlot}
-      data-ad-format={adFormat}
-      data-full-width-responsive={fullWidthResponsive}
-    />
+    <div className="space-y-4">
+      <ins
+        className="adsbygoogle"
+        style={{
+          display: 'block',
+          ...style
+        }}
+        data-ad-client={ADSENSE_CLIENT_ID}
+        data-ad-slot={adSlot}
+        data-ad-format={adFormat}
+        data-full-width-responsive={fullWidthResponsive}
+      />
+      {showRewardButton && <AdRewardButton />}
+    </div>
   )
 }
 
@@ -91,6 +100,7 @@ export function HeaderAd() {
         adSlot="1234567890" // 実際のスロットIDに置き換え
         adFormat="horizontal"
         style={{ minHeight: '90px' }}
+        showRewardButton={true}
       />
     </div>
   )
@@ -103,6 +113,7 @@ export function SidebarAd() {
         adSlot="0987654321" // 実際のスロットIDに置き換え
         adFormat="vertical"
         style={{ minHeight: '600px' }}
+        showRewardButton={true}
       />
     </div>
   )
@@ -114,6 +125,7 @@ export function InArticleAd() {
       <GoogleAdSense
         adSlot="1122334455" // 実際のスロットIDに置き換え
         adFormat="fluid"
+        showRewardButton={false}
       />
     </div>
   )
@@ -126,6 +138,7 @@ export function FooterAd() {
         adSlot="5544332211" // 実際のスロットIDに置き換え
         adFormat="auto"
         style={{ minHeight: '100px' }}
+        showRewardButton={true}
       />
     </div>
   )
