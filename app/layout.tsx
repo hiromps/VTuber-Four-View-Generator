@@ -4,7 +4,7 @@ import { Metadata } from 'next'
 import Providers from '@/components/Providers'
 import GoogleAnalytics from '@/components/GoogleAnalytics'
 import { GoogleAdSenseScript } from '@/components/GoogleAdSense'
-import { defaultSEO, organizationSchema } from '@/lib/seo-config'
+import { defaultSEO, organizationSchema, howToSchema } from '@/lib/seo-config'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -82,11 +82,18 @@ export default function RootLayout({
       <head>
         {/* Google AdSense */}
         <GoogleAdSenseScript />
-        {/* 構造化データ（Schema.org） */}
+        {/* 構造化データ（Schema.org） - ソフトウェアアプリケーション */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(organizationSchema),
+          }}
+        />
+        {/* 構造化データ（Schema.org） - How To（3D化手順） */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(howToSchema),
           }}
         />
         {/* Preconnect to external domains */}
