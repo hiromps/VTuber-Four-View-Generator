@@ -9,7 +9,7 @@ import { defaultSEO, organizationSchema, howToSchema, breadcrumbSchema } from '@
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://vtuber-ai-generator.com'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://smartgram.online'),
   title: {
     default: defaultSEO.defaultTitle,
     template: defaultSEO.titleTemplate,

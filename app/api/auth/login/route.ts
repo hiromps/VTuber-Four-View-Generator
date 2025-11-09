@@ -3,6 +3,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { normalizeEmail, isValidEmail } from '@/lib/email-utils'
 import en from '@/locales/en.json'
 import ja from '@/locales/ja.json'
+import {
+  isAccountLocked,
+  checkAndLockIfNeeded,
+  recordLoginAttempt,
+  clearLoginAttempts,
+} from '@/lib/auth/login-attempts'
 
 // Get translation based on Accept-Language header
 function getTranslation(request: NextRequest, key: string): string {
@@ -39,6 +45,31 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: getTranslation(request, 'auth.invalidEmailFormat') },
         { status: 400 }
+      )
+    }
+
+    // IPアドレスを取得
+    const ipAddress =
+      request.headers.get('x-forwarded-for')?.split(',')[0] ||
+      request.headers.get('x-real-ip') ||
+      '127.0.0.1'
+
+    // アカウントがロックされているかチェック
+    const locked = await isAccountLocked(email)
+    if (locked) {
+      // ログイン試行を記録（失敗）
+      await recordLoginAttempt({
+        email,
+        ip_address: ipAddress,
+        success: false,
+        user_agent: request.headers.get('user-agent') || undefined,
+      })
+
+      return NextResponse.json(
+        {
+          error: getTranslation(request, 'auth.accountLocked'),
+        },
+        { status: 429 }
       )
     }
 
@@ -172,18 +203,51 @@ export async function POST(request: NextRequest) {
     if (error) {
       console.error('Magic link error:', error)
 
+      // ログイン失敗を記録
+      await recordLoginAttempt({
+        email,
+        ip_address: ipAddress,
+        success: false,
+        user_agent: request.headers.get('user-agent') || undefined,
+      })
+
+      // 失敗回数をチェックしてアカウントロックが必要かチェック
+      const { shouldLock, remainingAttempts } = await checkAndLockIfNeeded(
+        email,
+        ipAddress
+      )
+
       // Handle duplicate account error from trigger
       if (error.message.includes('already exists')) {
         return NextResponse.json(
           {
             error: getTranslation(request, 'auth.emailAliasNotAllowed'),
+            remainingAttempts: shouldLock ? 0 : remainingAttempts,
           },
           { status: 409 }
         )
       }
 
-      return NextResponse.json({ error: error.message }, { status: 400 })
+      // 一般的なエラーメッセージを返す（セキュリティ強化）
+      return NextResponse.json(
+        {
+          error: getTranslation(request, 'auth.loginFailed'),
+          remainingAttempts: shouldLock ? 0 : remainingAttempts,
+        },
+        { status: shouldLock ? 429 : 400 }
+      )
     }
+
+    // ログイン成功を記録
+    await recordLoginAttempt({
+      email,
+      ip_address: ipAddress,
+      success: true,
+      user_agent: request.headers.get('user-agent') || undefined,
+    })
+
+    // 成功時は失敗記録をクリア
+    await clearLoginAttempts(email)
 
     return NextResponse.json({
       message: 'Magic link sent! Please check your email.',

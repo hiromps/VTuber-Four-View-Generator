@@ -83,7 +83,9 @@
     "freeTokens": "新規ユーザーには登録時に5トークンが無料で付与されます！",
     "close": "閉じる",
     "emailAliasNotAllowed": "このメールアドレスは既に登録されています。メールエイリアス（例: user+tag@example.com）は使用できません。",
-    "invalidEmailFormat": "無効なメールアドレス形式です。"
+    "invalidEmailFormat": "無効なメールアドレス形式です。",
+    "accountLocked": "ログイン試行回数が上限に達したため、アカウントがロックされました。30分後に再度お試しください。",
+    "loginFailed": "ログインに失敗しました。メールアドレスを確認してください。"
   },
   "tokens": {
     "buyTokens": "トークンを購入",
