@@ -1,0 +1,38 @@
+{
+  "name": "vtuber-icon-maker",
+  "version": "1.0.0",
+  "description": "可愛いVTuber風AIアイコンジェネレーター - Youware AI SDK統合版",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [
+    "vtuber",
+    "icon",
+    "generator",
+    "AI",
+    "nano-banana",
+    "youware",
+    "kawaii",
+    "anime",
+    "profile-picture"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "youware": {
+    "aiSDK": true,
+    "model": "nano-banana",
+    "tokenConsumption": "automatic"
+  }
+}

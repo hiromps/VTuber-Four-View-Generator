@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shonen Icon Maker - AI少年アニメ風アイコンジェネレーター</title>
+    <meta name="description" content="Solo Leveling、Demon Slayer、Jujutsu Kaisenなどの少年アニメ風アイコンをAIで生成">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap');
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+
+        .anime-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .icon-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .icon-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .style-button {
+            transition: all 0.3s ease;
+        }
+
+        .style-button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(102, 126, 234, 0.8);
+            }
+        }
+
+        .generating {
+            animation: pulse-glow 2s infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <!-- ヘッダー -->
+    <header class="anime-gradient text-white py-8 shadow-lg">
+        <div class="container mx-auto px-4">
+            <h1 class="text-4xl md:text-5xl font-black text-center mb-3">
+                ⚡ Shonen Icon Maker
+            </h1>
+            <p class="text-center text-lg opacity-90">
+                少年アニメ風のカッコいいアイコンをAIで生成
+            </p>
+            <p class="text-center text-sm opacity-75 mt-2">
+                Solo Leveling・鬼滅の刃・呪術廻戦・チェンソーマン風
+            </p>
+        </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="container mx-auto px-4 py-12 max-w-5xl">
+
+        <!-- 生成フォーム -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 mb-12">
+
+            <!-- ステップ1: キャラクター説明 -->
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold mb-4 flex items-center">
+                    <span class="bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">1</span>
+                    キャラクターを説明
+                </h2>
+                <textarea
+                    id="characterDescription"
+                    rows="4"
+                    class="w-full border-2 border-gray-300 rounded-lg p-4 focus:border-purple-600 focus:outline-none transition"
+                    placeholder="例: 黒髪の少年、青い目、剣を持った戦士、クールな表情、稲妻のエフェクト"></textarea>
+                <p class="text-sm text-gray-600 mt-2">
+                    💡 ヒント: 髪の色、目の色、表情、武器、エフェクトなどを具体的に入力
+                </p>
+            </div>
+
+            <!-- ステップ2: アニメスタイル選択 -->
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold mb-4 flex items-center">
+                    <span class="bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">2</span>
+                    アニメスタイルを選択
+                </h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <button class="style-button active px-4 py-3 rounded-lg border-2 border-gray-300 hover:border-purple-600 font-bold" data-style="solo-leveling">
+                        Solo Leveling
+                    </button>
+                    <button class="style-button px-4 py-3 rounded-lg border-2 border-gray-300 hover:border-purple-600 font-bold" data-style="demon-slayer">
+                        鬼滅の刃
+                    </button>
+                    <button class="style-button px-4 py-3 rounded-lg border-2 border-gray-300 hover:border-purple-600 font-bold" data-style="jujutsu-kaisen">
+                        呪術廻戦
+                    </button>
+                    <button class="style-button px-4 py-3 rounded-lg border-2 border-gray-300 hover:border-purple-600 font-bold" data-style="chainsaw-man">
+                        チェンソーマン
+                    </button>
+                    <button class="style-button px-4 py-3 rounded-lg border-2 border-gray-300 hover:border-purple-600 font-bold" data-style="my-hero-academia">
+                        僕のヒーロー<br>アカデミア
+                    </button>
+                    <button class="style-button px-4 py-3 rounded-lg border-2 border-gray-300 hover:border-purple-600 font-bold" data-style="brand-vision">
+                        Brand Vision
+                    </button>
+                    <button class="style-button px-4 py-3 rounded-lg border-2 border-gray-300 hover:border-purple-600 font-bold" data-style="apothecary-diaries">
+                        薬屋のひとりごと
+                    </button>
+                    <button class="style-button px-4 py-3 rounded-lg border-2 border-gray-300 hover:border-purple-600 font-bold" data-style="generic-shonen">
+                        汎用少年アニメ
+                    </button>
+                </div>
+            </div>
+
+            <!-- ステップ3: 背景タイプ -->
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold mb-4 flex items-center">
+                    <span class="bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3">3</span>
+                    背景タイプ
+                </h2>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <button class="bg-button active px-4 py-3 rounded-lg border-2 border-gray-300 hover:border-purple-600 font-bold" data-bg="dramatic">
+                        ドラマチック
+                    </button>
+                    <button class="bg-button px-4 py-3 rounded-lg border-2 border-gray-300 hover:border-purple-600 font-bold" data-bg="solid">
+                        単色
+                    </button>
+                    <button class="bg-button px-4 py-3 rounded-lg border-2 border-gray-300 hover:border-purple-600 font-bold" data-bg="gradient">
+                        グラデーション
+                    </button>
+                    <button class="bg-button px-4 py-3 rounded-lg border-2 border-gray-300 hover:border-purple-600 font-bold" data-bg="action">
+                        アクション
+                    </button>
+                    <button class="bg-button px-4 py-3 rounded-lg border-2 border-gray-300 hover:border-purple-600 font-bold" data-bg="transparent">
+                        シンプル
+                    </button>
+                </div>
+            </div>
+
+            <!-- 生成ボタン -->
+            <div class="text-center">
+                <button
+                    id="generateBtn"
+                    class="anime-gradient text-white px-12 py-5 rounded-full text-xl font-black shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+                    ⚡ アイコンを生成する
+                </button>
+                <p class="text-sm text-gray-600 mt-4">
+                    生成には約 5-10秒 かかります
+                </p>
+            </div>
+        </div>
+
+        <!-- ローディング表示 -->
+        <div id="loadingArea" class="hidden bg-white rounded-2xl shadow-xl p-8 mb-12">
+            <div class="text-center">
+                <div class="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-purple-600 mb-4"></div>
+                <h3 class="text-2xl font-bold mb-2">AIが生成中...</h3>
+                <p class="text-gray-600" id="loadingMessage">プロンプトを構築しています</p>
+                <div class="mt-6 bg-gray-200 rounded-full h-2 overflow-hidden">
+                    <div id="progressBar" class="anime-gradient h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 結果表示 -->
+        <div id="resultArea" class="hidden">
+            <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                <h2 class="text-3xl font-bold mb-6 text-center">✨ 生成完了！</h2>
+
+                <div class="flex justify-center mb-6">
+                    <img id="generatedImage" src="" alt="生成されたアイコン" class="rounded-2xl shadow-2xl max-w-full icon-card" style="max-height: 512px;">
+                </div>
+
+                <div class="text-center space-y-4">
+                    <div class="flex flex-col md:flex-row gap-4 justify-center">
+                        <button id="downloadBtn" class="anime-gradient text-white px-8 py-4 rounded-full font-bold shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all">
+                            📥 ダウンロード（1024x1024）
+                        </button>
+                        <button id="regenerateBtn" class="bg-gray-200 text-gray-800 px-8 py-4 rounded-full font-bold hover:bg-gray-300 transition-all">
+                            🔄 別のスタイルで再生成
+                        </button>
+                    </div>
+
+                    <div class="flex gap-4 justify-center">
+                        <button id="shareTwitterBtn" class="bg-blue-500 text-white px-6 py-3 rounded-full font-bold hover:bg-blue-600 transition-all">
+                            🐦 Twitterでシェア
+                        </button>
+                        <button id="copyImageBtn" class="bg-green-500 text-white px-6 py-3 rounded-full font-bold hover:bg-green-600 transition-all">
+                            📋 画像をコピー
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 使用したプロンプト表示 -->
+                <div class="mt-8 p-4 bg-gray-100 rounded-lg">
+                    <h3 class="font-bold mb-2">使用したプロンプト:</h3>
+                    <p id="usedPrompt" class="text-sm text-gray-700"></p>
+                </div>
+            </div>
+
+            <!-- プリセット例 -->
+            <div class="bg-white rounded-2xl shadow-xl p-8">
+                <h3 class="text-2xl font-bold mb-4">💡 プリセット例を試す</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button class="preset-btn p-4 border-2 border-gray-300 rounded-lg hover:border-purple-600 text-left transition-all" data-preset="shadow-monarch">
+                        <div class="font-bold mb-1">🌑 Shadow Monarch</div>
+                        <div class="text-sm text-gray-600">黒髪の少年、紫の目、影の魔法、Solo Leveling風</div>
+                    </button>
+                    <button class="preset-btn p-4 border-2 border-gray-300 rounded-lg hover:border-purple-600 text-left transition-all" data-preset="demon-slayer">
+                        <div class="font-bold mb-1">⚔️ 鬼殺隊剣士</div>
+                        <div class="text-sm text-gray-600">日輪刀を持った剣士、水のエフェクト、鬼滅風</div>
+                    </button>
+                    <button class="preset-btn p-4 border-2 border-gray-300 rounded-lg hover:border-purple-600 text-left transition-all" data-preset="cursed-sorcerer">
+                        <div class="font-bold mb-1">👊 呪術師</div>
+                        <div class="text-sm text-gray-600">黒髪、呪力エフェクト、バトルポーズ、呪術廻戦風</div>
+                    </button>
+                    <button class="preset-btn p-4 border-2 border-gray-300 rounded-lg hover:border-purple-600 text-left transition-all" data-preset="chainsaw-devil">
+                        <div class="font-bold mb-1">🪚 デビルハンター</div>
+                        <div class="text-sm text-gray-600">金髪、チェーンソー、激しいアクション、チェンソーマン風</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- フッター -->
+    <footer class="bg-gray-800 text-white py-8 mt-20">
+        <div class="container mx-auto px-4 text-center">
+            <p class="mb-2">⚡ Shonen Icon Maker - Powered by nano-banana (Gemini 2.5 Flash Image)</p>
+            <p class="text-sm opacity-75">会員登録不要 | 無料で使える | 高品質AI生成</p>
+            <p class="text-xs opacity-50 mt-4">
+                ※生成された画像は個人利用・商用利用可能です（AIアート利用規約に準じます）
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // 選択された設定
+        let selectedStyle = 'solo-leveling';
+        let selectedBg = 'dramatic';
+
+        // スタイルボタンのイベントリスナー
+        document.querySelectorAll('.style-button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.style-button').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedStyle = btn.dataset.style;
+            });
+        });
+
+        // 背景ボタンのイベントリスナー
+        document.querySelectorAll('.bg-button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.bg-button').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedBg = btn.dataset.bg;
+            });
+        });
+
+        // プリセットボタン
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const preset = btn.dataset.preset;
+                const presets = {
+                    'shadow-monarch': {
+                        description: 'black-haired young man, purple glowing eyes, shadow magic effects, dark aura, serious expression, mystical energy',
+                        style: 'solo-leveling',
+                        bg: 'dramatic'
+                    },
+                    'demon-slayer': {
+                        description: 'samurai with nichirin sword, water breathing effects, determined face, traditional uniform, dynamic pose',
+                        style: 'demon-slayer',
+                        bg: 'action'
+                    },
+                    'cursed-sorcerer': {
+                        description: 'black-haired boy, cursed energy aura, fighting stance, school uniform, intense expression',
+                        style: 'jujutsu-kaisen',
+                        bg: 'dramatic'
+                    },
+                    'chainsaw-devil': {
+                        description: 'blonde boy with chainsaw, wild expression, blood effects, chaotic energy, aggressive pose',
+                        style: 'chainsaw-man',
+                        bg: 'action'
+                    }
+                };
+
+                const selected = presets[preset];
+                document.getElementById('characterDescription').value = selected.description;
+
+                // スタイル選択
+                document.querySelectorAll('.style-button').forEach(b => b.classList.remove('active'));
+                document.querySelector(`[data-style="${selected.style}"]`).classList.add('active');
+                selectedStyle = selected.style;
+
+                // 背景選択
+                document.querySelectorAll('.bg-button').forEach(b => b.classList.remove('active'));
+                document.querySelector(`[data-bg="${selected.bg}"]`).classList.add('active');
+                selectedBg = selected.bg;
+
+                // スクロール
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+
+        // 生成ボタン
+        document.getElementById('generateBtn').addEventListener('click', async () => {
+            const description = document.getElementById('characterDescription').value.trim();
+
+            if (!description) {
+                alert('キャラクターの説明を入力してください');
+                return;
+            }
+
+            // UI切り替え
+            document.getElementById('loadingArea').classList.remove('hidden');
+            document.getElementById('resultArea').classList.add('hidden');
+            document.getElementById('generateBtn').disabled = true;
+
+            // プログレスバー
+            let progress = 0;
+            const messages = [
+                'プロンプトを構築しています...',
+                'nano-banana AIに送信中...',
+                '画像を生成しています...',
+                'もうすぐ完成です...'
+            ];
+
+            const progressInterval = setInterval(() => {
+                progress += 5;
+                if (progress > 90) progress = 90;
+                document.getElementById('progressBar').style.width = progress + '%';
+
+                const messageIndex = Math.floor(progress / 25);
+                if (messages[messageIndex]) {
+                    document.getElementById('loadingMessage').textContent = messages[messageIndex];
+                }
+            }, 500);
+
+            try {
+                const response = await fetch('/api/generate-icon', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        description: description,
+                        style: selectedStyle,
+                        background: selectedBg
+                    })
+                });
+
+                clearInterval(progressInterval);
+                document.getElementById('progressBar').style.width = '100%';
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || '生成に失敗しました');
+                }
+
+                const data = await response.json();
+
+                // 結果表示
+                document.getElementById('generatedImage').src = data.imageUrl;
+                document.getElementById('usedPrompt').textContent = data.prompt;
+
+                document.getElementById('loadingArea').classList.add('hidden');
+                document.getElementById('resultArea').classList.remove('hidden');
+
+                // ダウンロードボタン
+                document.getElementById('downloadBtn').onclick = () => {
+                    const a = document.createElement('a');
+                    a.href = data.imageUrl;
+                    a.download = `shonen-icon-${Date.now()}.png`;
+                    a.click();
+                };
+
+                // 再生成ボタン
+                document.getElementById('regenerateBtn').onclick = () => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                };
+
+                // Twitterシェア
+                document.getElementById('shareTwitterBtn').onclick = () => {
+                    const text = encodeURIComponent('Shonen Icon Makerで少年アニメ風アイコンを生成しました！ #ShonenIconMaker #AIアート');
+                    window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
+                };
+
+                // 画像コピー
+                document.getElementById('copyImageBtn').onclick = async () => {
+                    try {
+                        const blob = await fetch(data.imageUrl).then(r => r.blob());
+                        await navigator.clipboard.write([
+                            new ClipboardItem({ 'image/png': blob })
+                        ]);
+                        alert('画像をクリップボードにコピーしました！');
+                    } catch (err) {
+                        alert('コピーに失敗しました。ダウンロードをご利用ください。');
+                    }
+                };
+
+            } catch (error) {
+                clearInterval(progressInterval);
+                alert('エラー: ' + error.message);
+                document.getElementById('loadingArea').classList.add('hidden');
+            } finally {
+                document.getElementById('generateBtn').disabled = false;
+            }
+        });
+    </script>
+
+</body>
+</html>

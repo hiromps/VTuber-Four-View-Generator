@@ -1,0 +1,32 @@
+{
+  "name": "vtuber-four-view-generator-youware",
+  "version": "1.0.0",
+  "description": "VTuber四面図ジェネレーター - Youwareバックエンド版",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "generate": "node generate-image.js",
+    "generate:help": "node generate-image.js --help"
+  },
+  "dependencies": {
+    "@google/genai": "^1.27.0",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "vtuber",
+    "gemini",
+    "ai",
+    "image-generation"
+  ],
+  "author": "",
+  "license": "MIT"
+}
