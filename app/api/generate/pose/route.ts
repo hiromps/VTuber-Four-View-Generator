@@ -31,7 +31,10 @@ export async function POST(request: NextRequest) {
       mimeType,
       poseDescription,
       referenceImageBase64,
-      referenceImageMimeType
+      referenceImageMimeType,
+      additionalPrompt,
+      attachedImageBase64,
+      attachedImageMimeType
     } = await request.json()
 
     if (!base64Image || !mimeType) {
@@ -66,7 +69,10 @@ export async function POST(request: NextRequest) {
         mimeType,
         poseDescription || '',
         referenceImageBase64,
-        referenceImageMimeType
+        referenceImageMimeType,
+        additionalPrompt || '',
+        attachedImageBase64,
+        attachedImageMimeType
       )
 
       // 画像をStorageに保存して公開URLを取得

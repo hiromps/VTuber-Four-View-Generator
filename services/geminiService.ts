@@ -308,7 +308,17 @@ export const generateFacialExpression = async (
   }
 };
 
-function getPromptForPose(poseDescription: string = '', hasReferenceImage: boolean = false): string {
+function getPromptForPose(poseDescription: string = '', hasReferenceImage: boolean = false, additionalPrompt: string = '', hasAttachedImage: boolean = false): string {
+  // 追加の指示を最初に配置して強調
+  const criticalInstructions = additionalPrompt
+    ? `CRITICAL REQUIREMENT - YOU MUST APPLY THESE MODIFICATIONS: ${additionalPrompt}. `
+    : '';
+
+  // 添付画像がある場合の指示
+  const attachedImageInstructions = hasAttachedImage
+    ? `IMPORTANT: A reference image is provided showing items/accessories/clothing. Apply these items to the character naturally and appropriately. `
+    : '';
+
   // 参考画像がある場合の指示（大幅に強化）
   const referenceImageInstructions = hasReferenceImage
     ? `CRITICAL PRIORITY - POSE REPLICATION:
@@ -335,7 +345,7 @@ This description provides context for the desired pose. ${hasReferenceImage ? 'U
   const framingPrompt = "FRAMING: The ENTIRE character must be FULLY VISIBLE within the frame from head to toe. DO NOT crop any part of the character. Leave appropriate margin space around the character. The full body must fit completely within the image boundaries.";
   const stylePrompt = "STYLE CONSISTENCY: Maintain the exact same art style, color palette, character design, and visual details from the original character image. The background must be a solid, neutral gray (#808080).";
 
-  return `${QUALITY_SETTINGS.qualityPrompt}\n\n${referenceImageInstructions}${poseInstructions}${commonPrompt}\n\n${stylePrompt}\n\n${framingPrompt}`;
+  return `${QUALITY_SETTINGS.qualityPrompt}\n\n${criticalInstructions}${attachedImageInstructions}${referenceImageInstructions}${poseInstructions}${commonPrompt}\n\n${stylePrompt}\n\n${framingPrompt}`;
 }
 
 export const generatePose = async (
@@ -343,7 +353,10 @@ export const generatePose = async (
   mimeType: string,
   poseDescription: string = '',
   referenceImageBase64?: string,
-  referenceImageMimeType?: string
+  referenceImageMimeType?: string,
+  additionalPrompt: string = '',
+  attachedImageBase64?: string,
+  attachedImageMimeType?: string
 ): Promise<string> => {
   try {
     console.log(`[Gemini] Generating custom pose...`);
@@ -377,6 +390,16 @@ export const generatePose = async (
       console.log(`[Gemini] Reference image Base64 length: ${cleanReferenceBase64.length}, MIME: ${referenceImageMimeType}`);
     }
 
+    // 添付画像がある場合は検証
+    let cleanAttachedBase64: string | undefined;
+    if (attachedImageBase64 && attachedImageMimeType) {
+      if (!validMimeTypes.includes(attachedImageMimeType)) {
+        throw new Error(`Invalid attached image MIME type: ${attachedImageMimeType}`);
+      }
+      cleanAttachedBase64 = attachedImageBase64.replace(/[\r\n\s]/g, '');
+      console.log(`[Gemini] Attached image Base64 length: ${cleanAttachedBase64.length}, MIME: ${attachedImageMimeType}`);
+    }
+
     // Gemini 2.5 Flash Image モデルを使用
     console.log('[Gemini] Calling Gemini API with model: gemini-2.5-flash-image');
 
@@ -408,9 +431,22 @@ export const generatePose = async (
       },
     });
 
-    // 3. テキストプロンプトを追加
+    // 3. 添付画像を追加（存在する場合）
+    if (cleanAttachedBase64 && attachedImageMimeType) {
+      parts.push({
+        text: 'ATTACHED REFERENCE - Items/accessories/clothing to add:'
+      });
+      parts.push({
+        inlineData: {
+          data: cleanAttachedBase64,
+          mimeType: attachedImageMimeType,
+        },
+      });
+    }
+
+    // 4. テキストプロンプトを追加
     parts.push({
-      text: getPromptForPose(poseDescription, !!cleanReferenceBase64),
+      text: getPromptForPose(poseDescription, !!cleanReferenceBase64, additionalPrompt, !!cleanAttachedBase64),
     });
 
     const response: GenerateContentResponse = await ai.models.generateContent({
