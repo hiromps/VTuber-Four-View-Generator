@@ -294,21 +294,33 @@ export const generateFacialExpression = async (
 };
 
 function getPromptForPose(poseDescription: string = '', hasReferenceImage: boolean = false): string {
-  // 参考画像がある場合の指示
+  // 参考画像がある場合の指示（大幅に強化）
   const referenceImageInstructions = hasReferenceImage
-    ? `IMPORTANT: A reference image showing the desired pose is provided. Replicate this EXACT pose with the character. Pay close attention to body positioning, arm placement, leg stance, and overall body language. `
+    ? `CRITICAL PRIORITY - POSE REPLICATION:
+A reference image is provided showing the EXACT pose that must be replicated. This is the PRIMARY objective.
+
+MANDATORY POSE REQUIREMENTS - Copy these elements PRECISELY from the reference image:
+1. Body Angle: Match the exact torso rotation, tilt, and facing direction
+2. Head Position: Replicate the exact head tilt, rotation, and facial direction
+3. Arm Positions: Copy the EXACT arm angles, elbow bends, hand positions, and finger gestures
+4. Leg Stance: Match the exact leg positioning, knee bends, foot placement, and weight distribution
+5. Overall Posture: Replicate the exact body balance, center of gravity, and dynamic movement
+6. Detailed Gestures: Copy every subtle hand gesture, finger position, and body language cue
+
+DO NOT improvise or approximate. The pose must be an EXACT replication of the reference image pose, applied to the character's design. `
     : '';
 
   // ポーズの説明がある場合の指示
   const poseInstructions = poseDescription
-    ? `CRITICAL REQUIREMENT - The character MUST be in this specific pose: ${poseDescription}. `
+    ? `POSE DESCRIPTION: ${poseDescription}
+This description provides context for the desired pose. ${hasReferenceImage ? 'Use this to understand the intent, but PRIORITIZE the reference image for exact positioning.' : 'Create a natural and accurate pose that matches this description precisely.'} `
     : '';
 
   const commonPrompt = "Using the provided character image, generate a high-quality, clean illustration of the character in the specified pose.";
-  const framingPrompt = "IMPORTANT: The ENTIRE character must be FULLY VISIBLE within the frame from head to toe. DO NOT crop any part of the character. Leave appropriate margin space around the character. The full body must fit completely within the image boundaries.";
-  const stylePrompt = "Maintain the exact same art style, color palette, and character details from the original image. The background must be a solid, neutral gray (#808080).";
+  const framingPrompt = "FRAMING: The ENTIRE character must be FULLY VISIBLE within the frame from head to toe. DO NOT crop any part of the character. Leave appropriate margin space around the character. The full body must fit completely within the image boundaries.";
+  const stylePrompt = "STYLE CONSISTENCY: Maintain the exact same art style, color palette, character design, and visual details from the original character image. The background must be a solid, neutral gray (#808080).";
 
-  return `${poseInstructions}${referenceImageInstructions}${commonPrompt} ${stylePrompt} ${framingPrompt}`;
+  return `${referenceImageInstructions}${poseInstructions}${commonPrompt}\n\n${stylePrompt}\n\n${framingPrompt}`;
 }
 
 export const generatePose = async (
@@ -354,17 +366,14 @@ export const generatePose = async (
     console.log('[Gemini] Calling Gemini API with model: gemini-2.5-flash-image');
 
     // パーツの配列を構築
-    const parts: any[] = [
-      {
-        inlineData: {
-          data: cleanBase64,
-          mimeType: mimeType,
-        },
-      },
-    ];
+    // 参考画像がある場合は、参考画像を最初に配置してモデルがそれを重視するようにする
+    const parts: any[] = [];
 
-    // 参考画像がある場合は追加
+    // 1. 参考画像を最初に追加（存在する場合）
     if (cleanReferenceBase64 && referenceImageMimeType) {
+      parts.push({
+        text: 'REFERENCE IMAGE - This shows the EXACT pose to replicate:'
+      });
       parts.push({
         inlineData: {
           data: cleanReferenceBase64,
@@ -373,7 +382,18 @@ export const generatePose = async (
       });
     }
 
-    // テキストプロンプトを追加
+    // 2. キャラクター画像を追加
+    parts.push({
+      text: 'CHARACTER IMAGE - Apply the pose to this character:'
+    });
+    parts.push({
+      inlineData: {
+        data: cleanBase64,
+        mimeType: mimeType,
+      },
+    });
+
+    // 3. テキストプロンプトを追加
     parts.push({
       text: getPromptForPose(poseDescription, !!cleanReferenceBase64),
     });
