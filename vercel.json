@@ -28,11 +28,11 @@
       "destination": "/404"
     },
     {
-      "source": "/.*\\.sql$",
+      "source": "/(.*)\\.sql",
       "destination": "/404"
     },
     {
-      "source": "/.*\\.md$",
+      "source": "/(.*)\\.md",
       "destination": "/404"
     }
   ],
