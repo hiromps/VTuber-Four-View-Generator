@@ -840,7 +840,7 @@ export default function Home() {
     const hasAnyGeneratedImages = Object.values(generatedImages).some(img => img !== null)
     const hasAnyGeneratedExpressionImages = Object.values(expressionsImages).some(img => img !== null)
 
-    const TabButton: React.FC<{ tabId: 'sheet' | 'concept' | 'expressions'; children: React.ReactNode }> = ({ tabId, children }) => (
+    const TabButton: React.FC<{ tabId: 'sheet' | 'concept' | 'expressions' | 'pose'; children: React.ReactNode }> = ({ tabId, children }) => (
         <button
             onClick={() => setActiveTab(tabId)}
             className={`px-3 sm:px-4 md:px-6 py-2 md:py-2.5 text-xs sm:text-sm md:text-base font-medium rounded-md transition-colors duration-200 whitespace-nowrap ${

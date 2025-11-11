@@ -45,7 +45,7 @@ export async function uploadImageToStorage(
  */
 export async function saveImageHistory(data: {
   userId: string
-  generationType: 'concept' | 'character_sheet' | 'facial_expressions'
+  generationType: 'concept' | 'character_sheet' | 'facial_expressions' | 'pose_generation'
   prompt?: string
   aspectRatio?: string
   additionalPrompt?: string
