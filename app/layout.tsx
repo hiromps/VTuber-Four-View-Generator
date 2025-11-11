@@ -80,8 +80,6 @@ export default function RootLayout({
   return (
     <html lang="ja" suppressHydrationWarning>
       <head>
-        {/* Google AdSense */}
-        <GoogleAdSenseScript />
         {/* 構造化データ（Schema.org） */}
         <script
           key="schema-organization"
@@ -117,6 +115,8 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="VTuber四面図AI" />
       </head>
       <body className={inter.className}>
+        {/* Google AdSense */}
+        <GoogleAdSenseScript />
         <GoogleAnalytics />
         <Providers>
           {children}
