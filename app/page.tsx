@@ -100,6 +100,8 @@ export default function Home() {
     const [isEnhancingPosePrompt, setIsEnhancingPosePrompt] = useState(false)
     const [showPosePromptMenu, setShowPosePromptMenu] = useState(false)
     const [poseAttachedImage, setPoseAttachedImage] = useState<UploadedFile | null>(null)
+    const [isEnhancingAdditionalPrompt, setIsEnhancingAdditionalPrompt] = useState(false)
+    const [showAdditionalPromptMenu, setShowAdditionalPromptMenu] = useState(false)
 
     // Drag and Drop State
     const [isDraggingMain, setIsDraggingMain] = useState(false)
@@ -873,6 +875,35 @@ export default function Home() {
         }
     }, [poseDescription])
 
+    const handleEnhanceAdditionalPrompt = useCallback(async () => {
+        if (!poseAdditionalPrompt || poseAdditionalPrompt.trim() === '') {
+            return
+        }
+
+        setShowAdditionalPromptMenu(false)
+        setIsEnhancingAdditionalPrompt(true)
+        try {
+            const response = await fetch('/api/enhance-prompt', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: poseAdditionalPrompt }),
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to enhance prompt')
+            }
+
+            setPoseAdditionalPrompt(data.enhancedPrompt)
+        } catch (error) {
+            console.error("Error enhancing additional prompt:", error)
+            setPoseError(error instanceof Error ? error.message : "Failed to enhance prompt")
+        } finally {
+            setIsEnhancingAdditionalPrompt(false)
+        }
+    }, [poseAdditionalPrompt])
+
     const handlePoseAttachFile = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0]
         if (file) {
@@ -1546,14 +1577,57 @@ export default function Home() {
                                 <label htmlFor="pose-additional-prompt" className="block text-sm font-medium text-gray-300 mb-2">
                                     {t('customize.additionalInstructions')}
                                 </label>
-                                <textarea
-                                    id="pose-additional-prompt"
-                                    rows={2}
-                                    value={poseAdditionalPrompt}
-                                    onChange={(e) => setPoseAdditionalPrompt(e.target.value)}
-                                    placeholder={t('customize.placeholder')}
-                                    className="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white placeholder-gray-400 focus:ring-purple-500 focus:border-purple-500 transition"
-                                />
+                                <div className="relative">
+                                    <textarea
+                                        id="pose-additional-prompt"
+                                        rows={2}
+                                        value={poseAdditionalPrompt}
+                                        onChange={(e) => setPoseAdditionalPrompt(e.target.value)}
+                                        placeholder={t('customize.placeholder')}
+                                        className="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white placeholder-gray-400 focus:ring-purple-500 focus:border-purple-500 transition"
+                                    />
+                                    <div className="absolute bottom-2 left-2 prompt-menu-container">
+                                        <button
+                                            onClick={() => setShowAdditionalPromptMenu(!showAdditionalPromptMenu)}
+                                            className="p-1 bg-gray-600 hover:bg-gray-500 rounded transition-colors"
+                                            title={t('customize.enhancePrompt')}
+                                        >
+                                            <svg className="h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                                            </svg>
+                                        </button>
+                                        {showAdditionalPromptMenu && (
+                                            <div className="absolute left-0 bottom-full mb-1 bg-gray-700 border border-gray-600 rounded-lg shadow-lg p-1 z-10">
+                                                <button
+                                                    onClick={handleEnhanceAdditionalPrompt}
+                                                    disabled={isEnhancingAdditionalPrompt || !poseAdditionalPrompt}
+                                                    className="flex items-center gap-2 w-full px-3 py-2 text-sm text-white hover:bg-gray-600 rounded disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                                                >
+                                                    <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                                    </svg>
+                                                    {isEnhancingAdditionalPrompt ? '...' : t('customize.enhancePrompt')}
+                                                </button>
+                                                <label
+                                                    htmlFor="additional-attach-file"
+                                                    className="flex items-center gap-2 w-full px-3 py-2 text-sm text-white hover:bg-gray-600 rounded cursor-pointer whitespace-nowrap"
+                                                >
+                                                    <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                                        <path fillRule="evenodd" d="M8 4a3 3 0 00-3 3v4a5 5 0 0010 0V7a1 1 0 112 0v4a7 7 0 11-14 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 012 0v4a1 1 0 102 0V7a3 3 0 00-3-3z" clipRule="evenodd" />
+                                                    </svg>
+                                                    {t('customize.attachFile')}
+                                                    <input
+                                                        id="additional-attach-file"
+                                                        type="file"
+                                                        className="hidden"
+                                                        accept="image/png, image/jpeg, image/webp"
+                                                        onChange={handlePoseAttachFile}
+                                                    />
+                                                </label>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
                                 <p className="text-xs text-gray-500 mt-2">{t('customize.hint')}</p>
                             </div>
 
