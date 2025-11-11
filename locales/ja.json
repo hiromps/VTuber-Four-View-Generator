@@ -7,6 +7,7 @@
   "tabs": {
     "characterSheet": "キャラクターシート生成",
     "expressions": "表情差分生成",
+    "poseGeneration": "ポーズ生成",
     "conceptArt": "コンセプトアート生成"
   },
   "upload": {
@@ -34,11 +35,13 @@
     "generating": "生成中...",
     "generateSheet": "四面図を生成",
     "generateExpressions": "4つの表情を生成",
+    "generatePose": "ポーズを生成",
     "generateConcept": "コンセプトアートを生成"
   },
   "results": {
     "generatedViews": "生成された四面図",
     "generatedExpressions": "生成された表情",
+    "generatedPose": "生成されたポーズ",
     "generatedConcept": "生成されたコンセプト",
     "downloadAll": "すべてダウンロード",
     "shareToX": "Xでシェア",
@@ -56,6 +59,14 @@
     "anger": "怒",
     "sorrow": "哀",
     "surprise": "驚"
+  },
+  "pose": {
+    "specifyPose": "ポーズを指定",
+    "poseDescription": "ポーズの説明（テキスト）",
+    "descriptionPlaceholder": "例: 手を振っているポーズ、走っているポーズ、座っているポーズ",
+    "referenceImage": "参考画像（オプション）",
+    "uploadReference": "参考画像をアップロード",
+    "removeReference": "参考画像を削除"
   },
   "concept": {
     "describeVision": "あなたのビジョンを描写してください",
@@ -111,6 +122,7 @@
     "insufficientTokensSheet": "トークンが不足しています。キャラクターシートの生成には4トークン必要です。",
     "insufficientTokensExpressions": "トークンが不足しています。表情差分の生成には4トークン必要です。",
     "insufficientTokensConcept": "トークンが不足しています。コンセプトアートの生成には1トークン必要です。",
+    "insufficientTokens": "トークンが不足しています。",
     "enterPrompt": "プロンプトを入力してください。",
     "failedGenerate": "生成に失敗しました。もう一度お試しください。",
     "failedZip": "ZIPファイルの作成に失敗しました。"

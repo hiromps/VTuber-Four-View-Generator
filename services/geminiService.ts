@@ -293,6 +293,128 @@ export const generateFacialExpression = async (
   }
 };
 
+function getPromptForPose(poseDescription: string = '', hasReferenceImage: boolean = false): string {
+  // 参考画像がある場合の指示
+  const referenceImageInstructions = hasReferenceImage
+    ? `IMPORTANT: A reference image showing the desired pose is provided. Replicate this EXACT pose with the character. Pay close attention to body positioning, arm placement, leg stance, and overall body language. `
+    : '';
+
+  // ポーズの説明がある場合の指示
+  const poseInstructions = poseDescription
+    ? `CRITICAL REQUIREMENT - The character MUST be in this specific pose: ${poseDescription}. `
+    : '';
+
+  const commonPrompt = "Using the provided character image, generate a high-quality, clean illustration of the character in the specified pose.";
+  const framingPrompt = "IMPORTANT: The ENTIRE character must be FULLY VISIBLE within the frame from head to toe. DO NOT crop any part of the character. Leave appropriate margin space around the character. The full body must fit completely within the image boundaries.";
+  const stylePrompt = "Maintain the exact same art style, color palette, and character details from the original image. The background must be a solid, neutral gray (#808080).";
+
+  return `${poseInstructions}${referenceImageInstructions}${commonPrompt} ${stylePrompt} ${framingPrompt}`;
+}
+
+export const generatePose = async (
+  base64Image: string,
+  mimeType: string,
+  poseDescription: string = '',
+  referenceImageBase64?: string,
+  referenceImageMimeType?: string
+): Promise<string> => {
+  try {
+    console.log(`[Gemini] Generating custom pose...`);
+
+    // Base64文字列とMIMEタイプの検証
+    if (!base64Image || base64Image.trim() === '') {
+      throw new Error('Base64 image data is empty');
+    }
+
+    const validMimeTypes = ['image/png', 'image/jpeg', 'image/webp'];
+    if (!validMimeTypes.includes(mimeType)) {
+      throw new Error(`Invalid MIME type: ${mimeType}`);
+    }
+
+    // ポーズの説明または参考画像が必要
+    if (!poseDescription && !referenceImageBase64) {
+      throw new Error('Either pose description or reference image must be provided');
+    }
+
+    // Base64文字列から空白・改行を削除
+    const cleanBase64 = base64Image.replace(/[\r\n\s]/g, '');
+    console.log(`[Gemini] Base64 length: ${cleanBase64.length}, MIME: ${mimeType}`);
+
+    // 参考画像がある場合は検証
+    let cleanReferenceBase64: string | undefined;
+    if (referenceImageBase64 && referenceImageMimeType) {
+      if (!validMimeTypes.includes(referenceImageMimeType)) {
+        throw new Error(`Invalid reference image MIME type: ${referenceImageMimeType}`);
+      }
+      cleanReferenceBase64 = referenceImageBase64.replace(/[\r\n\s]/g, '');
+      console.log(`[Gemini] Reference image Base64 length: ${cleanReferenceBase64.length}, MIME: ${referenceImageMimeType}`);
+    }
+
+    // Gemini 2.5 Flash Image モデルを使用
+    console.log('[Gemini] Calling Gemini API with model: gemini-2.5-flash-image');
+
+    // パーツの配列を構築
+    const parts: any[] = [
+      {
+        inlineData: {
+          data: cleanBase64,
+          mimeType: mimeType,
+        },
+      },
+    ];
+
+    // 参考画像がある場合は追加
+    if (cleanReferenceBase64 && referenceImageMimeType) {
+      parts.push({
+        inlineData: {
+          data: cleanReferenceBase64,
+          mimeType: referenceImageMimeType,
+        },
+      });
+    }
+
+    // テキストプロンプトを追加
+    parts.push({
+      text: getPromptForPose(poseDescription, !!cleanReferenceBase64),
+    });
+
+    const response: GenerateContentResponse = await ai.models.generateContent({
+      model: 'gemini-2.5-flash-image',
+      contents: {
+        parts,
+      },
+      config: {
+        responseModalities: [Modality.IMAGE],
+      },
+    });
+
+    console.log('[Gemini] API call successful, processing response...');
+    for (const part of response.candidates?.[0]?.content?.parts || []) {
+      if (part.inlineData) {
+        console.log(`[Gemini] Pose image generated successfully`);
+        return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+      }
+    }
+    throw new Error('No image was generated for the custom pose.');
+  } catch (error) {
+    console.error(`[Gemini] Error generating pose:`, error);
+
+    // より詳細なエラーメッセージを提供
+    if (error instanceof Error) {
+      console.error(`[Gemini] Error details:`, {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
+      if (error.message.includes('did not match')) {
+        throw new Error(`Invalid image format. Please ensure you upload a valid PNG, JPEG, or WebP image.`);
+      }
+      throw error;
+    }
+    throw new Error(`Failed to generate pose. Please try again.`);
+  }
+};
+
 /**
  * Gemini Proモデルを使用してプロンプトを英語に変換し、最適化します
  */

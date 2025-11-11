@@ -84,18 +84,21 @@ export default function RootLayout({
         <GoogleAdSenseScript />
         {/* 構造化データ（Schema.org） */}
         <script
+          key="schema-organization"
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(organizationSchema),
           }}
         />
         <script
+          key="schema-howto"
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(howToSchema),
           }}
         />
         <script
+          key="schema-breadcrumb"
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(breadcrumbSchema),

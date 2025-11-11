@@ -7,6 +7,7 @@
   "tabs": {
     "characterSheet": "Character Sheet Generator",
     "expressions": "Facial Expressions Generator",
+    "poseGeneration": "Pose Generator",
     "conceptArt": "Concept Art Generator"
   },
   "upload": {
@@ -34,11 +35,13 @@
     "generating": "Generating...",
     "generateSheet": "Generate 4-View Sheet",
     "generateExpressions": "Generate 4 Expressions",
+    "generatePose": "Generate Pose",
     "generateConcept": "Generate Concept Art"
   },
   "results": {
     "generatedViews": "Generated Views",
     "generatedExpressions": "Generated Expressions",
+    "generatedPose": "Generated Pose",
     "generatedConcept": "Generated Concept",
     "downloadAll": "Download All",
     "shareToX": "Share to X",
@@ -56,6 +59,14 @@
     "anger": "Anger",
     "sorrow": "Sorrow",
     "surprise": "Surprise"
+  },
+  "pose": {
+    "specifyPose": "Specify Pose",
+    "poseDescription": "Pose Description (Text)",
+    "descriptionPlaceholder": "e.g. waving hand, running pose, sitting pose",
+    "referenceImage": "Reference Image (Optional)",
+    "uploadReference": "Upload reference image",
+    "removeReference": "Remove reference"
   },
   "concept": {
     "describeVision": "Describe Your Vision",
@@ -111,6 +122,7 @@
     "insufficientTokensSheet": "Insufficient tokens. You need 4 tokens to generate a character sheet.",
     "insufficientTokensExpressions": "Insufficient tokens. You need 4 tokens to generate facial expressions.",
     "insufficientTokensConcept": "Insufficient tokens. You need 1 token to generate concept art.",
+    "insufficientTokens": "Insufficient tokens.",
     "enterPrompt": "Please enter a prompt.",
     "failedGenerate": "Failed to generate. Please try again.",
     "failedZip": "Failed to create zip file."

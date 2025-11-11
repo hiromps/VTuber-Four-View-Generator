@@ -5,6 +5,7 @@ export const TOKEN_COSTS = {
   CHARACTER_SHEET: 4,     // 4 images (front, back, left, right)
   FACIAL_EXPRESSIONS: 4,  // 4 images (joy, anger, sorrow, surprise)
   CONCEPT_ART: 1,         // 1 image
+  POSE_GENERATION: 1,     // 1 image (custom pose)
 } as const
 
 export type GenerationType = keyof typeof TOKEN_COSTS
@@ -82,6 +83,7 @@ export async function consumeTokens(
     const transactionType =
       type === 'CHARACTER_SHEET' ? 'generation_sheet' :
       type === 'FACIAL_EXPRESSIONS' ? 'generation_expressions' :
+      type === 'POSE_GENERATION' ? 'generation_pose' :
       'generation_concept'
 
     console.log(`Recording transaction: type=${transactionType}, amount=${-cost}`)
@@ -171,6 +173,7 @@ export async function refundTokens(
     const transactionType =
       type === 'CHARACTER_SHEET' ? 'refund_sheet' :
       type === 'FACIAL_EXPRESSIONS' ? 'refund_expressions' :
+      type === 'POSE_GENERATION' ? 'refund_pose' :
       'refund_concept'
 
     console.log(`Recording refund transaction: type=${transactionType}, amount=${cost}`)

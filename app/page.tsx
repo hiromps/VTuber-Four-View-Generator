@@ -53,7 +53,7 @@ export default function Home() {
     const [showAuthModal, setShowAuthModal] = useState(false)
     const [showBuyModal, setShowBuyModal] = useState(false)
     const [showHistoryModal, setShowHistoryModal] = useState(false)
-    const [activeTab, setActiveTab] = useState<'sheet' | 'concept' | 'expressions'>('sheet')
+    const [activeTab, setActiveTab] = useState<'sheet' | 'concept' | 'expressions' | 'pose'>('sheet')
     const [authError, setAuthError] = useState<string | null>(null)
     const [paymentSuccess, setPaymentSuccess] = useState(false)
     const [paymentCanceled, setPaymentCanceled] = useState(false)
@@ -89,6 +89,17 @@ export default function Home() {
     // Attached Item Image State
     const [sheetAttachedImage, setSheetAttachedImage] = useState<UploadedFile | null>(null)
     const [expressionsAttachedImage, setExpressionsAttachedImage] = useState<UploadedFile | null>(null)
+
+    // Pose Generation State
+    const [poseImage, setPoseImage] = useState<string | null>(null)
+    const [isPoseLoading, setIsPoseLoading] = useState(false)
+    const [poseError, setPoseError] = useState<string | null>(null)
+    const [poseDescription, setPoseDescription] = useState<string>('')
+    const [poseReferenceImage, setPoseReferenceImage] = useState<UploadedFile | null>(null)
+
+    // Drag and Drop State
+    const [isDraggingMain, setIsDraggingMain] = useState(false)
+    const [isDraggingPoseRef, setIsDraggingPoseRef] = useState(false)
 
     const expressionLabels: { [key in ExpressionType]: string } = {
         joy: t('expressions.joy'),
@@ -274,6 +285,75 @@ export default function Home() {
         }
     }
 
+    // Main character image drag and drop handlers
+    const handleMainDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setIsDraggingMain(true)
+    }
+
+    const handleMainDragLeave = (e: React.DragEvent<HTMLLabelElement>) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setIsDraggingMain(false)
+    }
+
+    const handleMainDrop = async (e: React.DragEvent<HTMLLabelElement>) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setIsDraggingMain(false)
+
+        const file = e.dataTransfer.files?.[0]
+        if (file && file.type.startsWith('image/')) {
+            try {
+                const data = await fileToData(file)
+                setUploadedFile(data)
+                setGeneratedImages({ front: null, back: null, left: null, right: null })
+                setSheetError(null)
+                setExpressionsImages({ joy: null, anger: null, sorrow: null, surprise: null })
+                setExpressionsError(null)
+                setPoseImage(null)
+                setPoseError(null)
+            } catch (error) {
+                console.error("Error processing dropped file:", error)
+                const errorMessage = t('errors.uploadImage')
+                setSheetError(errorMessage)
+                setExpressionsError(errorMessage)
+                setPoseError(errorMessage)
+            }
+        }
+    }
+
+    // Pose reference image drag and drop handlers
+    const handlePoseRefDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setIsDraggingPoseRef(true)
+    }
+
+    const handlePoseRefDragLeave = (e: React.DragEvent<HTMLLabelElement>) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setIsDraggingPoseRef(false)
+    }
+
+    const handlePoseRefDrop = async (e: React.DragEvent<HTMLLabelElement>) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setIsDraggingPoseRef(false)
+
+        const file = e.dataTransfer.files?.[0]
+        if (file && file.type.startsWith('image/')) {
+            try {
+                const data = await fileToData(file)
+                setPoseReferenceImage(data)
+            } catch (error) {
+                console.error("Error processing dropped reference file:", error)
+                setPoseError(error instanceof Error ? error.message : "Failed to process reference image")
+            }
+        }
+    }
+
     const handleGenerateSheet = useCallback(async () => {
         if (!user) {
             setShowAuthModal(true)
@@ -446,6 +526,88 @@ export default function Home() {
             setIsExpressionsLoading(false)
         }
     }, [user, uploadedFile, tokens, expressionsAdditionalPrompt, expressionsAttachedImage])
+
+    const handleGeneratePose = useCallback(async () => {
+        if (!user) {
+            setShowAuthModal(true)
+            return
+        }
+
+        if (!uploadedFile) {
+            setPoseError(t('errors.uploadImage'))
+            return
+        }
+
+        // ポーズの説明または参考画像のどちらかが必要
+        if (!poseDescription && !poseReferenceImage) {
+            setPoseError('ポーズの説明または参考画像を入力してください')
+            return
+        }
+
+        if (tokens < 1) {
+            setPoseError(t('errors.insufficientTokens'))
+            setShowBuyModal(true)
+            return
+        }
+
+        setIsPoseLoading(true)
+        setPoseError(null)
+        setPoseImage(null)
+
+        try {
+            const response = await fetch('/api/generate/pose', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    base64Image: uploadedFile.base64,
+                    mimeType: uploadedFile.mimeType,
+                    poseDescription: poseDescription,
+                    referenceImageBase64: poseReferenceImage?.base64,
+                    referenceImageMimeType: poseReferenceImage?.mimeType,
+                }),
+            })
+
+            // レスポンスのコンテンツタイプをチェック
+            const contentType = response.headers.get('content-type')
+            if (!contentType || !contentType.includes('application/json')) {
+                const text = await response.text()
+                console.error('Non-JSON response:', text)
+                throw new Error('画像サイズが大きすぎるか、サーバーエラーが発生しました。より小さい画像をお試しください。')
+            }
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to generate pose')
+            }
+
+            setTokens(data.tokens)
+            setPoseImage(data.image)
+
+        } catch (error) {
+            console.error("Error generating pose:", error)
+            if (error instanceof Error && error.message.includes('JSON')) {
+                setPoseError('画像サイズが大きすぎる可能性があります。より小さい画像をお試しください。')
+            } else {
+                setPoseError(error instanceof Error ? error.message : "An unknown error occurred.")
+            }
+        } finally {
+            setIsPoseLoading(false)
+        }
+    }, [user, uploadedFile, tokens, poseDescription, poseReferenceImage, t])
+
+    const handlePoseReferenceImageChange = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0]
+        if (file) {
+            try {
+                const data = await fileToData(file)
+                setPoseReferenceImage(data)
+            } catch (error) {
+                console.error("Error processing reference image:", error)
+                setPoseError(error instanceof Error ? error.message : "Failed to process reference image")
+            }
+        }
+    }, [])
 
     const handleDownloadSingle = (src: string, filename: string) => {
         if (!src) return
@@ -808,6 +970,7 @@ export default function Home() {
                 <div className="flex justify-center mb-4 md:mb-6 gap-2 md:gap-4 flex-wrap">
                     <TabButton tabId="sheet">{t('tabs.characterSheet')}</TabButton>
                     <TabButton tabId="expressions">{t('tabs.expressions')}</TabButton>
+                    <TabButton tabId="pose">{t('tabs.poseGeneration')}</TabButton>
                     <TabButton tabId="concept">{t('tabs.conceptArt')}</TabButton>
                 </div>
 
@@ -817,7 +980,17 @@ export default function Home() {
                         <div className="lg:col-span-1 bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg flex flex-col space-y-4 md:space-y-6 h-fit">
                             <h2 className="text-lg md:text-xl font-semibold border-b border-gray-600 pb-2 md:pb-3">1. {t('upload.title')}</h2>
                             <div className="flex items-center justify-center w-full">
-                                <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600 transition-colors">
+                                <label
+                                    htmlFor="dropzone-file"
+                                    className={`flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+                                        isDraggingMain
+                                            ? 'border-purple-500 bg-purple-900/30'
+                                            : 'border-gray-600 bg-gray-700 hover:bg-gray-600'
+                                    }`}
+                                    onDragOver={handleMainDragOver}
+                                    onDragLeave={handleMainDragLeave}
+                                    onDrop={handleMainDrop}
+                                >
                                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
                                         <UploadIcon />
                                         <p className="mb-2 text-sm text-gray-400"><span className="font-semibold">{t('upload.clickToUpload')}</span> {t('upload.dragAndDrop')}</p>
@@ -1012,7 +1185,17 @@ export default function Home() {
                         <div className="lg:col-span-1 bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg flex flex-col space-y-4 md:space-y-6 h-fit">
                             <h2 className="text-lg md:text-xl font-semibold border-b border-gray-600 pb-2 md:pb-3">1. {t('upload.title')}</h2>
                             <div className="flex items-center justify-center w-full">
-                                <label htmlFor="dropzone-file-expressions" className="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600 transition-colors">
+                                <label
+                                    htmlFor="dropzone-file-expressions"
+                                    className={`flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+                                        isDraggingMain
+                                            ? 'border-purple-500 bg-purple-900/30'
+                                            : 'border-gray-600 bg-gray-700 hover:bg-gray-600'
+                                    }`}
+                                    onDragOver={handleMainDragOver}
+                                    onDragLeave={handleMainDragLeave}
+                                    onDrop={handleMainDrop}
+                                >
                                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
                                         <UploadIcon />
                                         <p className="mb-2 text-sm text-gray-400"><span className="font-semibold">{t('upload.clickToUpload')}</span> {t('upload.dragAndDrop')}</p>
@@ -1196,6 +1379,133 @@ export default function Home() {
                                         </div>
                                     )
                                 })}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'pose' && (
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
+                        {/* Controls */}
+                        <div className="lg:col-span-1 bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg flex flex-col space-y-4 md:space-y-6 h-fit">
+                            <h2 className="text-lg md:text-xl font-semibold border-b border-gray-600 pb-2 md:pb-3">1. {t('upload.title')}</h2>
+                            <div className="flex items-center justify-center w-full">
+                                <label
+                                    htmlFor="pose-dropzone-file"
+                                    className={`flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+                                        isDraggingMain
+                                            ? 'border-purple-500 bg-purple-900/30'
+                                            : 'border-gray-600 bg-gray-700 hover:bg-gray-600'
+                                    }`}
+                                    onDragOver={handleMainDragOver}
+                                    onDragLeave={handleMainDragLeave}
+                                    onDrop={handleMainDrop}
+                                >
+                                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <UploadIcon />
+                                        <p className="mb-2 text-sm text-gray-400"><span className="font-semibold">{t('upload.clickToUpload')}</span> {t('upload.dragAndDrop')}</p>
+                                        <p className="text-xs text-gray-500">{t('upload.fileTypes')}</p>
+                                    </div>
+                                    <input id="pose-dropzone-file" type="file" className="hidden" accept="image/png, image/jpeg, image/webp" onChange={handleFileChange} />
+                                </label>
+                            </div>
+
+                            {uploadedFile?.objectURL && (
+                                <div className="mt-4">
+                                    <p className="text-sm font-medium text-gray-300 mb-2">{t('upload.preview')}</p>
+                                    <img src={uploadedFile.objectURL} alt="Uploaded preview" className="rounded-lg w-full max-h-64 object-contain" />
+                                </div>
+                            )}
+
+                            <h2 className="text-lg md:text-xl font-semibold border-b border-gray-600 pb-2 md:pb-3">2. {t('pose.specifyPose')}</h2>
+
+                            {/* Pose Description */}
+                            <div>
+                                <label htmlFor="pose-description" className="block text-sm font-medium text-gray-300 mb-2">
+                                    {t('pose.poseDescription')}
+                                </label>
+                                <textarea
+                                    id="pose-description"
+                                    rows={3}
+                                    value={poseDescription}
+                                    onChange={(e) => setPoseDescription(e.target.value)}
+                                    placeholder={t('pose.descriptionPlaceholder')}
+                                    className="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white placeholder-gray-400 focus:ring-purple-500 focus:border-purple-500 transition"
+                                />
+                            </div>
+
+                            {/* Reference Image Upload */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-300 mb-2">
+                                    {t('pose.referenceImage')}
+                                </label>
+                                <div className="flex items-center justify-center w-full">
+                                    <label
+                                        htmlFor="pose-reference-image"
+                                        className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+                                            isDraggingPoseRef
+                                                ? 'border-purple-500 bg-purple-900/30'
+                                                : 'border-gray-600 bg-gray-700 hover:bg-gray-600'
+                                        }`}
+                                        onDragOver={handlePoseRefDragOver}
+                                        onDragLeave={handlePoseRefDragLeave}
+                                        onDrop={handlePoseRefDrop}
+                                    >
+                                        {poseReferenceImage ? (
+                                            <img src={poseReferenceImage.objectURL} alt="Reference" className="h-full rounded-lg object-contain" />
+                                        ) : (
+                                            <div className="flex flex-col items-center justify-center py-2">
+                                                <UploadIcon />
+                                                <p className="text-xs text-gray-400">{t('pose.uploadReference')}</p>
+                                            </div>
+                                        )}
+                                        <input id="pose-reference-image" type="file" className="hidden" accept="image/png, image/jpeg, image/webp" onChange={handlePoseReferenceImageChange} />
+                                    </label>
+                                </div>
+                                {poseReferenceImage && (
+                                    <button
+                                        onClick={() => setPoseReferenceImage(null)}
+                                        className="mt-2 text-xs text-red-400 hover:text-red-300"
+                                    >
+                                        {t('pose.removeReference')}
+                                    </button>
+                                )}
+                            </div>
+
+                            <div className="bg-gray-700 p-3 rounded-lg text-sm text-gray-300">
+                                {t('generate.cost')} <span className="font-bold text-yellow-400">1 {t('generate.token')}</span>
+                            </div>
+                            <button
+                                onClick={handleGeneratePose}
+                                disabled={isPoseLoading || !uploadedFile || (!poseDescription && !poseReferenceImage)}
+                                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-gray-500 disabled:to-gray-500 text-white font-bold py-2.5 md:py-3 px-4 rounded-lg transition-colors flex justify-center items-center text-sm md:text-base"
+                            >
+                                {isPoseLoading ? t('generate.generating') : t('generate.generatePose')}
+                            </button>
+                            {poseError && <p className="text-red-400 text-sm mt-2">{poseError}</p>}
+                        </div>
+
+                        {/* Results */}
+                        <div className="lg:col-span-2 bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg flex flex-col">
+                            <h2 className="text-lg md:text-xl font-semibold mb-3 md:mb-4">{t('results.generatedPose')}</h2>
+                            <div className="w-full h-full min-h-[500px] flex justify-center items-center relative group">
+                                {isPoseLoading ? (
+                                    <LoadingSpinner />
+                                ) : poseImage ? (
+                                    <>
+                                        <img src={poseImage} alt="Generated pose" className="max-w-full max-h-[80vh] rounded-lg object-contain" />
+                                        <button
+                                            onClick={() => handleDownloadSingle(poseImage, 'character-pose.png')}
+                                            className="absolute bottom-4 right-4 bg-black bg-opacity-60 hover:bg-opacity-80 text-white p-2 rounded-full transition-opacity duration-200 opacity-0 group-hover:opacity-100 focus:opacity-100"
+                                            aria-label="Download pose"
+                                            title="Download pose"
+                                        >
+                                            <DownloadIcon />
+                                        </button>
+                                    </>
+                                ) : (
+                                    <ImagePlaceholder label={t('results.placeholder')} />
+                                )}
                             </div>
                         </div>
                     </div>
