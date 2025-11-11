@@ -9,7 +9,7 @@ import { defaultSEO, organizationSchema, howToSchema, breadcrumbSchema } from '@
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://vtuber-ai-generator.com'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://smartgram.online'),
   title: {
     default: defaultSEO.defaultTitle,
     template: defaultSEO.titleTemplate,
@@ -80,22 +80,23 @@ export default function RootLayout({
   return (
     <html lang="ja" suppressHydrationWarning>
       <head>
-        {/* Google AdSense */}
-        <GoogleAdSenseScript />
         {/* 構造化データ（Schema.org） */}
         <script
+          key="schema-organization"
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(organizationSchema),
           }}
         />
         <script
+          key="schema-howto"
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(howToSchema),
           }}
         />
         <script
+          key="schema-breadcrumb"
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(breadcrumbSchema),
@@ -114,6 +115,8 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="VTuber四面図AI" />
       </head>
       <body className={inter.className}>
+        {/* Google AdSense */}
+        <GoogleAdSenseScript />
         <GoogleAnalytics />
         <Providers>
           {children}

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import Script from 'next/script'
 import { AdRewardButton } from './AdRewardButton'
 
 interface AdSenseProps {
@@ -84,10 +85,12 @@ export function GoogleAdSenseScript() {
   if (!clientId) return null
 
   return (
-    <script
+    <Script
+      id="google-adsense"
       async
       src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${clientId}`}
       crossOrigin="anonymous"
+      strategy="afterInteractive"
     />
   )
 }

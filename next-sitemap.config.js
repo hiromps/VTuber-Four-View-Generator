@@ -1,6 +1,6 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
-  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://vtuber-ai-generator.com',
+  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://smartgram.online',
   generateRobotsTxt: true,
   generateIndexSitemap: false,
   changefreq: 'weekly',
@@ -26,7 +26,7 @@ module.exports = {
       },
     ],
     additionalSitemaps: [
-      'https://vtuber-ai-generator.com/server-sitemap.xml',
+      'https://smartgram.online/server-sitemap.xml',
     ],
   },
   transform: async (config, path) => {

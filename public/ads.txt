@@ -1,0 +1,8 @@
+# ads.txt - Authorized Digital Sellers
+# smartgram.online
+
+# Google AdSense
+google.com, pub-6090439809602995, DIRECT, f08c47fec0942fa0
+
+# Additional SSP/Exchange partners can be added here if needed
+# Format: <domain>, <publisher_id>, <relationship>, <certification_id>

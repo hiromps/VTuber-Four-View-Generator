@@ -26,3 +26,13 @@ export interface GeneratedExpressions {
   surprise: string | null;
   [key: string]: string | null;
 }
+
+export interface PoseGenerationInput {
+  characterImage: UploadedFile;
+  poseDescription?: string;
+  referenceImage?: UploadedFile;
+}
+
+export interface GeneratedPose {
+  image: string | null;
+}

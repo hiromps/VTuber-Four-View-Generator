@@ -10,8 +10,8 @@ User-agent: Googlebot
 Allow: /
 
 # Host
-Host: https://vtuber-ai-generator.com
+Host: https://smartgram.online
 
 # Sitemaps
-Sitemap: https://vtuber-ai-generator.com/sitemap.xml
-Sitemap: https://vtuber-ai-generator.com/server-sitemap.xml
+Sitemap: https://smartgram.online/sitemap.xml
+Sitemap: https://smartgram.online/server-sitemap.xml
