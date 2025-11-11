@@ -845,7 +845,7 @@ export default function Home() {
     }, [])
 
     const handleEnhancePosePrompt = useCallback(async () => {
-        if (!poseAdditionalPrompt || poseAdditionalPrompt.trim() === '') {
+        if (!poseDescription || poseDescription.trim() === '') {
             return
         }
 
@@ -855,7 +855,7 @@ export default function Home() {
             const response = await fetch('/api/enhance-prompt', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: poseAdditionalPrompt }),
+                body: JSON.stringify({ prompt: poseDescription }),
             })
 
             const data = await response.json()
@@ -864,14 +864,14 @@ export default function Home() {
                 throw new Error(data.error || 'Failed to enhance prompt')
             }
 
-            setPoseAdditionalPrompt(data.enhancedPrompt)
+            setPoseDescription(data.enhancedPrompt)
         } catch (error) {
             console.error("Error enhancing prompt:", error)
             setPoseError(error instanceof Error ? error.message : "Failed to enhance prompt")
         } finally {
             setIsEnhancingPosePrompt(false)
         }
-    }, [poseAdditionalPrompt])
+    }, [poseDescription])
 
     const handlePoseAttachFile = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0]
@@ -1497,7 +1497,7 @@ export default function Home() {
                                             <div className="absolute left-0 bottom-full mb-1 bg-gray-700 border border-gray-600 rounded-lg shadow-lg p-1 z-10">
                                                 <button
                                                     onClick={handleEnhancePosePrompt}
-                                                    disabled={isEnhancingPosePrompt || !poseAdditionalPrompt}
+                                                    disabled={isEnhancingPosePrompt || !poseDescription}
                                                     className="flex items-center gap-2 w-full px-3 py-2 text-sm text-white hover:bg-gray-600 rounded disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                                                 >
                                                     <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
