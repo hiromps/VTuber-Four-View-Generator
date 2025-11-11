@@ -13,6 +13,16 @@ console.log('[Gemini] API_KEY is set:', process.env.API_KEY ? 'Yes (length: ' + 
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
 
+// 高画質設定の共通定義
+const QUALITY_SETTINGS = {
+  // Gemini API config設定
+  generationConfig: {
+    temperature: 0.4, // より一貫性のある高品質な出力
+  },
+  // プロンプト用の品質指示
+  qualityPrompt: "QUALITY REQUIREMENTS: Generate in MAXIMUM quality and resolution. The output must be sharp, detailed, and crisp with NO compression artifacts, NO blurriness, and NO quality degradation. Maintain pristine image quality throughout.",
+};
+
 function getPromptForView(view: ViewType, additionalPrompt: string = '', hasAttachedImage: boolean = false): string {
   // 追加の指示を最初に配置して強調
   const criticalInstructions = additionalPrompt
@@ -30,13 +40,13 @@ function getPromptForView(view: ViewType, additionalPrompt: string = '', hasAtta
 
   switch (view) {
     case 'front':
-      return `${criticalInstructions}${attachedImageInstructions}${commonPrompt} front view, but standardized in a T-pose ${stylePrompt} ${framingPrompt}`;
+      return `${QUALITY_SETTINGS.qualityPrompt}\n\n${criticalInstructions}${attachedImageInstructions}${commonPrompt} front view, but standardized in a T-pose ${stylePrompt} ${framingPrompt}`;
     case 'back':
-      return `${criticalInstructions}${attachedImageInstructions}${commonPrompt} back view ${stylePrompt} ${framingPrompt}`;
+      return `${QUALITY_SETTINGS.qualityPrompt}\n\n${criticalInstructions}${attachedImageInstructions}${commonPrompt} back view ${stylePrompt} ${framingPrompt}`;
     case 'left':
-      return `${criticalInstructions}${attachedImageInstructions}${commonPrompt} left side view ${stylePrompt} ${framingPrompt}`;
+      return `${QUALITY_SETTINGS.qualityPrompt}\n\n${criticalInstructions}${attachedImageInstructions}${commonPrompt} left side view ${stylePrompt} ${framingPrompt}`;
     case 'right':
-      return `${criticalInstructions}${attachedImageInstructions}${commonPrompt} right side view ${stylePrompt} ${framingPrompt}`;
+      return `${QUALITY_SETTINGS.qualityPrompt}\n\n${criticalInstructions}${attachedImageInstructions}${commonPrompt} right side view ${stylePrompt} ${framingPrompt}`;
   }
 }
 
@@ -110,6 +120,7 @@ export const generateCharacterSheetView = async (
       },
       config: {
         responseModalities: [Modality.IMAGE],
+        ...QUALITY_SETTINGS.generationConfig,
       },
     });
 
@@ -143,9 +154,12 @@ export const generateCharacterSheetView = async (
 
 export const generateConceptArt = async (prompt: string, aspectRatio: AspectRatio): Promise<string> => {
     try {
+        // 高画質プロンプトを追加
+        const qualityEnhancedPrompt = `${QUALITY_SETTINGS.qualityPrompt} award-winning digital illustration, masterpiece, ultra-high resolution, crisp details, sharp focus, professional quality, ${prompt}`;
+
         const response = await ai.models.generateImages({
             model: 'imagen-4.0-generate-001',
-            prompt: `award-winning digital illustration, masterpiece, ${prompt}`,
+            prompt: qualityEnhancedPrompt,
             config: {
               numberOfImages: 1,
               outputMimeType: 'image/png',
@@ -183,13 +197,13 @@ function getPromptForExpression(expression: ExpressionType, additionalPrompt: st
 
   switch (expression) {
     case 'joy':
-      return `${criticalInstructions}${attachedImageInstructions}${commonPrompt} joyful, happy, smiling ${stylePrompt} ${framingPrompt}`;
+      return `${QUALITY_SETTINGS.qualityPrompt}\n\n${criticalInstructions}${attachedImageInstructions}${commonPrompt} joyful, happy, smiling ${stylePrompt} ${framingPrompt}`;
     case 'anger':
-      return `${criticalInstructions}${attachedImageInstructions}${commonPrompt} angry, furious, frowning ${stylePrompt} ${framingPrompt}`;
+      return `${QUALITY_SETTINGS.qualityPrompt}\n\n${criticalInstructions}${attachedImageInstructions}${commonPrompt} angry, furious, frowning ${stylePrompt} ${framingPrompt}`;
     case 'sorrow':
-      return `${criticalInstructions}${attachedImageInstructions}${commonPrompt} sad, sorrowful, tearful ${stylePrompt} ${framingPrompt}`;
+      return `${QUALITY_SETTINGS.qualityPrompt}\n\n${criticalInstructions}${attachedImageInstructions}${commonPrompt} sad, sorrowful, tearful ${stylePrompt} ${framingPrompt}`;
     case 'surprise':
-      return `${criticalInstructions}${attachedImageInstructions}${commonPrompt} surprised, shocked, wide-eyed ${stylePrompt} ${framingPrompt}`;
+      return `${QUALITY_SETTINGS.qualityPrompt}\n\n${criticalInstructions}${attachedImageInstructions}${commonPrompt} surprised, shocked, wide-eyed ${stylePrompt} ${framingPrompt}`;
   }
 }
 
@@ -263,6 +277,7 @@ export const generateFacialExpression = async (
       },
       config: {
         responseModalities: [Modality.IMAGE],
+        ...QUALITY_SETTINGS.generationConfig,
       },
     });
 
@@ -320,7 +335,7 @@ This description provides context for the desired pose. ${hasReferenceImage ? 'U
   const framingPrompt = "FRAMING: The ENTIRE character must be FULLY VISIBLE within the frame from head to toe. DO NOT crop any part of the character. Leave appropriate margin space around the character. The full body must fit completely within the image boundaries.";
   const stylePrompt = "STYLE CONSISTENCY: Maintain the exact same art style, color palette, character design, and visual details from the original character image. The background must be a solid, neutral gray (#808080).";
 
-  return `${referenceImageInstructions}${poseInstructions}${commonPrompt}\n\n${stylePrompt}\n\n${framingPrompt}`;
+  return `${QUALITY_SETTINGS.qualityPrompt}\n\n${referenceImageInstructions}${poseInstructions}${commonPrompt}\n\n${stylePrompt}\n\n${framingPrompt}`;
 }
 
 export const generatePose = async (
@@ -405,6 +420,7 @@ export const generatePose = async (
       },
       config: {
         responseModalities: [Modality.IMAGE],
+        ...QUALITY_SETTINGS.generationConfig,
       },
     });
 
