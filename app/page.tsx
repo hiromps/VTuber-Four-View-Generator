@@ -1467,18 +1467,20 @@ export default function Home() {
                                 </div>
                             )}
 
-                            <h2 className="text-lg md:text-xl font-semibold border-b border-gray-600 pb-2 md:pb-3">2. {t('customize.title')}</h2>
+                            <h2 className="text-lg md:text-xl font-semibold border-b border-gray-600 pb-2 md:pb-3">2. {t('pose.specifyPose')}</h2>
+
+                            {/* Pose Description with + button */}
                             <div>
-                                <label htmlFor="pose-additional-prompt" className="block text-sm font-medium text-gray-300 mb-2">
-                                    {t('customize.additionalInstructions')}
+                                <label htmlFor="pose-description" className="block text-sm font-medium text-gray-300 mb-2">
+                                    {t('pose.poseDescription')}
                                 </label>
                                 <div className="relative">
                                     <textarea
-                                        id="pose-additional-prompt"
+                                        id="pose-description"
                                         rows={3}
-                                        value={poseAdditionalPrompt}
-                                        onChange={(e) => setPoseAdditionalPrompt(e.target.value)}
-                                        placeholder={t('customize.placeholder')}
+                                        value={poseDescription}
+                                        onChange={(e) => setPoseDescription(e.target.value)}
+                                        placeholder={t('pose.descriptionPlaceholder')}
                                         className="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white placeholder-gray-400 focus:ring-purple-500 focus:border-purple-500 transition"
                                     />
                                     <div className="absolute bottom-2 left-2 prompt-menu-container">
@@ -1537,24 +1539,22 @@ export default function Home() {
                                         </button>
                                     </div>
                                 )}
-                                <p className="text-xs text-gray-500 mt-2">{t('customize.hint')}</p>
                             </div>
 
-                            <h2 className="text-lg md:text-xl font-semibold border-b border-gray-600 pb-2 md:pb-3">3. {t('pose.specifyPose')}</h2>
-
-                            {/* Pose Description */}
+                            {/* Additional Prompt (optional) */}
                             <div>
-                                <label htmlFor="pose-description" className="block text-sm font-medium text-gray-300 mb-2">
-                                    {t('pose.poseDescription')}
+                                <label htmlFor="pose-additional-prompt" className="block text-sm font-medium text-gray-300 mb-2">
+                                    {t('customize.additionalInstructions')}
                                 </label>
                                 <textarea
-                                    id="pose-description"
-                                    rows={3}
-                                    value={poseDescription}
-                                    onChange={(e) => setPoseDescription(e.target.value)}
-                                    placeholder={t('pose.descriptionPlaceholder')}
+                                    id="pose-additional-prompt"
+                                    rows={2}
+                                    value={poseAdditionalPrompt}
+                                    onChange={(e) => setPoseAdditionalPrompt(e.target.value)}
+                                    placeholder={t('customize.placeholder')}
                                     className="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white placeholder-gray-400 focus:ring-purple-500 focus:border-purple-500 transition"
                                 />
+                                <p className="text-xs text-gray-500 mt-2">{t('customize.hint')}</p>
                             </div>
 
                             {/* Reference Image Upload */}
