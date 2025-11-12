@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VTuber四面図ジェネレーター | AIで簡単キャラクター作成</title>
+    <meta name="description" content="立ち絵1枚から四面図を自動生成。VTuberやゲームキャラクターのデザインを簡単に作成できるAIツール">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">✨</span>
+                    <span class="logo-text">VTuber四面図</span>
+                </div>
+                <nav class="nav">
+                    <a href="#features" class="nav-link">特徴</a>
+                    <a href="#how-to-use" class="nav-link">使い方</a>
+                    <a href="#faq" class="nav-link">FAQ</a>
+                    <a href="/app" class="btn btn-primary btn-small">アプリを開く</a>
+                </nav>
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- モバイルメニュー -->
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="#features" class="mobile-menu-link">特徴</a>
+        <a href="#how-to-use" class="mobile-menu-link">使い方</a>
+        <a href="#faq" class="mobile-menu-link">FAQ</a>
+        <a href="/app" class="btn btn-primary">アプリを開く</a>
+    </div>
+
+    <!-- ヒーローセクション -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 class="hero-title">
+                        <span class="hero-title-main">立ち絵1枚から</span>
+                        <span class="hero-title-sub">四面図を自動生成</span>
+                    </h1>
+                    <p class="hero-description">
+                        VTuberやゲームキャラクターのデザインに必要な四面図を、AIが自動で作成。<br>
+                        手間のかかる作業を数分で完了できます。
+                    </p>
+                    <div class="hero-buttons">
+                        <a href="/app" class="btn btn-primary btn-large">
+                            <span>無料で始める</span>
+                            <svg class="btn-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </a>
+                        <a href="#how-to-use" class="btn btn-secondary btn-large">使い方を見る</a>
+                    </div>
+                    <div class="hero-note">
+                        <svg class="note-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M8 1.5C4.41 1.5 1.5 4.41 1.5 8C1.5 11.59 4.41 14.5 8 14.5C11.59 14.5 14.5 11.59 14.5 8C14.5 4.41 11.59 1.5 8 1.5ZM8 11C7.59 11 7.25 10.66 7.25 10.25V7.75C7.25 7.34 7.59 7 8 7C8.41 7 8.75 7.34 8.75 7.75V10.25C8.75 10.66 8.41 11 8 11ZM8.75 5.75C8.75 6.16 8.41 6.5 8 6.5C7.59 6.5 7.25 6.16 7.25 5.75C7.25 5.34 7.59 5 8 5C8.41 5 8.75 5.34 8.75 5.75Z" fill="currentColor"/>
+                        </svg>
+                        <span>アカウント登録不要で今すぐお試しいただけます</span>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="hero-card">
+                        <div class="card-glow"></div>
+                        <div class="card-content">
+                            <div class="grid-preview">
+                                <div class="grid-item">正面</div>
+                                <div class="grid-item">背面</div>
+                                <div class="grid-item">左側面</div>
+                                <div class="grid-item">右側面</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 特徴セクション -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title">
+                <span class="section-title-icon">⭐</span>
+                主な特徴
+            </h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                            <circle cx="24" cy="24" r="20" stroke="currentColor" stroke-width="2"/>
+                            <path d="M24 14V24L30 30" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">たった数分で完成</h3>
+                    <p class="feature-description">
+                        立ち絵をアップロードするだけで、AIが自動的に4方向からの画像を生成。従来数時間かかっていた作業が数分で完了します。
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                            <rect x="8" y="12" width="32" height="24" rx="2" stroke="currentColor" stroke-width="2"/>
+                            <path d="M8 20H40" stroke="currentColor" stroke-width="2"/>
+                            <circle cx="14" cy="16" r="1.5" fill="currentColor"/>
+                            <circle cx="19" cy="16" r="1.5" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">高品質な出力</h3>
+                    <p class="feature-description">
+                        最新のAI技術により、元のキャラクターデザインを忠実に再現。細部までこだわった高品質な四面図を生成します。
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                            <path d="M24 8L28 16H36L30 22L32 30L24 26L16 30L18 22L12 16H20L24 8Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">簡単カスタマイズ</h3>
+                    <p class="feature-description">
+                        表情差分やポーズの指定も可能。あなたの理想のキャラクターデザインを自由に実現できます。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 使い方セクション -->
+    <section class="how-to-use" id="how-to-use">
+        <div class="container">
+            <h2 class="section-title">
+                <span class="section-title-icon">📝</span>
+                使い方
+            </h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3 class="step-title">立ち絵をアップロード</h3>
+                        <p class="step-description">
+                            お持ちのキャラクター立ち絵をアップロードします。JPG、PNG形式に対応しています。
+                        </p>
+                    </div>
+                    <div class="step-visual">
+                        <div class="upload-preview">
+                            <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+                                <rect x="8" y="16" width="48" height="40" rx="4" stroke="currentColor" stroke-width="2" stroke-dasharray="4 4"/>
+                                <path d="M32 28V44M32 28L26 34M32 28L38 34" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3 class="step-title">生成ボタンをクリック</h3>
+                        <p class="step-description">
+                            必要に応じて追加の指示を入力し、生成ボタンをクリックするだけ。AIが自動で処理を開始します。
+                        </p>
+                    </div>
+                    <div class="step-visual">
+                        <div class="generate-preview">
+                            <div class="loading-dots">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3 class="step-title">ダウンロード</h3>
+                        <p class="step-description">
+                            生成された四面図をダウンロード。すぐにVTuberモデルやゲーム制作に活用できます。
+                        </p>
+                    </div>
+                    <div class="step-visual">
+                        <div class="download-preview">
+                            <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+                                <path d="M32 16V40M32 40L24 32M32 40L40 32" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M16 44V48C16 50.2091 17.7909 52 20 52H44C46.2091 52 48 50.2091 48 48V44" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQセクション -->
+    <section class="faq" id="faq">
+        <div class="container">
+            <h2 class="section-title">
+                <span class="section-title-icon">❓</span>
+                よくある質問
+            </h2>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>利用料金はかかりますか？</span>
+                        <svg class="faq-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="faq-answer">
+                        <p>基本機能は無料でご利用いただけます。トークン制となっており、初回登録時に無料トークンをプレゼント。追加トークンは必要に応じて購入できます。</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>どのような画像形式に対応していますか？</span>
+                        <svg class="faq-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="faq-answer">
+                        <p>JPG、PNG、WebP形式の画像に対応しています。最大ファイルサイズは10MBまでです。</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>生成された画像の商用利用は可能ですか？</span>
+                        <svg class="faq-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="faq-answer">
+                        <p>はい、生成された画像は商用利用が可能です。ただし、元の立ち絵の著作権については、アップロード者が適切な権利を持っていることを確認してください。</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>生成にはどのくらい時間がかかりますか？</span>
+                        <svg class="faq-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="faq-answer">
+                        <p>通常、1つの四面図セットの生成には2〜5分程度かかります。サーバーの混雑状況により多少前後する場合があります。</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>アカウント登録は必須ですか？</span>
+                        <svg class="faq-icon" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <div class="faq-answer">
+                        <p>アカウント登録なしでもお試しいただけます。ただし、生成履歴の保存やトークンの管理には登録が必要です。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTAセクション -->
+    <section class="cta">
+        <div class="container">
+            <div class="cta-content">
+                <h2 class="cta-title">さあ、始めましょう</h2>
+                <p class="cta-description">あなたのキャラクターデザインを次のレベルへ</p>
+                <a href="/app" class="btn btn-primary btn-large">
+                    <span>無料で始める</span>
+                    <svg class="btn-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- フッター -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <span class="logo-icon">✨</span>
+                        <span class="logo-text">VTuber四面図</span>
+                    </div>
+                    <p class="footer-description">AIで簡単キャラクター作成</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4 class="footer-column-title">サービス</h4>
+                        <a href="/app" class="footer-link">アプリを開く</a>
+                        <a href="#features" class="footer-link">特徴</a>
+                        <a href="#how-to-use" class="footer-link">使い方</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-column-title">サポート</h4>
+                        <a href="#faq" class="footer-link">FAQ</a>
+                        <a href="/privacy" class="footer-link">プライバシーポリシー</a>
+                        <a href="/terms" class="footer-link">利用規約</a>
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-column-title">フォロー</h4>
+                        <div class="social-links">
+                            <a href="#" class="social-link" aria-label="Twitter">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                                </svg>
+                            </a>
+                            <a href="#" class="social-link" aria-label="Discord">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 VTuber四面図ジェネレーター. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
