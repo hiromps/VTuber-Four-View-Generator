@@ -106,6 +106,9 @@ export default function Home() {
     const [isLive2dLoading, setIsLive2dLoading] = useState(false)
     const [live2dError, setLive2dError] = useState<string | null>(null)
     const [live2dDescription, setLive2dDescription] = useState<string>('')
+    const [showLive2dPromptMenu, setShowLive2dPromptMenu] = useState(false)
+    const [isEnhancingLive2dPrompt, setIsEnhancingLive2dPrompt] = useState(false)
+    const [live2dAttachedImage, setLive2dAttachedImage] = useState<UploadedFile | null>(null)
     const [showPosePromptMenu, setShowPosePromptMenu] = useState(false)
     const [poseAttachedImage, setPoseAttachedImage] = useState<UploadedFile | null>(null)
     const [isEnhancingAdditionalPrompt, setIsEnhancingAdditionalPrompt] = useState(false)
@@ -612,6 +615,49 @@ export default function Home() {
             setIsPoseLoading(false)
         }
     }, [user, uploadedFile, tokens, poseDescription, poseReferenceImage, poseAdditionalPrompt, poseAttachedImage, t])
+
+    const handleEnhanceLive2dPrompt = useCallback(async () => {
+        if (!live2dDescription || live2dDescription.trim() === '') {
+            return
+        }
+
+        setShowLive2dPromptMenu(false)
+        setIsEnhancingLive2dPrompt(true)
+        try {
+            const response = await fetch('/api/enhance-prompt', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: live2dDescription }),
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to enhance prompt')
+            }
+
+            setLive2dDescription(data.enhancedPrompt)
+        } catch (error) {
+            console.error("Error enhancing prompt:", error)
+            setLive2dError(error instanceof Error ? error.message : "Failed to enhance prompt")
+        } finally {
+            setIsEnhancingLive2dPrompt(false)
+        }
+    }, [live2dDescription])
+
+    const handleLive2dAttachFile = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0]
+        if (file) {
+            try {
+                const data = await fileToData(file)
+                setLive2dAttachedImage(data)
+                setShowLive2dPromptMenu(false)
+            } catch (error) {
+                console.error("Error processing attached file:", error)
+                setLive2dError(error instanceof Error ? error.message : "Failed to process attached file")
+            }
+        }
+    }, [])
 
     const handleGenerateLive2D = useCallback(async () => {
         if (!user) {
@@ -1843,52 +1889,131 @@ export default function Home() {
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
                         {/* Controls */}
                         <div className="lg:col-span-1 bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg flex flex-col space-y-4 md:space-y-6 h-fit">
-                            <h2 className="text-lg md:text-xl font-semibold mb-2">Live2Dパーツ分けデザイン</h2>
-                            <p className="text-xs md:text-sm text-gray-400 mb-2">キャラクター画像をアップロードして、Live2D用のパーツ分け案を生成</p>
+                            <h2 className="text-lg md:text-xl font-semibold border-b border-gray-600 pb-2 md:pb-3">1. キャラクター画像アップロード</h2>
+                            <div className="flex items-center justify-center w-full">
+                                <label
+                                    htmlFor="live2d-dropzone-file"
+                                    className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer transition-colors border-gray-600 bg-gray-700 hover:bg-gray-600"
+                                >
+                                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <UploadIcon />
+                                        <p className="mb-2 text-sm text-gray-400"><span className="font-semibold">クリックしてアップロード</span> またはドラッグ＆ドロップ</p>
+                                        <p className="text-xs text-gray-500">PNG, JPEG, WebP</p>
+                                    </div>
+                                    <input id="live2d-dropzone-file" type="file" className="hidden" accept="image/png, image/jpeg, image/webp" onChange={handleLive2dFileChange} />
+                                </label>
+                            </div>
 
-                            <div>
-                                <label className="block text-xs md:text-sm font-medium mb-2">キャラクター画像</label>
-                                <div className="border-2 border-dashed border-gray-600 rounded-lg p-4 md:p-6 text-center hover:border-gray-500 transition-colors cursor-pointer" onClick={() => document.getElementById('live2dFileInput')?.click()}>
-                                    {live2dUploadedFile ? (
-                                        <div>
-                                            <img src={live2dUploadedFile.objectURL} alt="Uploaded" className="max-w-full max-h-48 mx-auto rounded" />
-                                            <p className="text-xs md:text-sm text-gray-400 mt-2">クリックで変更</p>
-                                        </div>
-                                    ) : (
-                                        <div>
-                                            <UploadIcon />
-                                            <p className="text-xs md:text-sm text-gray-400 mt-2">クリックまたはドラッグ＆ドロップ</p>
-                                        </div>
-                                    )}
-                                    <input
-                                        id="live2dFileInput"
-                                        type="file"
-                                        accept="image/png,image/jpeg,image/webp"
-                                        onChange={handleLive2dFileChange}
-                                        className="hidden"
-                                    />
+                            {live2dUploadedFile?.objectURL && (
+                                <div className="mt-4">
+                                    <p className="text-sm font-medium text-gray-300 mb-2">プレビュー</p>
+                                    <img src={live2dUploadedFile.objectURL} alt="Uploaded preview" className="rounded-lg w-full max-h-64 object-contain" />
                                 </div>
-                            </div>
+                            )}
 
+                            <h2 className="text-lg md:text-xl font-semibold border-b border-gray-600 pb-2 md:pb-3">2. カスタマイズ</h2>
                             <div>
-                                <label className="block text-xs md:text-sm font-medium mb-2">追加指示（任意）</label>
-                                <textarea
-                                    value={live2dDescription}
-                                    onChange={(e) => setLive2dDescription(e.target.value)}
-                                    placeholder="特定のパーツ分けの要望があれば記入してください"
-                                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-sm md:text-base focus:ring-2 focus:ring-purple-500 focus:outline-none resize-none"
-                                    rows={3}
-                                />
+                                <label htmlFor="live2d-additional-prompt" className="block text-sm font-medium text-gray-300 mb-2">
+                                    追加指示（任意）
+                                </label>
+                                <div className="relative">
+                                    <textarea
+                                        id="live2d-additional-prompt"
+                                        rows={3}
+                                        value={live2dDescription}
+                                        onChange={(e) => setLive2dDescription(e.target.value)}
+                                        placeholder="特定のパーツ分けの要望があれば記入してください"
+                                        className="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white placeholder-gray-400 focus:ring-purple-500 focus:border-purple-500 transition"
+                                    />
+                                    <div className="absolute bottom-2 left-2 prompt-menu-container">
+                                        <button
+                                            onClick={() => setShowLive2dPromptMenu(!showLive2dPromptMenu)}
+                                            disabled={isEnhancingLive2dPrompt}
+                                            className={`${
+                                                live2dDescription && live2dDescription.trim() !== ''
+                                                    ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600'
+                                                    : 'bg-gray-600 hover:bg-gray-500'
+                                            } disabled:bg-gray-700 disabled:cursor-not-allowed text-white p-1.5 rounded-full transition-all duration-200 flex items-center justify-center`}
+                                            title="プロンプトツール"
+                                        >
+                                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                            </svg>
+                                        </button>
+                                        {showLive2dPromptMenu && (
+                                            <div className="absolute bottom-full left-0 mb-1 bg-gray-800 border border-gray-600 rounded-lg shadow-lg overflow-hidden z-10 min-w-[200px]">
+                                                <button
+                                                    onClick={handleEnhanceLive2dPrompt}
+                                                    disabled={!live2dDescription || live2dDescription.trim() === '' || isEnhancingLive2dPrompt}
+                                                    className="w-full px-3 py-2 text-left text-sm text-white hover:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                                                >
+                                                    {isEnhancingLive2dPrompt ? (
+                                                        <>
+                                                            <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                            </svg>
+                                                            <span>最適化中...</span>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                                            </svg>
+                                                            <span>プロンプトを強化</span>
+                                                        </>
+                                                    )}
+                                                </button>
+                                                <label className="w-full px-3 py-2 text-left text-sm text-white hover:bg-gray-700 transition-colors flex items-center gap-2 cursor-pointer">
+                                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                                    </svg>
+                                                    <span>ファイルを添付</span>
+                                                    <input
+                                                        type="file"
+                                                        className="hidden"
+                                                        accept="image/png, image/jpeg, image/webp"
+                                                        onChange={handleLive2dAttachFile}
+                                                    />
+                                                </label>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                                <p className="text-xs text-gray-400 mt-1">
+                                    追加のパーツ分け指示やカスタマイズ要望を入力できます
+                                </p>
+                                {live2dAttachedImage?.objectURL && (
+                                    <div className="mt-3 relative">
+                                        <p className="text-xs font-medium text-gray-300 mb-1.5">添付画像:</p>
+                                        <div className="relative inline-block">
+                                            <img
+                                                src={live2dAttachedImage.objectURL}
+                                                alt="Attached item"
+                                                className="rounded-lg max-h-24 object-contain border border-gray-600"
+                                            />
+                                            <button
+                                                onClick={() => setLive2dAttachedImage(null)}
+                                                className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 transition-colors"
+                                                title="削除"
+                                            >
+                                                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
-                            <div className="bg-gray-700 p-3 rounded-lg">
-                                <p className="text-xs md:text-sm text-gray-300"><strong>トークン消費:</strong> 5トークン</p>
+                            <h2 className="text-lg md:text-xl font-semibold border-b border-gray-600 pb-2 md:pb-3">3. Live2Dパーツ分け生成</h2>
+                            <div className="bg-gray-700 p-3 rounded-lg text-sm text-gray-300">
+                                トークン消費: <span className="font-bold text-yellow-400">5トークン</span>
                             </div>
-
                             <button
                                 onClick={handleGenerateLive2D}
-                                disabled={isLive2dLoading || !live2dUploadedFile}
-                                className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-500 text-white font-bold py-2.5 md:py-3 px-4 rounded-lg transition-colors flex justify-center items-center text-sm md:text-base"
+                                disabled={!live2dUploadedFile || isLive2dLoading}
+                                className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-2.5 md:py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center text-sm md:text-base"
                             >
                                 {isLive2dLoading ? '生成中...' : 'パーツ分け案を生成'}
                             </button>
