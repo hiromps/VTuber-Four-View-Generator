@@ -722,6 +722,24 @@ SPECIAL INSTRUCTIONS FOR FACE BASE:
 - The result should look like a mannequin face or mask with no facial features`
           : '';
 
+        // 髪の場合は特別な指示を追加
+        const isHair = partMeta.name.includes('髪') ||
+                       partMeta.name.includes('前髪') ||
+                       partMeta.name.includes('後ろ髪') ||
+                       partMeta.name.includes('サイド');
+
+        const hairInstructions = isHair
+          ? `
+
+SPECIAL INSTRUCTIONS FOR HAIR:
+- Extract ONLY the hair - NO face outline, NO skin, NO face parts
+- DO NOT include the face outline or contour beneath the hair
+- Fill completely with hair strands and hair color only
+- The hair should cover the area from roots to tips
+- Remove any visible face/skin parts that might be under the hair
+- Only hair texture and color should be visible - everything else transparent`
+          : '';
+
         const partPrompt = `Extract and isolate ONLY the "${partMeta.name}" from this character image.
 
 Description: ${partMeta.description}
@@ -738,12 +756,12 @@ OTHER CRITICAL REQUIREMENTS:
 2. Clean, precise edges with proper anti-aliasing
 3. DO NOT include other character parts
 4. Maintain original art style and colors
-5. Ready for Live2D rigging${faceBaseInstructions}
+5. Ready for Live2D rigging${faceBaseInstructions}${hairInstructions}
 
 Examples:
 - "顔ベース": ONLY face outline and skin with filled-in (not hollow) eye/mouth positions - completely smooth "noppera-bo" face
 - "目": Complete eye structure with whites, iris, pupil, highlights
-- "髪": All hair sections combined
+- "髪": ONLY hair strands without face outline or skin - fill completely with hair color and texture
 
 Output Format: PNG image with TRANSPARENT background (alpha channel) for Live2D layering.
 REMINDER: Everything except the part itself must be fully transparent!`;
