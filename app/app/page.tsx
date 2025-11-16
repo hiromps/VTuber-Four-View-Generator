@@ -53,7 +53,7 @@ export default function Home() {
     const [showAuthModal, setShowAuthModal] = useState(false)
     const [showBuyModal, setShowBuyModal] = useState(false)
     const [showHistoryModal, setShowHistoryModal] = useState(false)
-    const [activeTab, setActiveTab] = useState<'sheet' | 'concept' | 'expressions' | 'pose'>('sheet')
+    const [activeTab, setActiveTab] = useState<'sheet' | 'concept' | 'expressions' | 'pose' | 'live2d'>('sheet')
     const [authError, setAuthError] = useState<string | null>(null)
     const [paymentSuccess, setPaymentSuccess] = useState(false)
     const [paymentCanceled, setPaymentCanceled] = useState(false)
@@ -98,6 +98,14 @@ export default function Home() {
     const [poseReferenceImage, setPoseReferenceImage] = useState<UploadedFile | null>(null)
     const [poseAdditionalPrompt, setPoseAdditionalPrompt] = useState<string>('')
     const [isEnhancingPosePrompt, setIsEnhancingPosePrompt] = useState(false)
+
+    // Live2D Parts State
+    const [live2dUploadedFile, setLive2dUploadedFile] = useState<UploadedFile | null>(null)
+    const [live2dParts, setLive2dParts] = useState<any[]>([])
+    const [live2dVisualizationImage, setLive2dVisualizationImage] = useState<string | null>(null)
+    const [isLive2dLoading, setIsLive2dLoading] = useState(false)
+    const [live2dError, setLive2dError] = useState<string | null>(null)
+    const [live2dDescription, setLive2dDescription] = useState<string>('')
     const [showPosePromptMenu, setShowPosePromptMenu] = useState(false)
     const [poseAttachedImage, setPoseAttachedImage] = useState<UploadedFile | null>(null)
     const [isEnhancingAdditionalPrompt, setIsEnhancingAdditionalPrompt] = useState(false)
@@ -605,6 +613,76 @@ export default function Home() {
         }
     }, [user, uploadedFile, tokens, poseDescription, poseReferenceImage, poseAdditionalPrompt, poseAttachedImage, t])
 
+    const handleGenerateLive2D = useCallback(async () => {
+        if (!user) {
+            setShowAuthModal(true)
+            return
+        }
+
+        if (!live2dUploadedFile) {
+            setLive2dError('画像をアップロードしてください')
+            return
+        }
+
+        if (tokens < 5) {
+            setLive2dError('トークンが不足しています（必要: 5トークン）')
+            setShowBuyModal(true)
+            return
+        }
+
+        setIsLive2dLoading(true)
+        setLive2dError(null)
+        setLive2dParts([])
+        setLive2dVisualizationImage(null)
+
+        try {
+            const response = await fetch('/api/generate/live2d-parts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    image: live2dUploadedFile.base64,
+                    description: live2dDescription
+                }),
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                if (response.status === 402) {
+                    setShowBuyModal(true)
+                    setLive2dError(data.error || 'トークンが不足しています')
+                } else {
+                    setLive2dError(data.error || '生成に失敗しました')
+                }
+                return
+            }
+
+            setLive2dParts(data.parts)
+            setLive2dVisualizationImage(data.visualizationImage)
+            setTokens(data.tokensRemaining)
+
+        } catch (error) {
+            console.error("Error generating Live2D parts:", error)
+            setLive2dError(error instanceof Error ? error.message : "エラーが発生しました")
+        } finally {
+            setIsLive2dLoading(false)
+        }
+    }, [user, live2dUploadedFile, tokens, live2dDescription])
+
+    const handleLive2dFileChange = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0]
+        if (file) {
+            try {
+                const data = await fileToData(file)
+                setLive2dUploadedFile(data)
+                setLive2dError(null)
+            } catch (error) {
+                console.error("Error processing file:", error)
+                setLive2dError(error instanceof Error ? error.message : "Failed to process image")
+            }
+        }
+    }, [])
+
     const handlePoseReferenceImageChange = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0]
         if (file) {
@@ -921,7 +999,7 @@ export default function Home() {
     const hasAnyGeneratedImages = Object.values(generatedImages).some(img => img !== null)
     const hasAnyGeneratedExpressionImages = Object.values(expressionsImages).some(img => img !== null)
 
-    const TabButton: React.FC<{ tabId: 'sheet' | 'concept' | 'expressions' | 'pose'; children: React.ReactNode }> = ({ tabId, children }) => (
+    const TabButton: React.FC<{ tabId: 'sheet' | 'concept' | 'expressions' | 'pose' | 'live2d'; children: React.ReactNode }> = ({ tabId, children }) => (
         <button
             onClick={() => setActiveTab(tabId)}
             className={`px-3 sm:px-4 md:px-6 py-2 md:py-2.5 text-xs sm:text-sm md:text-base font-medium rounded-md transition-colors duration-200 whitespace-nowrap ${
@@ -1062,6 +1140,7 @@ export default function Home() {
                     <TabButton tabId="sheet">{t('tabs.characterSheet')}</TabButton>
                     <TabButton tabId="expressions">{t('tabs.expressions')}</TabButton>
                     <TabButton tabId="pose">{t('tabs.poseGeneration')}</TabButton>
+                    <TabButton tabId="live2d">Live2Dパーツ分け</TabButton>
                     <TabButton tabId="concept">{t('tabs.conceptArt')}</TabButton>
                 </div>
 
@@ -1766,6 +1845,124 @@ export default function Home() {
                                     <ImagePlaceholder label={t('results.placeholder')} />
                                 )}
                             </div>
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'live2d' && (
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
+                        {/* Controls */}
+                        <div className="lg:col-span-1 bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg flex flex-col space-y-4 md:space-y-6 h-fit">
+                            <h2 className="text-lg md:text-xl font-semibold mb-2">Live2Dパーツ分けデザイン</h2>
+                            <p className="text-xs md:text-sm text-gray-400 mb-2">キャラクター画像をアップロードして、Live2D用のパーツ分け案を生成</p>
+
+                            <div>
+                                <label className="block text-xs md:text-sm font-medium mb-2">キャラクター画像</label>
+                                <div className="border-2 border-dashed border-gray-600 rounded-lg p-4 md:p-6 text-center hover:border-gray-500 transition-colors cursor-pointer" onClick={() => document.getElementById('live2dFileInput')?.click()}>
+                                    {live2dUploadedFile ? (
+                                        <div>
+                                            <img src={live2dUploadedFile.objectURL} alt="Uploaded" className="max-w-full max-h-48 mx-auto rounded" />
+                                            <p className="text-xs md:text-sm text-gray-400 mt-2">クリックで変更</p>
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            <UploadIcon />
+                                            <p className="text-xs md:text-sm text-gray-400 mt-2">クリックまたはドラッグ＆ドロップ</p>
+                                        </div>
+                                    )}
+                                    <input
+                                        id="live2dFileInput"
+                                        type="file"
+                                        accept="image/png,image/jpeg,image/webp"
+                                        onChange={handleLive2dFileChange}
+                                        className="hidden"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-xs md:text-sm font-medium mb-2">追加指示（任意）</label>
+                                <textarea
+                                    value={live2dDescription}
+                                    onChange={(e) => setLive2dDescription(e.target.value)}
+                                    placeholder="特定のパーツ分けの要望があれば記入してください"
+                                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-sm md:text-base focus:ring-2 focus:ring-purple-500 focus:outline-none resize-none"
+                                    rows={3}
+                                />
+                            </div>
+
+                            <div className="bg-gray-700 p-3 rounded-lg">
+                                <p className="text-xs md:text-sm text-gray-300"><strong>トークン消費:</strong> 5トークン</p>
+                            </div>
+
+                            <button
+                                onClick={handleGenerateLive2D}
+                                disabled={isLive2dLoading || !live2dUploadedFile}
+                                className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-500 text-white font-bold py-2.5 md:py-3 px-4 rounded-lg transition-colors flex justify-center items-center text-sm md:text-base"
+                            >
+                                {isLive2dLoading ? '生成中...' : 'パーツ分け案を生成'}
+                            </button>
+                            {live2dError && <p className="text-red-400 text-sm mt-2">{live2dError}</p>}
+                        </div>
+
+                        {/* Results */}
+                        <div className="lg:col-span-2 bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg">
+                            <h2 className="text-lg md:text-xl font-semibold mb-3 md:mb-4">パーツ分け案</h2>
+
+                            {isLive2dLoading ? (
+                                <div className="flex justify-center items-center py-12">
+                                    <LoadingSpinner />
+                                </div>
+                            ) : live2dParts.length === 0 ? (
+                                <div className="text-center py-12">
+                                    <p className="text-gray-400">画像をアップロードしてパーツ分け案を生成してください</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-6">
+                                    {/* Visualization Image */}
+                                    {live2dVisualizationImage && (
+                                        <div className="bg-gray-700 rounded-lg p-4">
+                                            <h3 className="font-semibold text-lg text-purple-400 mb-3 flex items-center gap-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                </svg>
+                                                視覚化図解
+                                            </h3>
+                                            <div className="relative">
+                                                <img
+                                                    src={live2dVisualizationImage}
+                                                    alt="Live2Dパーツ分け視覚化"
+                                                    className="w-full rounded-lg border border-gray-600"
+                                                />
+                                                <button
+                                                    onClick={() => handleDownloadSingle(live2dVisualizationImage, 'live2d_visualization.png')}
+                                                    className="absolute top-2 right-2 bg-purple-600 hover:bg-purple-700 text-white p-2 rounded-lg transition shadow-lg"
+                                                    title="ダウンロード"
+                                                >
+                                                    <DownloadIcon />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Parts List */}
+                                    <div className="space-y-4 max-h-[600px] overflow-y-auto">
+                                        {live2dParts.map((part, index) => (
+                                            <div
+                                                key={index}
+                                                className="bg-gray-700 rounded-lg p-4 hover:bg-gray-650 transition"
+                                            >
+                                                <h3 className="font-semibold text-lg text-purple-400 mb-1">
+                                                    {part.name}
+                                                </h3>
+                                                <p className="text-sm text-gray-400">
+                                                    {part.description}
+                                                </p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}
