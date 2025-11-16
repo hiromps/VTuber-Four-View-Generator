@@ -557,3 +557,153 @@ Optimized keywords:`,
     throw new Error('Failed to enhance prompt. Please try again.');
   }
 };
+
+interface Live2DPart {
+  name: string;
+  description: string;
+  image: string | null;
+}
+
+export const generateLive2DParts = async (
+  base64Image: string,
+  description: string = ''
+): Promise<Live2DPart[]> => {
+  try {
+    console.log('[Gemini] Generating Live2D parts design...');
+
+    // Base64文字列から data:image/... プレフィックスを削除してクリーン化
+    let cleanBase64 = base64Image;
+    let mimeType = 'image/png';
+
+    if (base64Image.startsWith('data:')) {
+      const matches = base64Image.match(/^data:([^;]+);base64,(.+)$/);
+      if (matches) {
+        mimeType = matches[1];
+        cleanBase64 = matches[2];
+      }
+    }
+
+    cleanBase64 = cleanBase64.replace(/[\r\n\s]/g, '');
+    console.log(`[Gemini] Base64 length: ${cleanBase64.length}, MIME: ${mimeType}`);
+
+    // ユーザーの追加指示を含むプロンプト
+    const userInstructions = description
+      ? `\n\nUSER'S SPECIFIC REQUIREMENTS: ${description}\nPlease incorporate these requirements into your parts breakdown recommendations.`
+      : '';
+
+    const prompt = `Analyze this character illustration and provide a comprehensive Live2D parts breakdown recommendation.
+
+${userInstructions}
+
+You are an expert Live2D rigger. Analyze the character and recommend how to separate it into layers for Live2D animation.
+
+Provide a detailed breakdown in the following JSON format:
+{
+  "parts": [
+    {
+      "name": "Part name (in Japanese)",
+      "description": "Detailed description of this part, what it includes, and how it should be separated (in Japanese)"
+    }
+  ]
+}
+
+IMPORTANT GUIDELINES:
+1. Include ALL necessary parts for a complete Live2D model
+2. Recommend proper layer separation for eyes (whites, irises, pupils, highlights, eyelids)
+3. Recommend proper layer separation for mouth (upper lip, lower lip, tongue, teeth)
+4. Recommend proper layer separation for hair (front hair, back hair, side hair, ahoge, etc.)
+5. Include facial features, accessories, and clothing as separate parts where needed
+6. Consider animation requirements - parts that need to move independently should be separate
+7. Provide practical recommendations that a Live2D artist can follow
+8. All text must be in Japanese
+
+Typical Live2D parts structure:
+- 顔ベース（輪郭・肌）
+- 目（白目、瞳、ハイライト、上まつげ、下まつげ、左右別々）
+- 眉毛（左右別々）
+- 口（上唇、下唇、舌、歯）
+- 髪（前髪、後ろ髪、サイド、アホ毛など）
+- 体（首、胴体、腕、手など）
+- 装飾品（アクセサリー、リボン、帽子など）
+
+Respond ONLY with valid JSON. Do not include any other text.`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.0-flash-exp',
+      contents: {
+        parts: [
+          {
+            inlineData: {
+              data: cleanBase64,
+              mimeType: mimeType,
+            },
+          },
+          {
+            text: prompt,
+          },
+        ],
+      },
+      config: {
+        responseModalities: [Modality.TEXT],
+        generationConfig: {
+          temperature: 0.3,
+        },
+      },
+    });
+
+    console.log('[Gemini] API call successful, processing response...');
+
+    // レスポンスからテキストを取得
+    let responseText = '';
+    for (const part of response.candidates?.[0]?.content?.parts || []) {
+      if (part.text) {
+        responseText += part.text;
+      }
+    }
+
+    if (!responseText) {
+      throw new Error('No response text generated');
+    }
+
+    console.log('[Gemini] Response text:', responseText);
+
+    // JSONをパース（マークダウンコードブロックを削除）
+    const jsonMatch = responseText.match(/```json\s*([\s\S]*?)\s*```/) || responseText.match(/\{[\s\S]*\}/);
+    const jsonText = jsonMatch ? (jsonMatch[1] || jsonMatch[0]) : responseText;
+
+    let parsedResponse;
+    try {
+      parsedResponse = JSON.parse(jsonText);
+    } catch (parseError) {
+      console.error('[Gemini] JSON parse error:', parseError);
+      console.error('[Gemini] Raw text:', responseText);
+      throw new Error('Failed to parse Live2D parts response');
+    }
+
+    if (!parsedResponse.parts || !Array.isArray(parsedResponse.parts)) {
+      throw new Error('Invalid Live2D parts response format');
+    }
+
+    // 各パーツに画像は含めない（説明のみ）
+    const parts: Live2DPart[] = parsedResponse.parts.map((part: any) => ({
+      name: part.name || '不明なパーツ',
+      description: part.description || '説明なし',
+      image: null, // 現在は説明のみ、将来的に各パーツの画像生成も可能
+    }));
+
+    console.log(`[Gemini] Generated ${parts.length} Live2D parts recommendations`);
+    return parts;
+  } catch (error) {
+    console.error('[Gemini] Error generating Live2D parts:', error);
+
+    if (error instanceof Error) {
+      console.error('[Gemini] Error details:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+      });
+      throw error;
+    }
+    throw new Error('Failed to generate Live2D parts design. Please try again.');
+  }
+};
