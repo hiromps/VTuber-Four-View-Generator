@@ -64,19 +64,22 @@ export async function POST(request: NextRequest) {
           console.log('[Storage] Visualization image saved successfully')
         }
 
-        // 各パーツの画像を保存（現在は使用していないが将来的に拡張可能）
+        // 各パーツの画像を保存
         for (const part of parts) {
-          if (part.image) {
+          try {
             const publicUrl = await uploadImageToStorage(
               user.id,
               part.image,
-              `live2d_part_${part.name.replace(/\s+/g, '_')}.png`
+              part.filename
             )
+            console.log(`[Storage] Saved part: ${part.name} -> ${part.filename}`)
             savedParts.push({
               ...part,
               image: publicUrl
             })
-          } else {
+          } catch (partError) {
+            console.error(`[Storage] Failed to save part ${part.name}:`, partError)
+            // 保存に失敗したパーツはBase64のまま返す
             savedParts.push(part)
           }
         }

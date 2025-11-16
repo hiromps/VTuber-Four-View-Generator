@@ -561,7 +561,8 @@ Optimized keywords:`,
 export interface Live2DPart {
   name: string;
   description: string;
-  image: string | null;
+  image: string; // Base64画像データ
+  filename: string; // ファイル名（例：目.png）
 }
 
 export interface Live2DPartsResponse {
@@ -687,14 +688,102 @@ Respond ONLY with valid JSON. Do not include any other text.`;
       throw new Error('Invalid Live2D parts response format');
     }
 
-    // 各パーツに画像は含めない（説明のみ）
-    const parts: Live2DPart[] = parsedResponse.parts.map((part: any) => ({
+    // パーツリストを一時的に保存
+    const partsMetadata = parsedResponse.parts.map((part: any) => ({
       name: part.name || '不明なパーツ',
       description: part.description || '説明なし',
-      image: null, // 現在は説明のみ
     }));
 
-    console.log(`[Gemini] Generated ${parts.length} Live2D parts recommendations`);
+    console.log(`[Gemini] Generated ${partsMetadata.length} Live2D parts recommendations`);
+
+    // 各パーツの画像を生成
+    console.log('[Gemini] Generating individual part images...');
+    const parts: Live2DPart[] = [];
+
+    for (let i = 0; i < partsMetadata.length; i++) {
+      const partMeta = partsMetadata[i];
+      console.log(`[Gemini] Generating image for part ${i + 1}/${partsMetadata.length}: ${partMeta.name}`);
+
+      try {
+        const partPrompt = `Extract and isolate ONLY the "${partMeta.name}" from this character image.
+
+Description of this part: ${partMeta.description}
+
+CRITICAL REQUIREMENTS:
+1. Extract ONLY this specific part: ${partMeta.name}
+2. Use a TRANSPARENT background (PNG with alpha channel)
+3. Include clean, precise edges with no artifacts
+4. DO NOT include any other parts of the character
+5. Maintain the original art style, colors, and quality
+6. Position the part naturally as it appears in the original image
+7. Ensure the part is ready for Live2D rigging
+
+For parts like "顔ベース" (face base), include ONLY the face outline and skin, excluding eyes, eyebrows, mouth, and hair.
+For parts like "目" (eyes), extract the complete eye structure including whites, iris, pupil, and highlights.
+For parts like "髪" (hair), extract only the specified hair section (front, back, or side).
+
+The result must be a clean, isolated part on a transparent background, ready to be used in Live2D animation.`;
+
+        const partResponse = await ai.models.generateContent({
+          model: 'gemini-2.5-flash-image',
+          contents: {
+            parts: [
+              {
+                inlineData: {
+                  data: cleanBase64,
+                  mimeType: mimeType,
+                },
+              },
+              {
+                text: partPrompt,
+              },
+            ],
+          },
+          config: {
+            responseModalities: [Modality.IMAGE],
+            temperature: 0.1, // 低い温度で一貫性を保つ
+          },
+        });
+
+        // 画像データを抽出
+        let partImageBase64: string | null = null;
+        for (const part of partResponse.candidates?.[0]?.content?.parts || []) {
+          if (part.inlineData) {
+            partImageBase64 = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+            break;
+          }
+        }
+
+        if (!partImageBase64) {
+          console.warn(`[Gemini] Failed to generate image for part: ${partMeta.name}`);
+          // 画像生成に失敗した場合でもパーツ情報は保持（空の画像で）
+          partImageBase64 = 'data:image/png;base64,';
+        }
+
+        // ファイル名を生成（特殊文字を削除）
+        const filename = `${partMeta.name.replace(/[^\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]/g, '_')}.png`;
+
+        parts.push({
+          name: partMeta.name,
+          description: partMeta.description,
+          image: partImageBase64,
+          filename: filename,
+        });
+
+        console.log(`[Gemini] Successfully generated image for: ${partMeta.name}`);
+      } catch (partError) {
+        console.error(`[Gemini] Error generating image for part ${partMeta.name}:`, partError);
+        // エラーが発生してもパーツリストに追加（空の画像で）
+        parts.push({
+          name: partMeta.name,
+          description: partMeta.description,
+          image: 'data:image/png;base64,',
+          filename: `${partMeta.name.replace(/[^\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]/g, '_')}.png`,
+        });
+      }
+    }
+
+    console.log(`[Gemini] Generated ${parts.length} part images`);
 
     // パーツ分け案を視覚化した図解画像を生成
     console.log('[Gemini] Generating visualization image...');

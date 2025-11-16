@@ -1935,17 +1935,37 @@ export default function Home() {
                                         </div>
                                     )}
 
-                                    {/* Parts List */}
-                                    <div className="space-y-4 max-h-[600px] overflow-y-auto">
+                                    {/* Parts Images Grid */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[800px] overflow-y-auto">
                                         {live2dParts.map((part, index) => (
                                             <div
                                                 key={index}
                                                 className="bg-gray-700 rounded-lg p-4 hover:bg-gray-650 transition"
                                             >
-                                                <h3 className="font-semibold text-lg text-purple-400 mb-1">
-                                                    {part.name}
-                                                </h3>
-                                                <p className="text-sm text-gray-400">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <h3 className="font-semibold text-base text-purple-400">
+                                                        {part.name}
+                                                    </h3>
+                                                    {part.image && (
+                                                        <button
+                                                            onClick={() => handleDownloadSingle(part.image, part.filename || `${part.name}.png`)}
+                                                            className="bg-purple-600 hover:bg-purple-700 text-white p-1.5 rounded transition"
+                                                            title="ダウンロード"
+                                                        >
+                                                            <DownloadIcon />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                                {part.image && (
+                                                    <div className="bg-gray-800 rounded-lg p-2 mb-2">
+                                                        <img
+                                                            src={part.image}
+                                                            alt={part.name}
+                                                            className="w-full h-auto rounded"
+                                                        />
+                                                    </div>
+                                                )}
+                                                <p className="text-xs text-gray-400">
                                                     {part.description}
                                                 </p>
                                             </div>
