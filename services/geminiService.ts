@@ -726,20 +726,27 @@ SPECIAL INSTRUCTIONS FOR FACE BASE:
 
 Description: ${partMeta.description}
 
-CRITICAL REQUIREMENTS:
+🔴 MOST CRITICAL: TRANSPARENT BACKGROUND REQUIREMENT 🔴
+- The background MUST be completely transparent (alpha channel = 0)
+- Output as PNG with full alpha channel support
+- NO white background, NO gray background, NO colored background
+- ONLY the character part should be visible, everything else MUST be transparent
+- This is for Live2D layering - transparency is absolutely essential
+
+OTHER CRITICAL REQUIREMENTS:
 1. Extract ONLY this specific part: ${partMeta.name}
-2. Use a TRANSPARENT background (PNG with alpha channel)
-3. Clean, precise edges
-4. DO NOT include other character parts
-5. Maintain original art style and colors
-6. Ready for Live2D rigging${faceBaseInstructions}
+2. Clean, precise edges with proper anti-aliasing
+3. DO NOT include other character parts
+4. Maintain original art style and colors
+5. Ready for Live2D rigging${faceBaseInstructions}
 
 Examples:
 - "顔ベース": ONLY face outline and skin with filled-in (not hollow) eye/mouth positions - completely smooth "noppera-bo" face
 - "目": Complete eye structure with whites, iris, pupil, highlights
 - "髪": All hair sections combined
 
-Output: Clean isolated part on transparent background for Live2D.`;
+Output Format: PNG image with TRANSPARENT background (alpha channel) for Live2D layering.
+REMINDER: Everything except the part itself must be fully transparent!`;
 
         const partResponse = await ai.models.generateContent({
           model: 'gemini-2.5-flash-image',
