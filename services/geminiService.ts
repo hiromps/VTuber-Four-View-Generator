@@ -645,9 +645,7 @@ Respond ONLY with valid JSON. Do not include any other text.`;
       },
       config: {
         responseModalities: [Modality.TEXT],
-        generationConfig: {
-          temperature: 0.3,
-        },
+        temperature: 0.3,
       },
     });
 

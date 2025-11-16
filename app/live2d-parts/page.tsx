@@ -211,7 +211,7 @@ export default function Live2DPartsPage() {
                             <LanguageSwitcher />
                             {user ? (
                                 <>
-                                    <TokenDisplay tokens={tokens} onClick={() => setShowBuyModal(true)} />
+                                    <TokenDisplay tokens={tokens} onBuyTokens={() => setShowBuyModal(true)} />
                                     <Link
                                         href="/app"
                                         className="text-gray-300 hover:text-white transition px-4 py-2 rounded-lg hover:bg-gray-700"
@@ -414,10 +414,10 @@ export default function Live2DPartsPage() {
 
             {/* Modals */}
             {showAuthModal && (
-                <AuthModal onClose={() => setShowAuthModal(false)} />
+                <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
             )}
             {showBuyModal && (
-                <BuyTokensModal onClose={() => setShowBuyModal(false)} />
+                <BuyTokensModal isOpen={showBuyModal} onClose={() => setShowBuyModal(false)} />
             )}
         </div>
     )

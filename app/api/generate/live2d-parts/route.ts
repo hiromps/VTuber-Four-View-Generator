@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('[API] Live2D parts generation error:', error)
     return NextResponse.json(
-      { error: ERROR_MESSAGES.INTERNAL_SERVER_ERROR },
+      { error: ERROR_MESSAGES.SERVER_ERROR },
       { status: 500 }
     )
   }
