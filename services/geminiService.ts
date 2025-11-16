@@ -706,19 +706,17 @@ Respond ONLY with valid JSON. Do not include any other text.`;
         .map((part, index) => `${index + 1}. ${part.name}: ${part.description}`)
         .join('\n');
 
-      const visualizationPrompt = `Create a technical diagram showing how to separate this character illustration into Live2D parts.
+      const visualizationPrompt = `Based on this character image, create a technical diagram showing Live2D parts separation with the following parts:
 
-PARTS BREAKDOWN:
 ${partsListText}
 
-Create a clear, annotated diagram that shows:
-1. The original character with overlay lines/boundaries showing where each part should be separated
-2. Labels and arrows pointing to each part
-3. Clear visual indicators of the layer structure
+Draw the same character with these additions:
+1. Clear colored boundary lines showing where each part should be separated
+2. Japanese labels with arrows pointing to each part
+3. Different colors for different part types (eyes=blue, hair=red, face=green, etc.)
 4. Professional technical illustration style
 
-The diagram should be easy to understand for a Live2D artist to follow when creating the actual parts.
-Style: Clean technical diagram with annotations in Japanese, similar to a blueprint or instruction manual.`;
+The result should look like a blueprint or instruction manual that an artist can follow.`;
 
       const visualizationResponse = await ai.models.generateContent({
         model: 'gemini-2.5-flash-image',
@@ -737,12 +735,25 @@ Style: Clean technical diagram with annotations in Japanese, similar to a bluepr
         },
         config: {
           responseModalities: [Modality.IMAGE],
-          ...QUALITY_SETTINGS.generationConfig,
+          temperature: 0.3,
         },
       });
 
       console.log('[Gemini] Visualization API call successful, processing response...');
+
+      // レスポンス構造をログ出力
+      console.log('[Gemini] Visualization response structure:', {
+        hasCandidates: !!visualizationResponse.candidates,
+        candidatesLength: visualizationResponse.candidates?.length,
+        firstCandidate: visualizationResponse.candidates?.[0] ? 'exists' : 'missing',
+      });
+
       for (const part of visualizationResponse.candidates?.[0]?.content?.parts || []) {
+        console.log('[Gemini] Processing part:', {
+          hasInlineData: !!part.inlineData,
+          hasText: !!part.text,
+        });
+
         if (part.inlineData) {
           console.log('[Gemini] Visualization image generated successfully');
           visualizationImage = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
@@ -752,9 +763,17 @@ Style: Clean technical diagram with annotations in Japanese, similar to a bluepr
 
       if (!visualizationImage) {
         console.warn('[Gemini] No visualization image was generated');
+        console.warn('[Gemini] Full response:', JSON.stringify(visualizationResponse, null, 2));
       }
     } catch (vizError) {
       console.error('[Gemini] Error generating visualization image:', vizError);
+      if (vizError instanceof Error) {
+        console.error('[Gemini] Visualization error details:', {
+          name: vizError.name,
+          message: vizError.message,
+          stack: vizError.stack,
+        });
+      }
       // 視覚化画像の生成に失敗してもパーツリストは返す
     }
 
