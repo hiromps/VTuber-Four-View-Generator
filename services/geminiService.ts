@@ -627,7 +627,7 @@ Recommended main parts (5-6 parts maximum):
 - 眉毛（左右両方）
 - 口（唇・舌・歯を含む）
 - 髪（前髪・後ろ髪・サイド全て含む）
-- 衣装(上)（上半身の服のみ、腕や手は含めない、装飾品は服に付属する場合のみ）
+- 体（顔以外の全身、首から下の体全体、衣装、装飾品、アクセサリー全て含む）
 
 Respond ONLY with valid JSON. Do not include any other text.`;
 
@@ -750,14 +750,16 @@ SPECIAL INSTRUCTIONS FOR HAIR:
         const bodyInstructions = isBody
           ? `
 
-SPECIAL INSTRUCTIONS FOR BODY/CLOTHING:
-- Extract ONLY the clothing/costume on the TORSO (upper body garment)
-- Focus on the main clothing piece that covers the chest and torso area
-- DO NOT include arms, hands, legs, or feet
-- DO NOT include the neck or head area
-- Include decorative elements (ribbons, accessories) that are attached to the torso clothing
-- Think of it as extracting just the "shirt" or "top" part of the outfit
-- The result should show only the torso garment with its patterns, colors, and attached decorations`
+SPECIAL INSTRUCTIONS FOR BODY:
+- Extract the ENTIRE body from neck down (everything below the face/head)
+- Include ALL body parts: neck, shoulders, torso, arms, hands, waist, legs, feet
+- Include ALL clothing: shirts, dresses, pants, skirts, shoes, socks, etc.
+- Include ALL accessories and decorations: ribbons, belts, jewelry, badges, buttons, etc.
+- Include the complete outfit exactly as it appears on the character
+- DO NOT include the face, eyes, eyebrows, nose, mouth, or ears
+- DO NOT include hair (hair will be a separate layer)
+- Think of it as everything the character is wearing and their body from neck down
+- The result should show the complete body and outfit with all details preserved`
           : '';
 
         const partPrompt = `Extract and isolate ONLY the "${partMeta.name}" from this character image.
@@ -782,7 +784,7 @@ Examples:
 - "顔ベース": ONLY face outline and skin with filled-in (not hollow) eye/mouth positions - completely smooth "noppera-bo" face
 - "目": Complete eye structure with whites, iris, pupil, highlights
 - "髪": Complete hair like a wig - full volume with all hair strands, gaps filled with hair color, no facial features
-- "体・装飾品": ONLY the torso clothing/garment - no arms, hands, legs, or head - just the shirt/top part with decorations
+- "体": Complete body from neck down with all clothing, accessories, and decorations - no face or hair
 
 Output Format: PNG image with TRANSPARENT background (alpha channel) for Live2D layering.
 REMINDER: Everything except the part itself must be fully transparent!`;
