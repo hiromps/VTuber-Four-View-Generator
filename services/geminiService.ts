@@ -732,12 +732,13 @@ SPECIAL INSTRUCTIONS FOR FACE BASE:
           ? `
 
 SPECIAL INSTRUCTIONS FOR HAIR:
-- Extract ONLY the hair - NO face outline, NO skin, NO face parts
-- DO NOT include the face outline or contour beneath the hair
-- Fill completely with hair strands and hair color only
-- The hair should cover the area from roots to tips
-- Remove any visible face/skin parts that might be under the hair
-- Only hair texture and color should be visible - everything else transparent`
+- Extract ALL the hair (front hair, back hair, side hair - all hair sections)
+- Include the FULL hair volume and shape as it appears on the character
+- Where hair strands are visible, show them completely with their color and texture
+- Fill any gaps between hair strands with hair color (don't leave visible skin/face showing through gaps)
+- DO NOT include facial features (eyes, eyebrows, nose, mouth, ears)
+- The result should be a complete hair piece that covers the head area
+- Think of it as a wig - complete hair coverage without facial features underneath`
           : '';
 
         const partPrompt = `Extract and isolate ONLY the "${partMeta.name}" from this character image.
@@ -761,7 +762,7 @@ OTHER CRITICAL REQUIREMENTS:
 Examples:
 - "顔ベース": ONLY face outline and skin with filled-in (not hollow) eye/mouth positions - completely smooth "noppera-bo" face
 - "目": Complete eye structure with whites, iris, pupil, highlights
-- "髪": ONLY hair strands without face outline or skin - fill completely with hair color and texture
+- "髪": Complete hair like a wig - full volume with all hair strands, gaps filled with hair color, no facial features
 
 Output Format: PNG image with TRANSPARENT background (alpha channel) for Live2D layering.
 REMINDER: Everything except the part itself must be fully transparent!`;
