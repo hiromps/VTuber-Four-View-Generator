@@ -47,20 +47,29 @@ export async function POST(request: NextRequest) {
 
     // Generate Live2D parts design
     try {
-      const { parts, visualizationImage } = await generateLive2DParts(image, description || '')
+      const { parts } = await generateLive2DParts(image, description || '')
 
-      // パーツリストとビジュアライゼーション画像を保存
-      let savedVisualizationUrl: string | null = null
+      // 各パーツの画像をStorageに保存
+      const savedParts = []
 
       try {
-        // 視覚化図解画像を保存
-        if (visualizationImage) {
-          savedVisualizationUrl = await uploadImageToStorage(
-            user.id,
-            visualizationImage,
-            'live2d_visualization.png'
-          )
-          console.log('[Storage] Visualization image saved successfully')
+        for (const part of parts) {
+          try {
+            const publicUrl = await uploadImageToStorage(
+              user.id,
+              part.image,
+              part.filename
+            )
+            console.log(`[Storage] Saved part: ${part.name} -> ${part.filename}`)
+            savedParts.push({
+              ...part,
+              image: publicUrl
+            })
+          } catch (partError) {
+            console.error(`[Storage] Failed to save part ${part.name}:`, partError)
+            // 保存に失敗したパーツはBase64のまま返す
+            savedParts.push(part)
+          }
         }
 
         // 履歴に保存
@@ -69,8 +78,7 @@ export async function POST(request: NextRequest) {
           generationType: 'live2d_parts',
           additionalPrompt: description || undefined,
           images: {
-            parts: parts,
-            visualization: savedVisualizationUrl
+            parts: savedParts,
           },
         })
 
@@ -81,8 +89,7 @@ export async function POST(request: NextRequest) {
       }
 
       return NextResponse.json({
-        parts: parts,
-        visualizationImage: savedVisualizationUrl,
+        parts: savedParts.length > 0 ? savedParts : parts,
         tokensRemaining: result.newBalance,
       })
     } catch (generationError) {

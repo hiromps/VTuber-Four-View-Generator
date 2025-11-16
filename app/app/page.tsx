@@ -102,7 +102,6 @@ export default function Home() {
     // Live2D Parts State
     const [live2dUploadedFile, setLive2dUploadedFile] = useState<UploadedFile | null>(null)
     const [live2dParts, setLive2dParts] = useState<any[]>([])
-    const [live2dVisualizationImage, setLive2dVisualizationImage] = useState<string | null>(null)
     const [isLive2dLoading, setIsLive2dLoading] = useState(false)
     const [live2dError, setLive2dError] = useState<string | null>(null)
     const [live2dDescription, setLive2dDescription] = useState<string>('')
@@ -679,7 +678,6 @@ export default function Home() {
         setIsLive2dLoading(true)
         setLive2dError(null)
         setLive2dParts([])
-        setLive2dVisualizationImage(null)
 
         try {
             const response = await fetch('/api/generate/live2d-parts', {
@@ -704,7 +702,6 @@ export default function Home() {
             }
 
             setLive2dParts(data.parts)
-            setLive2dVisualizationImage(data.visualizationImage)
             setTokens(data.tokensRemaining)
 
         } catch (error) {
@@ -2033,49 +2030,40 @@ export default function Home() {
                                     <p className="text-gray-400">画像をアップロードしてパーツ分け案を生成してください</p>
                                 </div>
                             ) : (
-                                <div className="space-y-6">
-                                    {/* Visualization Image */}
-                                    {live2dVisualizationImage && (
-                                        <div className="bg-gray-700 rounded-lg p-4">
-                                            <h3 className="font-semibold text-lg text-purple-400 mb-3 flex items-center gap-2">
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                </svg>
-                                                視覚化図解
-                                            </h3>
-                                            <div className="relative">
-                                                <img
-                                                    src={live2dVisualizationImage}
-                                                    alt="Live2Dパーツ分け視覚化"
-                                                    className="w-full rounded-lg border border-gray-600"
-                                                />
-                                                <button
-                                                    onClick={() => handleDownloadSingle(live2dVisualizationImage, 'live2d_visualization.png')}
-                                                    className="absolute top-2 right-2 bg-purple-600 hover:bg-purple-700 text-white p-2 rounded-lg transition shadow-lg"
-                                                    title="ダウンロード"
-                                                >
-                                                    <DownloadIcon />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* Parts List */}
-                                    <div className="space-y-4 max-h-[600px] overflow-y-auto">
-                                        {live2dParts.map((part, index) => (
-                                            <div
-                                                key={index}
-                                                className="bg-gray-700 rounded-lg p-4 hover:bg-gray-650 transition"
-                                            >
-                                                <h3 className="font-semibold text-lg text-purple-400 mb-1">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[800px] overflow-y-auto">
+                                    {live2dParts.map((part, index) => (
+                                        <div
+                                            key={index}
+                                            className="bg-gray-700 rounded-lg p-4 hover:bg-gray-650 transition"
+                                        >
+                                            <div className="flex items-center justify-between mb-2">
+                                                <h3 className="font-semibold text-base text-purple-400">
                                                     {part.name}
                                                 </h3>
-                                                <p className="text-sm text-gray-400">
-                                                    {part.description}
-                                                </p>
+                                                {part.image && (
+                                                    <button
+                                                        onClick={() => handleDownloadSingle(part.image, part.filename || `${part.name}.png`)}
+                                                        className="bg-purple-600 hover:bg-purple-700 text-white p-1.5 rounded transition"
+                                                        title="ダウンロード"
+                                                    >
+                                                        <DownloadIcon />
+                                                    </button>
+                                                )}
                                             </div>
-                                        ))}
-                                    </div>
+                                            {part.image && (
+                                                <div className="bg-gray-800 rounded-lg p-2 mb-2">
+                                                    <img
+                                                        src={part.image}
+                                                        alt={part.name}
+                                                        className="w-full h-auto rounded"
+                                                    />
+                                                </div>
+                                            )}
+                                            <p className="text-xs text-gray-400">
+                                                {part.description}
+                                            </p>
+                                        </div>
+                                    ))}
                                 </div>
                             )}
                         </div>

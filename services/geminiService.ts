@@ -561,11 +561,12 @@ Optimized keywords:`,
 export interface Live2DPart {
   name: string;
   description: string;
+  image: string; // Base64画像データ
+  filename: string; // ファイル名（例：目.png）
 }
 
 export interface Live2DPartsResponse {
   parts: Live2DPart[];
-  visualizationImage: string | null;
 }
 
 export const generateLive2DParts = async (
@@ -686,98 +687,105 @@ Respond ONLY with valid JSON. Do not include any other text.`;
       throw new Error('Invalid Live2D parts response format');
     }
 
-    // パーツリストを作成（画像生成は行わず、メタデータのみ）
-    const parts: Live2DPart[] = parsedResponse.parts.map((part: any) => ({
+
+    // パーツリストを一時的に保存
+    const partsMetadata = parsedResponse.parts.map((part: any) => ({
       name: part.name || '不明なパーツ',
       description: part.description || '説明なし',
     }));
 
-    console.log(`[Gemini] Generated ${parts.length} Live2D parts recommendations`);
+    console.log(`[Gemini] Generated ${partsMetadata.length} Live2D parts recommendations`);
 
-    // パーツ分け案を視覚化した図解画像を生成
-    console.log('[Gemini] Generating visualization image...');
-    let visualizationImage: string | null = null;
+    // 各パーツの画像を順番に生成
+    console.log('[Gemini] Generating individual part images...');
+    const parts: Live2DPart[] = [];
 
-    try {
-      // パーツリストをテキスト形式にまとめる
-      const partsListText = parts
-        .map((part, index) => `${index + 1}. ${part.name}: ${part.description}`)
-        .join('\n');
+    for (let i = 0; i < partsMetadata.length; i++) {
+      const partMeta = partsMetadata[i];
+      console.log(`[Gemini] Generating image for part ${i + 1}/${partsMetadata.length}: ${partMeta.name}`);
 
-      const visualizationPrompt = `Based on this character image, create a technical diagram showing Live2D parts separation with the following parts:
+      try {
+        const partPrompt = `Extract and isolate ONLY the "${partMeta.name}" from this character image as a separate layer.
 
-${partsListText}
+Description: ${partMeta.description}
 
-Draw the same character with these additions:
-1. Clear colored boundary lines showing where each part should be separated
-2. Japanese labels with arrows pointing to each part
-3. Different colors for different part types (eyes=blue, hair=red, face=green, etc.)
-4. Professional technical illustration style
+CRITICAL REQUIREMENTS:
+1. Extract ONLY this specific part: ${partMeta.name}
+2. Use a TRANSPARENT background (PNG with alpha channel)
+3. Clean, precise edges with no artifacts
+4. DO NOT include any other character parts
+5. Maintain original art style, colors, and quality
+6. Position naturally as it appears in the original
+7. Ready for Live2D rigging
 
-The result should look like a blueprint or instruction manual that an artist can follow.`;
+Examples:
+- "顔ベース" (face base): ONLY face outline and skin, NO eyes/eyebrows/mouth/hair
+- "目" (eyes): Complete eye structure with whites, iris, pupil, highlights
+- "髪" (hair): Only the specified hair section (front/back/side)
 
-      const visualizationResponse = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-image',
-        contents: {
-          parts: [
-            {
-              inlineData: {
-                data: cleanBase64,
-                mimeType: mimeType,
+Output: Clean isolated part on transparent background for Live2D animation.`;
+
+        const partResponse = await ai.models.generateContent({
+          model: 'gemini-2.5-flash-image',
+          contents: {
+            parts: [
+              {
+                inlineData: {
+                  data: cleanBase64,
+                  mimeType: mimeType,
+                },
               },
-            },
-            {
-              text: visualizationPrompt,
-            },
-          ],
-        },
-        config: {
-          responseModalities: [Modality.IMAGE],
-          temperature: 0.3,
-        },
-      });
-
-      console.log('[Gemini] Visualization API call successful, processing response...');
-
-      // レスポンス構造をログ出力
-      console.log('[Gemini] Visualization response structure:', {
-        hasCandidates: !!visualizationResponse.candidates,
-        candidatesLength: visualizationResponse.candidates?.length,
-        firstCandidate: visualizationResponse.candidates?.[0] ? 'exists' : 'missing',
-      });
-
-      for (const part of visualizationResponse.candidates?.[0]?.content?.parts || []) {
-        console.log('[Gemini] Processing part:', {
-          hasInlineData: !!part.inlineData,
-          hasText: !!part.text,
+              {
+                text: partPrompt,
+              },
+            ],
+          },
+          config: {
+            responseModalities: [Modality.IMAGE],
+            temperature: 0.1,
+          },
         });
 
-        if (part.inlineData) {
-          console.log('[Gemini] Visualization image generated successfully');
-          visualizationImage = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
-          break;
+        // 画像データを抽出
+        let partImageBase64: string | null = null;
+        for (const part of partResponse.candidates?.[0]?.content?.parts || []) {
+          if (part.inlineData) {
+            partImageBase64 = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+            break;
+          }
         }
-      }
 
-      if (!visualizationImage) {
-        console.warn('[Gemini] No visualization image was generated');
-        console.warn('[Gemini] Full response:', JSON.stringify(visualizationResponse, null, 2));
-      }
-    } catch (vizError) {
-      console.error('[Gemini] Error generating visualization image:', vizError);
-      if (vizError instanceof Error) {
-        console.error('[Gemini] Visualization error details:', {
-          name: vizError.name,
-          message: vizError.message,
-          stack: vizError.stack,
+        if (!partImageBase64) {
+          console.warn(`[Gemini] Failed to generate image for part: ${partMeta.name}`);
+          throw new Error(`Failed to generate image for ${partMeta.name}`);
+        }
+
+        // ファイル名を生成（特殊文字を削除）
+        const filename = `${partMeta.name.replace(/[^\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]/g, '_')}.png`;
+
+        parts.push({
+          name: partMeta.name,
+          description: partMeta.description,
+          image: partImageBase64,
+          filename: filename,
         });
+
+        console.log(`[Gemini] Successfully generated image for: ${partMeta.name}`);
+      } catch (partError) {
+        console.error(`[Gemini] Error generating image for part ${partMeta.name}:`, partError);
+        // エラーが発生した場合はそのパーツをスキップ
+        console.warn(`[Gemini] Skipping part: ${partMeta.name}`);
       }
-      // 視覚化画像の生成に失敗してもパーツリストは返す
     }
+
+    if (parts.length === 0) {
+      throw new Error('Failed to generate any part images');
+    }
+
+    console.log(`[Gemini] Generated ${parts.length} part images out of ${partsMetadata.length} parts`);
 
     return {
       parts,
-      visualizationImage,
     };
   } catch (error) {
     console.error('[Gemini] Error generating Live2D parts:', error);
@@ -793,3 +801,4 @@ The result should look like a blueprint or instruction manual that an artist can
     throw new Error('Failed to generate Live2D parts design. Please try again.');
   }
 };
+
