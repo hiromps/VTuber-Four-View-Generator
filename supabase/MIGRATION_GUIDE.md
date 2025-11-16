@@ -2,7 +2,10 @@
 
 ## 問題: Live2Dパーツ生成時の「Failed to consume tokens」エラー
 
-Live2Dパーツやポーズ生成、返金処理に必要なトランザクションタイプがデータベースに登録されていないため、トークン消費が失敗します。
+Live2Dパーツやポーズ生成に関連する以下の問題が原因です：
+
+1. **トランザクションタイプの不足**: `transaction_type` ENUMに必要な値が登録されていない
+2. **image_history CHECK制約**: `generation_type`が古い値のみを許可している
 
 ## 解決方法
 
@@ -17,7 +20,7 @@ Live2Dパーツやポーズ生成、返金処理に必要なトランザクシ�
 5. 以下のSQLをコピー＆ペーストして実行：
 
 ```sql
--- Add new transaction types for pose generation and Live2D parts
+-- Step 1: Add new transaction types for pose generation and Live2D parts
 ALTER TYPE transaction_type ADD VALUE IF NOT EXISTS 'generation_pose';
 ALTER TYPE transaction_type ADD VALUE IF NOT EXISTS 'generation_live2d_parts';
 
@@ -27,6 +30,20 @@ ALTER TYPE transaction_type ADD VALUE IF NOT EXISTS 'refund_expressions';
 ALTER TYPE transaction_type ADD VALUE IF NOT EXISTS 'refund_pose';
 ALTER TYPE transaction_type ADD VALUE IF NOT EXISTS 'refund_live2d_parts';
 ALTER TYPE transaction_type ADD VALUE IF NOT EXISTS 'refund_concept';
+
+-- Step 2: Update image_history generation_type CHECK constraint
+ALTER TABLE public.image_history
+DROP CONSTRAINT IF EXISTS image_history_generation_type_check;
+
+ALTER TABLE public.image_history
+ADD CONSTRAINT image_history_generation_type_check
+CHECK (generation_type IN (
+    'concept',
+    'character_sheet',
+    'facial_expressions',
+    'pose_generation',
+    'live2d_parts'
+));
 ```
 
 6. 「Run」ボタンをクリック
@@ -51,6 +68,8 @@ supabase db push
 
 マイグレーション適用後、以下のSQLで正しく追加されたか確認できます：
 
+### トランザクションタイプの確認
+
 ```sql
 SELECT enumlabel
 FROM pg_enum
@@ -59,7 +78,7 @@ WHERE pg_type.typname = 'transaction_type'
 ORDER BY enumlabel;
 ```
 
-以下の値が表示されるはずです：
+以下の12個の値が表示されるはずです：
 - free_signup
 - generation_concept
 - generation_expressions
@@ -72,6 +91,17 @@ ORDER BY enumlabel;
 - refund_live2d_parts
 - refund_pose
 - refund_sheet
+
+### image_history CHECK制約の確認
+
+```sql
+SELECT conname, pg_get_constraintdef(oid)
+FROM pg_constraint
+WHERE conrelid = 'public.image_history'::regclass
+  AND contype = 'c';
+```
+
+`generation_type IN ('concept', 'character_sheet', 'facial_expressions', 'pose_generation', 'live2d_parts')` という制約が表示されるはずです。
 
 ## トラブルシューティング
 
