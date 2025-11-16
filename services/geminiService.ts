@@ -596,40 +596,38 @@ export const generateLive2DParts = async (
       ? `\n\nUSER'S SPECIFIC REQUIREMENTS: ${description}\nPlease incorporate these requirements into your parts breakdown recommendations.`
       : '';
 
-    const prompt = `Analyze this character illustration and provide a comprehensive Live2D parts breakdown recommendation.
+    const prompt = `Analyze this character illustration and provide a SIMPLIFIED Live2D parts breakdown with MAIN parts only.
 
 ${userInstructions}
 
-You are an expert Live2D rigger. Analyze the character and recommend how to separate it into layers for Live2D animation.
+You are an expert Live2D rigger. Analyze the character and recommend the MOST IMPORTANT 5-6 main parts for Live2D animation.
 
-Provide a detailed breakdown in the following JSON format:
+CRITICAL: Provide ONLY 5-6 main parts maximum to ensure fast processing.
+
+Provide a breakdown in the following JSON format:
 {
   "parts": [
     {
       "name": "Part name (in Japanese)",
-      "description": "Detailed description of this part, what it includes, and how it should be separated (in Japanese)"
+      "description": "Detailed description of this part (in Japanese)"
     }
   ]
 }
 
 IMPORTANT GUIDELINES:
-1. Include ALL necessary parts for a complete Live2D model
-2. Recommend proper layer separation for eyes (whites, irises, pupils, highlights, eyelids)
-3. Recommend proper layer separation for mouth (upper lip, lower lip, tongue, teeth)
-4. Recommend proper layer separation for hair (front hair, back hair, side hair, ahoge, etc.)
-5. Include facial features, accessories, and clothing as separate parts where needed
-6. Consider animation requirements - parts that need to move independently should be separate
-7. Provide practical recommendations that a Live2D artist can follow
-8. All text must be in Japanese
+1. Provide MAXIMUM 5-6 main parts only
+2. Focus on the most important parts: face base, eyes, mouth, hair, body
+3. Combine similar parts (e.g., both eyes as one part, all hair as one part)
+4. All text must be in Japanese
+5. Prioritize parts that are most important for animation
 
-Typical Live2D parts structure:
-- 顔ベース（輪郭・肌）
-- 目（白目、瞳、ハイライト、上まつげ、下まつげ、左右別々）
-- 眉毛（左右別々）
-- 口（上唇、下唇、舌、歯）
-- 髪（前髪、後ろ髪、サイド、アホ毛など）
-- 体（首、胴体、腕、手など）
-- 装飾品（アクセサリー、リボン、帽子など）
+Recommended main parts (5-6 parts maximum):
+- 顔ベース（輪郭・肌・首を含む）
+- 目（左右両目を含む、まつげ・瞳・ハイライト含む）
+- 眉毛（左右両方）
+- 口（唇・舌・歯を含む）
+- 髪（前髪・後ろ髪・サイド全て含む）
+- 体・装飾品（体と装飾品をまとめて）
 
 Respond ONLY with valid JSON. Do not include any other text.`;
 
@@ -696,34 +694,35 @@ Respond ONLY with valid JSON. Do not include any other text.`;
 
     console.log(`[Gemini] Generated ${partsMetadata.length} Live2D parts recommendations`);
 
-    // 各パーツの画像を順番に生成
-    console.log('[Gemini] Generating individual part images...');
-    const parts: Live2DPart[] = [];
+    // パーツ数を最大6個に制限
+    const limitedPartsMetadata = partsMetadata.slice(0, 6);
+    console.log(`[Gemini] Limiting to ${limitedPartsMetadata.length} parts for fast processing`);
 
-    for (let i = 0; i < partsMetadata.length; i++) {
-      const partMeta = partsMetadata[i];
-      console.log(`[Gemini] Generating image for part ${i + 1}/${partsMetadata.length}: ${partMeta.name}`);
+    // 各パーツの画像を並列生成
+    console.log('[Gemini] Generating individual part images in parallel...');
+
+    const partPromises = limitedPartsMetadata.map(async (partMeta: { name: string; description: string }, i: number) => {
+      console.log(`[Gemini] Starting generation for part ${i + 1}/${limitedPartsMetadata.length}: ${partMeta.name}`);
 
       try {
-        const partPrompt = `Extract and isolate ONLY the "${partMeta.name}" from this character image as a separate layer.
+        const partPrompt = `Extract and isolate ONLY the "${partMeta.name}" from this character image.
 
 Description: ${partMeta.description}
 
 CRITICAL REQUIREMENTS:
 1. Extract ONLY this specific part: ${partMeta.name}
 2. Use a TRANSPARENT background (PNG with alpha channel)
-3. Clean, precise edges with no artifacts
-4. DO NOT include any other character parts
-5. Maintain original art style, colors, and quality
-6. Position naturally as it appears in the original
-7. Ready for Live2D rigging
+3. Clean, precise edges
+4. DO NOT include other character parts
+5. Maintain original art style and colors
+6. Ready for Live2D rigging
 
 Examples:
-- "顔ベース" (face base): ONLY face outline and skin, NO eyes/eyebrows/mouth/hair
-- "目" (eyes): Complete eye structure with whites, iris, pupil, highlights
-- "髪" (hair): Only the specified hair section (front/back/side)
+- "顔ベース": ONLY face outline and skin, NO eyes/eyebrows/mouth/hair
+- "目": Complete eye structure with whites, iris, pupil, highlights
+- "髪": All hair sections combined
 
-Output: Clean isolated part on transparent background for Live2D animation.`;
+Output: Clean isolated part on transparent background for Live2D.`;
 
         const partResponse = await ai.models.generateContent({
           model: 'gemini-2.5-flash-image',
@@ -757,32 +756,33 @@ Output: Clean isolated part on transparent background for Live2D animation.`;
 
         if (!partImageBase64) {
           console.warn(`[Gemini] Failed to generate image for part: ${partMeta.name}`);
-          throw new Error(`Failed to generate image for ${partMeta.name}`);
+          return null;
         }
 
-        // ファイル名を生成（特殊文字を削除）
         const filename = `${partMeta.name.replace(/[^\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]/g, '_')}.png`;
 
-        parts.push({
+        console.log(`[Gemini] Successfully generated image for: ${partMeta.name}`);
+        return {
           name: partMeta.name,
           description: partMeta.description,
           image: partImageBase64,
           filename: filename,
-        });
-
-        console.log(`[Gemini] Successfully generated image for: ${partMeta.name}`);
+        };
       } catch (partError) {
         console.error(`[Gemini] Error generating image for part ${partMeta.name}:`, partError);
-        // エラーが発生した場合はそのパーツをスキップ
-        console.warn(`[Gemini] Skipping part: ${partMeta.name}`);
+        return null;
       }
-    }
+    });
+
+    // 全てのパーツを並列生成
+    const partResults = await Promise.all(partPromises);
+    const parts: Live2DPart[] = partResults.filter((p): p is Live2DPart => p !== null);
 
     if (parts.length === 0) {
       throw new Error('Failed to generate any part images');
     }
 
-    console.log(`[Gemini] Generated ${parts.length} part images out of ${partsMetadata.length} parts`);
+    console.log(`[Gemini] Generated ${parts.length} part images out of ${limitedPartsMetadata.length} parts`);
 
     return {
       parts,
