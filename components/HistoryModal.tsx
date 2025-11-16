@@ -83,6 +83,10 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
         return 'キャラクターシート'
       case 'facial_expressions':
         return '表情差分'
+      case 'pose_generation':
+        return 'ポーズ生成'
+      case 'live2d_parts':
+        return 'Live2Dパーツデザイン'
       default:
         return type
     }

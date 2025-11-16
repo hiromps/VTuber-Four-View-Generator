@@ -45,11 +45,11 @@ export async function uploadImageToStorage(
  */
 export async function saveImageHistory(data: {
   userId: string
-  generationType: 'concept' | 'character_sheet' | 'facial_expressions' | 'pose_generation'
+  generationType: 'concept' | 'character_sheet' | 'facial_expressions' | 'pose_generation' | 'live2d_parts'
   prompt?: string
   aspectRatio?: string
   additionalPrompt?: string
-  images: Record<string, string> | string
+  images: Record<string, any> | string
 }) {
   const supabase = await createClient()
 
