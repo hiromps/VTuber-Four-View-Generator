@@ -705,6 +705,23 @@ Respond ONLY with valid JSON. Do not include any other text.`;
       console.log(`[Gemini] Starting generation for part ${i + 1}/${limitedPartsMetadata.length}: ${partMeta.name}`);
 
       try {
+        // 顔ベースの場合は特別な指示を追加
+        const isFaceBase = partMeta.name.includes('顔ベース') ||
+                          partMeta.name.includes('顔の輪郭') ||
+                          partMeta.name.includes('ベース');
+
+        const faceBaseInstructions = isFaceBase
+          ? `
+
+SPECIAL INSTRUCTIONS FOR FACE BASE:
+- Fill in the eye positions with skin color (create a "noppera-bo" effect - faceless appearance)
+- Fill in the mouth position with skin color
+- NO holes or gaps where eyes/mouth would be
+- Create a completely smooth face surface with only the face outline and skin
+- Think of it as a blank canvas face that other parts will be layered on top of
+- The result should look like a mannequin face or mask with no facial features`
+          : '';
+
         const partPrompt = `Extract and isolate ONLY the "${partMeta.name}" from this character image.
 
 Description: ${partMeta.description}
@@ -715,10 +732,10 @@ CRITICAL REQUIREMENTS:
 3. Clean, precise edges
 4. DO NOT include other character parts
 5. Maintain original art style and colors
-6. Ready for Live2D rigging
+6. Ready for Live2D rigging${faceBaseInstructions}
 
 Examples:
-- "顔ベース": ONLY face outline and skin, NO eyes/eyebrows/mouth/hair
+- "顔ベース": ONLY face outline and skin with filled-in (not hollow) eye/mouth positions - completely smooth "noppera-bo" face
 - "目": Complete eye structure with whites, iris, pupil, highlights
 - "髪": All hair sections combined
 
