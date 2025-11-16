@@ -337,8 +337,10 @@ export default function LandingPage() {
                             <div className="footer-column">
                                 <h4 className="footer-column-title">サポート</h4>
                                 <a href="#faq" className="footer-link">FAQ</a>
+                                <Link href="/contact" className="footer-link">お問い合わせ</Link>
                                 <Link href="/privacy" className="footer-link">プライバシーポリシー</Link>
                                 <Link href="/terms" className="footer-link">利用規約</Link>
+                                <Link href="/about" className="footer-link">運営者情報</Link>
                             </div>
                             <div className="footer-column">
                                 <h4 className="footer-column-title">フォロー</h4>
