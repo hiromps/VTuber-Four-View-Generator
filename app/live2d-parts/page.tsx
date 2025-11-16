@@ -54,6 +54,7 @@ export default function Live2DPartsPage() {
     const [isGenerating, setIsGenerating] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [generatedParts, setGeneratedParts] = useState<Live2DPart[]>([])
+    const [visualizationImage, setVisualizationImage] = useState<string | null>(null)
     const [partsDescription, setPartsDescription] = useState<string>('')
 
     const supabase = createClient()
@@ -179,6 +180,7 @@ export default function Live2DPartsPage() {
             }
 
             setGeneratedParts(data.parts)
+            setVisualizationImage(data.visualizationImage)
             setTokens(data.tokensRemaining)
         } catch (err) {
             setError('エラーが発生しました')
@@ -342,7 +344,43 @@ export default function Live2DPartsPage() {
                                 </p>
                             </div>
                         ) : (
-                            <div className="space-y-4 max-h-[600px] overflow-y-auto">
+                            <div className="space-y-6">
+                                {/* Visualization Image */}
+                                {visualizationImage && (
+                                    <div className="bg-gray-700 rounded-lg p-4">
+                                        <h3 className="font-semibold text-lg text-purple-400 mb-3 flex items-center gap-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                            視覚化図解
+                                        </h3>
+                                        <div className="relative">
+                                            <img
+                                                src={visualizationImage}
+                                                alt="Live2Dパーツ分け視覚化"
+                                                className="w-full rounded-lg border border-gray-600"
+                                            />
+                                            <button
+                                                onClick={() => {
+                                                    const link = document.createElement('a')
+                                                    link.href = visualizationImage
+                                                    link.download = 'live2d_visualization.png'
+                                                    link.click()
+                                                }}
+                                                className="absolute top-2 right-2 bg-purple-600 hover:bg-purple-700 text-white p-2 rounded-lg transition shadow-lg"
+                                                title="ダウンロード"
+                                            >
+                                                <DownloadIcon />
+                                            </button>
+                                        </div>
+                                        <p className="text-sm text-gray-400 mt-2">
+                                            この図解は、キャラクターをLive2Dパーツに分割する際の参考図です。
+                                        </p>
+                                    </div>
+                                )}
+
+                                {/* Parts List */}
+                                <div className="space-y-4 max-h-[600px] overflow-y-auto">
                                 {generatedParts.map((part, index) => (
                                     <div
                                         key={index}
@@ -376,6 +414,7 @@ export default function Live2DPartsPage() {
                                         )}
                                     </div>
                                 ))}
+                                </div>
                             </div>
                         )}
                     </div>

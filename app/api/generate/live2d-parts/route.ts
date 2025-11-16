@@ -47,12 +47,24 @@ export async function POST(request: NextRequest) {
 
     // Generate Live2D parts design
     try {
-      const parts = await generateLive2DParts(image, description || '')
+      const { parts, visualizationImage } = await generateLive2DParts(image, description || '')
 
       // 各パーツの画像をStorageに保存
       const savedParts = []
+      let savedVisualizationUrl: string | null = null
 
       try {
+        // 視覚化図解画像を保存
+        if (visualizationImage) {
+          savedVisualizationUrl = await uploadImageToStorage(
+            user.id,
+            visualizationImage,
+            'live2d_visualization.png'
+          )
+          console.log('[Storage] Visualization image saved successfully')
+        }
+
+        // 各パーツの画像を保存（現在は使用していないが将来的に拡張可能）
         for (const part of parts) {
           if (part.image) {
             const publicUrl = await uploadImageToStorage(
@@ -74,7 +86,10 @@ export async function POST(request: NextRequest) {
           userId: user.id,
           generationType: 'live2d_parts',
           additionalPrompt: description || undefined,
-          images: { parts: savedParts },
+          images: {
+            parts: savedParts,
+            visualization: savedVisualizationUrl
+          },
         })
 
         console.log('[Storage] Live2D parts saved to history')
@@ -85,6 +100,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({
         parts: savedParts,
+        visualizationImage: savedVisualizationUrl,
         tokensRemaining: result.newBalance,
       })
     } catch (generationError) {

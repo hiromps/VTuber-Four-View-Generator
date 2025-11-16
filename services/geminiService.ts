@@ -558,16 +558,21 @@ Optimized keywords:`,
   }
 };
 
-interface Live2DPart {
+export interface Live2DPart {
   name: string;
   description: string;
   image: string | null;
 }
 
+export interface Live2DPartsResponse {
+  parts: Live2DPart[];
+  visualizationImage: string | null;
+}
+
 export const generateLive2DParts = async (
   base64Image: string,
   description: string = ''
-): Promise<Live2DPart[]> => {
+): Promise<Live2DPartsResponse> => {
   try {
     console.log('[Gemini] Generating Live2D parts design...');
 
@@ -686,11 +691,77 @@ Respond ONLY with valid JSON. Do not include any other text.`;
     const parts: Live2DPart[] = parsedResponse.parts.map((part: any) => ({
       name: part.name || '不明なパーツ',
       description: part.description || '説明なし',
-      image: null, // 現在は説明のみ、将来的に各パーツの画像生成も可能
+      image: null, // 現在は説明のみ
     }));
 
     console.log(`[Gemini] Generated ${parts.length} Live2D parts recommendations`);
-    return parts;
+
+    // パーツ分け案を視覚化した図解画像を生成
+    console.log('[Gemini] Generating visualization image...');
+    let visualizationImage: string | null = null;
+
+    try {
+      // パーツリストをテキスト形式にまとめる
+      const partsListText = parts
+        .map((part, index) => `${index + 1}. ${part.name}: ${part.description}`)
+        .join('\n');
+
+      const visualizationPrompt = `Create a technical diagram showing how to separate this character illustration into Live2D parts.
+
+PARTS BREAKDOWN:
+${partsListText}
+
+Create a clear, annotated diagram that shows:
+1. The original character with overlay lines/boundaries showing where each part should be separated
+2. Labels and arrows pointing to each part
+3. Clear visual indicators of the layer structure
+4. Professional technical illustration style
+
+The diagram should be easy to understand for a Live2D artist to follow when creating the actual parts.
+Style: Clean technical diagram with annotations in Japanese, similar to a blueprint or instruction manual.`;
+
+      const visualizationResponse = await ai.models.generateContent({
+        model: 'gemini-2.5-flash-image',
+        contents: {
+          parts: [
+            {
+              inlineData: {
+                data: cleanBase64,
+                mimeType: mimeType,
+              },
+            },
+            {
+              text: visualizationPrompt,
+            },
+          ],
+        },
+        config: {
+          responseModalities: [Modality.IMAGE],
+          ...QUALITY_SETTINGS.generationConfig,
+        },
+      });
+
+      console.log('[Gemini] Visualization API call successful, processing response...');
+      for (const part of visualizationResponse.candidates?.[0]?.content?.parts || []) {
+        if (part.inlineData) {
+          console.log('[Gemini] Visualization image generated successfully');
+          visualizationImage = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+          break;
+        }
+      }
+
+      if (!visualizationImage) {
+        console.warn('[Gemini] No visualization image was generated');
+      }
+    } catch (vizError) {
+      console.error('[Gemini] Error generating visualization image:', vizError);
+      // 視覚化画像の生成に失敗してもパーツリストは返す
+    }
+
+    return {
+      parts,
+      visualizationImage,
+    };
   } catch (error) {
     console.error('[Gemini] Error generating Live2D parts:', error);
 
