@@ -26,7 +26,20 @@ CREATE POLICY "Users can update their own data"
   USING (auth.uid() = id);
 
 -- Transaction types enum
-CREATE TYPE transaction_type AS ENUM ('free_signup', 'purchase', 'generation_sheet', 'generation_concept');
+CREATE TYPE transaction_type AS ENUM (
+  'free_signup',
+  'purchase',
+  'generation_sheet',
+  'generation_concept',
+  'generation_expressions',
+  'generation_pose',
+  'generation_live2d_parts',
+  'refund_sheet',
+  'refund_expressions',
+  'refund_pose',
+  'refund_live2d_parts',
+  'refund_concept'
+);
 
 -- Transactions table
 CREATE TABLE IF NOT EXISTS public.transactions (
