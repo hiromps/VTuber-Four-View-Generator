@@ -91,7 +91,6 @@ export default function LandingPage() {
                             <a href="#features" className="nav-link">特徴</a>
                             <a href="#how-to-use" className="nav-link">使い方</a>
                             <a href="#faq" className="nav-link">FAQ</a>
-                            <Link href="/live2d-parts" className="nav-link">Live2Dパーツ分け</Link>
                             <Link href="/app" className="btn btn-primary btn-small">アプリを開く</Link>
                         </nav>
                         <button
@@ -112,7 +111,6 @@ export default function LandingPage() {
                 <a href="#features" className="mobile-menu-link" onClick={handleNavClick}>特徴</a>
                 <a href="#how-to-use" className="mobile-menu-link" onClick={handleNavClick}>使い方</a>
                 <a href="#faq" className="mobile-menu-link" onClick={handleNavClick}>FAQ</a>
-                <Link href="/live2d-parts" className="mobile-menu-link" onClick={handleNavClick}>Live2Dパーツ分け</Link>
                 <Link href="/app" className="btn btn-primary" onClick={handleNavClick}>アプリを開く</Link>
             </div>
 
