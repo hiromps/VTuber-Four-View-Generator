@@ -15,6 +15,7 @@ import { composeGridImages, generateTwitterShareUrl } from '@/lib/imageComposer'
 import type { User } from '@supabase/supabase-js'
 import type { ModelType } from '@/types'
 import { calculateTokenCost } from '@/lib/tokenCosts'
+import './app.css'
 
 // SVG Icon Components
 const UploadIcon = () => (
@@ -1102,10 +1103,16 @@ export default function Home() {
     )
 
     return (
-        <div className="min-h-screen bg-gray-900 text-white font-sans">
-            <header className="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700 p-3 md:p-4 sticky top-0 z-20">
+        <div className="app-container">
+            {/* 背景エフェクト */}
+            <div className="app-bg-effects">
+                <div className="app-gradient-orb app-gradient-orb-1"></div>
+                <div className="app-gradient-orb app-gradient-orb-2"></div>
+            </div>
+
+            <header className="app-header">
                 <div className="container mx-auto flex justify-between items-center">
-                    <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">
+                    <h1 className="app-logo-text text-base sm:text-lg md:text-xl lg:text-2xl">
                         {t('app.title')}
                     </h1>
 
@@ -1153,7 +1160,7 @@ export default function Home() {
                         ) : (
                             <button
                                 onClick={() => setShowAuthModal(true)}
-                                className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-6 rounded-lg transition"
+                                className="app-btn-primary"
                             >
                                 {t('app.signIn')}
                             </button>
