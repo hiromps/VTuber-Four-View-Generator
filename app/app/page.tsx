@@ -1370,7 +1370,7 @@ export default function Home() {
                     <TabButton tabId="sheet">{t('tabs.characterSheet')}</TabButton>
                     <TabButton tabId="expressions">{t('tabs.expressions')}</TabButton>
                     <TabButton tabId="pose">{t('tabs.poseGeneration')}</TabButton>
-                    <TabButton tabId="live2d">Live2Dパーツ分け</TabButton>
+                    <TabButton tabId="live2d">{t('tabs.live2dParts')}</TabButton>
                     <TabButton tabId="concept">{t('tabs.conceptArt')}</TabButton>
                 </div>
 
@@ -2083,7 +2083,7 @@ export default function Home() {
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
                         {/* Controls */}
                         <div className="lg:col-span-1 bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg flex flex-col space-y-4 md:space-y-6 h-fit">
-                            <h2 className="text-lg md:text-xl font-semibold border-b border-gray-600 pb-2 md:pb-3">1. キャラクター画像アップロード</h2>
+                            <h2 className="text-lg md:text-xl font-semibold border-b border-gray-600 pb-2 md:pb-3">{t('live2d.uploadTitle')}</h2>
                             <div className="flex items-center justify-center w-full">
                                 <label
                                     htmlFor="live2d-dropzone-file"
@@ -2091,7 +2091,7 @@ export default function Home() {
                                 >
                                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
                                         <UploadIcon />
-                                        <p className="mb-2 text-sm text-gray-400"><span className="font-semibold">クリックしてアップロード</span> またはドラッグ＆ドロップ</p>
+                                        <p className="mb-2 text-sm text-gray-400"><span className="font-semibold">{t('upload.clickToUpload')}</span> {t('upload.dragAndDrop')}</p>
                                         <p className="text-xs text-gray-500">PNG, JPEG, WebP</p>
                                     </div>
                                     <input id="live2d-dropzone-file" type="file" className="hidden" accept="image/png, image/jpeg, image/webp" onChange={handleLive2dFileChange} />
@@ -2100,15 +2100,15 @@ export default function Home() {
 
                             {live2dUploadedFile?.objectURL && (
                                 <div className="mt-4">
-                                    <p className="text-sm font-medium text-gray-300 mb-2">プレビュー</p>
+                                    <p className="text-sm font-medium text-gray-300 mb-2">{t('upload.preview')}</p>
                                     <img src={live2dUploadedFile.objectURL} alt="Uploaded preview" className="rounded-lg w-full max-h-64 object-contain" />
                                 </div>
                             )}
 
-                            <h2 className="text-lg md:text-xl font-semibold border-b border-gray-600 pb-2 md:pb-3">2. カスタマイズ</h2>
+                            <h2 className="text-lg md:text-xl font-semibold border-b border-gray-600 pb-2 md:pb-3">{t('live2d.customizeTitle')}</h2>
                             <div>
                                 <label htmlFor="live2d-additional-prompt" className="block text-sm font-medium text-gray-300 mb-2">
-                                    追加指示（任意）
+                                    {t('live2d.additionalInstructions')}
                                 </label>
                                 <div className="relative">
                                     <textarea
@@ -2116,7 +2116,7 @@ export default function Home() {
                                         rows={3}
                                         value={live2dDescription}
                                         onChange={(e) => setLive2dDescription(e.target.value)}
-                                        placeholder="特定のパーツ分けの要望があれば記入してください"
+                                        placeholder={t('live2d.placeholder')}
                                         className="w-full bg-gray-700 border border-gray-600 rounded-lg p-2.5 text-white placeholder-gray-400 focus:ring-purple-500 focus:border-purple-500 transition"
                                     />
                                     <div className="absolute bottom-2 left-2 prompt-menu-container">
@@ -2128,7 +2128,7 @@ export default function Home() {
                                                     ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600'
                                                     : 'bg-gray-600 hover:bg-gray-500'
                                             } disabled:bg-gray-700 disabled:cursor-not-allowed text-white p-1.5 rounded-full transition-all duration-200 flex items-center justify-center`}
-                                            title="プロンプトツール"
+                                            title={t('live2d.promptTools')}
                                         >
                                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -2147,14 +2147,14 @@ export default function Home() {
                                                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                                             </svg>
-                                                            <span>最適化中...</span>
+                                                            <span>{t('live2d.optimizing')}</span>
                                                         </>
                                                     ) : (
                                                         <>
                                                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                                                             </svg>
-                                                            <span>プロンプトを強化</span>
+                                                            <span>{t('live2d.enhancePrompt')}</span>
                                                         </>
                                                     )}
                                                 </button>
@@ -2162,7 +2162,7 @@ export default function Home() {
                                                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                                                     </svg>
-                                                    <span>ファイルを添付</span>
+                                                    <span>{t('customize.attachFile')}</span>
                                                     <input
                                                         type="file"
                                                         className="hidden"
@@ -2175,11 +2175,11 @@ export default function Home() {
                                     </div>
                                 </div>
                                 <p className="text-xs text-gray-400 mt-1">
-                                    追加のパーツ分け指示やカスタマイズ要望を入力できます
+                                    {t('live2d.hint')}
                                 </p>
                                 {live2dAttachedImage?.objectURL && (
                                     <div className="mt-3 relative">
-                                        <p className="text-xs font-medium text-gray-300 mb-1.5">添付画像:</p>
+                                        <p className="text-xs font-medium text-gray-300 mb-1.5">{t('live2d.attachedImage')}</p>
                                         <div className="relative inline-block">
                                             <img
                                                 src={live2dAttachedImage.objectURL}
@@ -2200,23 +2200,23 @@ export default function Home() {
                                 )}
                             </div>
 
-                            <h2 className="text-lg md:text-xl font-semibold border-b border-gray-600 pb-2 md:pb-3">3. Live2Dパーツ分け生成</h2>
+                            <h2 className="text-lg md:text-xl font-semibold border-b border-gray-600 pb-2 md:pb-3">{t('live2d.generateTitle')}</h2>
                             <div className="bg-gray-700 p-3 rounded-lg text-sm text-gray-300">
-                                トークン消費: <span className="font-bold text-yellow-400">{calculateTokenCost('LIVE2D_PARTS', selectedModel)}トークン</span>
+                                {t('live2d.tokenConsumption')} <span className="font-bold text-yellow-400">{calculateTokenCost('LIVE2D_PARTS', selectedModel)} {t('generate.tokens')}</span>
                             </div>
                             <button
                                 onClick={handleGenerateLive2D}
                                 disabled={!live2dUploadedFile || isLive2dLoading}
                                 className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-500 disabled:cursor-not-allowed text-white font-bold py-2.5 md:py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center text-sm md:text-base"
                             >
-                                {isLive2dLoading ? '生成中...' : 'パーツ分け案を生成'}
+                                {isLive2dLoading ? t('live2d.generating') : t('live2d.generateButton')}
                             </button>
                             {live2dError && <p className="text-red-400 text-sm mt-2">{live2dError}</p>}
                         </div>
 
                         {/* Results */}
                         <div className="lg:col-span-2 bg-gray-800 p-4 md:p-6 rounded-lg shadow-lg">
-                            <h2 className="text-lg md:text-xl font-semibold mb-3 md:mb-4">パーツ分け案</h2>
+                            <h2 className="text-lg md:text-xl font-semibold mb-3 md:mb-4">{t('live2d.resultsTitle')}</h2>
 
                             {isLive2dLoading ? (
                                 <div className="flex justify-center items-center py-12">
@@ -2224,7 +2224,7 @@ export default function Home() {
                                 </div>
                             ) : live2dParts.length === 0 ? (
                                 <div className="text-center py-12">
-                                    <p className="text-gray-400">画像をアップロードしてパーツ分け案を生成してください</p>
+                                    <p className="text-gray-400">{t('live2d.uploadPrompt')}</p>
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[800px] overflow-y-auto">

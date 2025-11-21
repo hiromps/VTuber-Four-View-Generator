@@ -8,7 +8,8 @@
     "characterSheet": "キャラクターシート生成",
     "expressions": "表情差分生成",
     "poseGeneration": "ポーズ生成",
-    "conceptArt": "コンセプトアート生成"
+    "conceptArt": "コンセプトアート生成",
+    "live2dParts": "Live2Dパーツ分け"
   },
   "upload": {
     "title": "キャラクター画像をアップロード",
@@ -79,6 +80,23 @@
       "tall": "縦長ワイド (9:16)",
       "widescreen": "ワイドスクリーン (16:9)"
     }
+  },
+  "live2d": {
+    "uploadTitle": "1. キャラクター画像アップロード",
+    "customizeTitle": "2. カスタマイズ",
+    "generateTitle": "3. Live2Dパーツ分け生成",
+    "additionalInstructions": "追加指示（任意）",
+    "placeholder": "特定のパーツ分けの要望があれば記入してください",
+    "hint": "追加のパーツ分け指示やカスタマイズ要望を入力できます",
+    "tokenConsumption": "トークン消費:",
+    "generating": "生成中...",
+    "generateButton": "パーツ分け案を生成",
+    "resultsTitle": "パーツ分け案",
+    "uploadPrompt": "画像をアップロードしてパーツ分け案を生成してください",
+    "attachedImage": "添付画像:",
+    "optimizing": "最適化中...",
+    "promptTools": "プロンプトツール",
+    "enhancePrompt": "プロンプトを強化"
   },
   "auth": {
     "signInTitle": "サインイン",

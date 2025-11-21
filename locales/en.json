@@ -8,7 +8,8 @@
     "characterSheet": "Character Sheet Generator",
     "expressions": "Facial Expressions Generator",
     "poseGeneration": "Pose Generator",
-    "conceptArt": "Concept Art Generator"
+    "conceptArt": "Concept Art Generator",
+    "live2dParts": "Live2D Parts Separation"
   },
   "upload": {
     "title": "Upload Character",
@@ -79,6 +80,23 @@
       "tall": "Tall (9:16)",
       "widescreen": "Widescreen (16:9)"
     }
+  },
+  "live2d": {
+    "uploadTitle": "1. Upload Character Image",
+    "customizeTitle": "2. Customize",
+    "generateTitle": "3. Generate Live2D Parts",
+    "additionalInstructions": "Additional Instructions (Optional)",
+    "placeholder": "Specify any custom part separation requirements",
+    "hint": "You can enter additional part separation instructions or customization requests",
+    "tokenConsumption": "Token Cost:",
+    "generating": "Generating...",
+    "generateButton": "Generate Parts Separation",
+    "resultsTitle": "Parts Separation",
+    "uploadPrompt": "Upload an image to generate Live2D parts separation",
+    "attachedImage": "Attached Image:",
+    "optimizing": "Optimizing...",
+    "promptTools": "Prompt Tools",
+    "enhancePrompt": "Enhance Prompt"
   },
   "auth": {
     "signInTitle": "Sign In",
