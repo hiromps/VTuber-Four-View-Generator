@@ -1,4 +1,5 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { ModelType } from '@/types'
 
 // Token costs for each generation type
 export const TOKEN_COSTS = {
@@ -10,6 +11,19 @@ export const TOKEN_COSTS = {
 } as const
 
 export type GenerationType = keyof typeof TOKEN_COSTS
+
+// Model token multipliers
+export const MODEL_TOKEN_MULTIPLIERS: Record<ModelType, number> = {
+  'gemini-2.5-flash-image': 1.0,
+  'nanobanana-pro': 1.5,
+}
+
+// Calculate token cost based on generation type and model
+export function calculateTokenCost(type: GenerationType, model: ModelType = 'gemini-2.5-flash-image'): number {
+  const baseCost = TOKEN_COSTS[type]
+  const multiplier = MODEL_TOKEN_MULTIPLIERS[model]
+  return Math.ceil(baseCost * multiplier)
+}
 
 // Get user's token balance
 export async function getUserTokens(userId: string): Promise<number> {
@@ -45,10 +59,11 @@ export async function hasEnoughTokens(
 // Consume tokens for generation
 export async function consumeTokens(
   userId: string,
-  type: GenerationType
+  type: GenerationType,
+  model: ModelType = 'gemini-2.5-flash-image'
 ): Promise<{ success: boolean; newBalance: number; error?: string }> {
   const supabase = await createClient()
-  const cost = TOKEN_COSTS[type]
+  const cost = calculateTokenCost(type, model)
 
   try {
     console.log(`Consuming tokens: userId=${userId}, type=${type}, cost=${cost}`)
@@ -145,10 +160,11 @@ export async function hasUserPurchasedPackage(userId: string, packageId: string)
 // Refund tokens (when generation fails)
 export async function refundTokens(
   userId: string,
-  type: GenerationType
+  type: GenerationType,
+  model: ModelType = 'gemini-2.5-flash-image'
 ): Promise<{ success: boolean; newBalance: number; error?: string }> {
   const supabase = await createClient()
-  const cost = TOKEN_COSTS[type]
+  const cost = calculateTokenCost(type, model)
 
   try {
     console.log(`Refunding tokens: userId=${userId}, type=${type}, amount=${cost}`)

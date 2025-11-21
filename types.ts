@@ -36,3 +36,11 @@ export interface PoseGenerationInput {
 export interface GeneratedPose {
   image: string | null;
 }
+
+export type ModelType = 'gemini-2.5-flash-image' | 'nanobanana-pro';
+
+export interface ModelConfig {
+  name: string;
+  displayName: string;
+  tokenMultiplier: number;
+}

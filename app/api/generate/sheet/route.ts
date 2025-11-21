@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: ERROR_MESSAGES.UNAUTHORIZED }, { status: 401 })
     }
 
-    const { base64Image, mimeType, additionalPrompt, attachedImageBase64, attachedImageMimeType } = await request.json()
+    const { base64Image, mimeType, additionalPrompt, attachedImageBase64, attachedImageMimeType, model } = await request.json()
 
     if (!base64Image || !mimeType) {
       return NextResponse.json(
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Consume tokens (4 tokens for character sheet - all 4 views)
-    const result = await consumeTokens(user.id, 'CHARACTER_SHEET')
+    const result = await consumeTokens(user.id, 'CHARACTER_SHEET', model || 'gemini-2.5-flash-image')
 
     if (!result.success) {
       return NextResponse.json(
@@ -57,7 +57,8 @@ export async function POST(request: NextRequest) {
           view,
           additionalPrompt || '',
           attachedImageBase64,
-          attachedImageMimeType
+          attachedImageMimeType,
+          model || 'gemini-2.5-flash-image'
         ).then((imageUrl) => ({ view, imageUrl }))
       )
 
@@ -112,7 +113,7 @@ export async function POST(request: NextRequest) {
         error: error
       })
 
-      const refundResult = await refundTokens(user.id, 'CHARACTER_SHEET')
+      const refundResult = await refundTokens(user.id, 'CHARACTER_SHEET', model || 'gemini-2.5-flash-image')
 
       if (refundResult.success) {
         console.log(`Tokens refunded successfully. New balance: ${refundResult.newBalance}`)

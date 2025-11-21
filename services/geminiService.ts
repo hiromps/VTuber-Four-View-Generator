@@ -1,6 +1,6 @@
 
 import { GoogleGenAI, GenerateContentResponse, Modality } from "@google/genai";
-import { ViewType, AspectRatio, ExpressionType } from '../types';
+import { ViewType, AspectRatio, ExpressionType, ModelType } from '../types';
 
 // 環境変数のチェック
 if (!process.env.API_KEY) {
@@ -56,7 +56,8 @@ export const generateCharacterSheetView = async (
   view: ViewType,
   additionalPrompt: string = '',
   attachedImageBase64?: string,
-  attachedImageMimeType?: string
+  attachedImageMimeType?: string,
+  model: ModelType = 'gemini-2.5-flash-image'
 ): Promise<string> => {
   try {
     console.log(`[Gemini] Generating ${view} view...`);
@@ -85,8 +86,9 @@ export const generateCharacterSheetView = async (
       console.log(`[Gemini] Attached image Base64 length: ${cleanAttachedBase64.length}, MIME: ${attachedImageMimeType}`);
     }
 
-    // Gemini 2.5 Flash Image モデルを使用
-    console.log('[Gemini] Calling Gemini API with model: gemini-2.5-flash-image');
+    // モデルを選択
+    const selectedModel = model === 'nanobanana-pro' ? 'nanobanana-pro' : 'gemini-2.5-flash-image';
+    console.log(`[Gemini] Calling Gemini API with model: ${selectedModel}`);
 
     // パーツの配列を構築
     const parts: any[] = [
@@ -114,7 +116,7 @@ export const generateCharacterSheetView = async (
     });
 
     const response: GenerateContentResponse = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-image',
+      model: selectedModel,
       contents: {
         parts,
       },
@@ -213,7 +215,8 @@ export const generateFacialExpression = async (
   expression: ExpressionType,
   additionalPrompt: string = '',
   attachedImageBase64?: string,
-  attachedImageMimeType?: string
+  attachedImageMimeType?: string,
+  model: ModelType = 'gemini-2.5-flash-image'
 ): Promise<string> => {
   try {
     console.log(`[Gemini] Generating ${expression} expression...`);
@@ -242,8 +245,9 @@ export const generateFacialExpression = async (
       console.log(`[Gemini] Attached image Base64 length: ${cleanAttachedBase64.length}, MIME: ${attachedImageMimeType}`);
     }
 
-    // Gemini 2.5 Flash Image モデルを使用
-    console.log('[Gemini] Calling Gemini API with model: gemini-2.5-flash-image');
+    // モデルを選択
+    const selectedModel = model === 'nanobanana-pro' ? 'nanobanana-pro' : 'gemini-2.5-flash-image';
+    console.log(`[Gemini] Calling Gemini API with model: ${selectedModel}`);
 
     // パーツの配列を構築
     const parts: any[] = [
@@ -271,7 +275,7 @@ export const generateFacialExpression = async (
     });
 
     const response: GenerateContentResponse = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-image',
+      model: selectedModel,
       contents: {
         parts,
       },
@@ -356,7 +360,8 @@ export const generatePose = async (
   referenceImageMimeType?: string,
   additionalPrompt: string = '',
   attachedImageBase64?: string,
-  attachedImageMimeType?: string
+  attachedImageMimeType?: string,
+  model: ModelType = 'gemini-2.5-flash-image'
 ): Promise<string> => {
   try {
     console.log(`[Gemini] Generating custom pose...`);
@@ -400,8 +405,9 @@ export const generatePose = async (
       console.log(`[Gemini] Attached image Base64 length: ${cleanAttachedBase64.length}, MIME: ${attachedImageMimeType}`);
     }
 
-    // Gemini 2.5 Flash Image モデルを使用
-    console.log('[Gemini] Calling Gemini API with model: gemini-2.5-flash-image');
+    // モデルを選択
+    const selectedModel = model === 'nanobanana-pro' ? 'nanobanana-pro' : 'gemini-2.5-flash-image';
+    console.log(`[Gemini] Calling Gemini API with model: ${selectedModel}`);
 
     // パーツの配列を構築
     // 参考画像がある場合は、参考画像を最初に配置してモデルがそれを重視するようにする
@@ -450,7 +456,7 @@ export const generatePose = async (
     });
 
     const response: GenerateContentResponse = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-image',
+      model: selectedModel,
       contents: {
         parts,
       },
@@ -571,7 +577,8 @@ export interface Live2DPartsResponse {
 
 export const generateLive2DParts = async (
   base64Image: string,
-  description: string = ''
+  description: string = '',
+  model: ModelType = 'gemini-2.5-flash-image'
 ): Promise<Live2DPartsResponse> => {
   try {
     console.log('[Gemini] Generating Live2D parts design...');
@@ -789,8 +796,10 @@ Examples:
 Output Format: PNG image with TRANSPARENT background (alpha channel) for Live2D layering.
 REMINDER: Everything except the part itself must be fully transparent!`;
 
+        const selectedModel = model === 'nanobanana-pro' ? 'nanobanana-pro' : 'gemini-2.5-flash-image';
+
         const partResponse = await ai.models.generateContent({
-          model: 'gemini-2.5-flash-image',
+          model: selectedModel,
           contents: {
             parts: [
               {

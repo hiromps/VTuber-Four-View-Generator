@@ -34,7 +34,8 @@ export async function POST(request: NextRequest) {
       referenceImageMimeType,
       additionalPrompt,
       attachedImageBase64,
-      attachedImageMimeType
+      attachedImageMimeType,
+      model
     } = await request.json()
 
     if (!base64Image || !mimeType) {
@@ -53,7 +54,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Consume tokens (1 token for pose generation)
-    const result = await consumeTokens(user.id, 'POSE_GENERATION')
+    const result = await consumeTokens(user.id, 'POSE_GENERATION', model || 'gemini-2.5-flash-image')
 
     if (!result.success) {
       return NextResponse.json(
@@ -72,7 +73,8 @@ export async function POST(request: NextRequest) {
         referenceImageMimeType,
         additionalPrompt || '',
         attachedImageBase64,
-        attachedImageMimeType
+        attachedImageMimeType,
+        model || 'gemini-2.5-flash-image'
       )
 
       // 画像をStorageに保存して公開URLを取得
@@ -109,7 +111,7 @@ export async function POST(request: NextRequest) {
 
       // トークンを返金
       try {
-        await refundTokens(user.id, 'POSE_GENERATION')
+        await refundTokens(user.id, 'POSE_GENERATION', model || 'gemini-2.5-flash-image')
         console.log('[Tokens] Refunded tokens due to generation failure')
       } catch (refundError) {
         console.error('[Tokens] Failed to refund tokens:', refundError)

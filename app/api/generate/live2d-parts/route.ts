@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: ERROR_MESSAGES.UNAUTHORIZED }, { status: 401 })
     }
 
-    const { image, description } = await request.json()
+    const { image, description, model } = await request.json()
 
     if (!image) {
       return NextResponse.json(
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Consume tokens (5 tokens for Live2D parts design)
-    const result = await consumeTokens(user.id, 'LIVE2D_PARTS')
+    const result = await consumeTokens(user.id, 'LIVE2D_PARTS', model || 'gemini-2.5-flash-image')
 
     if (!result.success) {
       return NextResponse.json(
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
 
     // Generate Live2D parts design
     try {
-      const { parts } = await generateLive2DParts(image, description || '')
+      const { parts } = await generateLive2DParts(image, description || '', model || 'gemini-2.5-flash-image')
 
       // 各パーツの画像をStorageに保存
       const savedParts = []
@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
       console.error('[Generation] Live2D parts generation failed:', generationError)
 
       // Refund tokens on failure
-      await refundTokens(user.id, 'LIVE2D_PARTS')
+      await refundTokens(user.id, 'LIVE2D_PARTS', model || 'gemini-2.5-flash-image')
 
       return NextResponse.json(
         {

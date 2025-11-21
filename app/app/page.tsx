@@ -13,6 +13,7 @@ import LanguageSwitcher from '@/components/LanguageSwitcher'
 import { useLanguage } from '@/contexts/LanguageContext'
 import { composeGridImages, generateTwitterShareUrl } from '@/lib/imageComposer'
 import type { User } from '@supabase/supabase-js'
+import type { ModelType } from '@/types'
 
 // SVG Icon Components
 const UploadIcon = () => (
@@ -116,6 +117,9 @@ export default function Home() {
     // Drag and Drop State
     const [isDraggingMain, setIsDraggingMain] = useState(false)
     const [isDraggingPoseRef, setIsDraggingPoseRef] = useState(false)
+
+    // Model Selection State
+    const [selectedModel, setSelectedModel] = useState<ModelType>('gemini-2.5-flash-image')
 
     const expressionLabels: { [key in ExpressionType]: string } = {
         joy: t('expressions.joy'),
@@ -401,6 +405,7 @@ export default function Home() {
                     additionalPrompt: sheetAdditionalPrompt,
                     attachedImageBase64: sheetAttachedImage?.base64,
                     attachedImageMimeType: sheetAttachedImage?.mimeType,
+                    model: selectedModel,
                 }),
             })
 
@@ -511,6 +516,7 @@ export default function Home() {
                     additionalPrompt: expressionsAdditionalPrompt,
                     attachedImageBase64: expressionsAttachedImage?.base64,
                     attachedImageMimeType: expressionsAttachedImage?.mimeType,
+                    model: selectedModel,
                 }),
             })
 
@@ -582,6 +588,7 @@ export default function Home() {
                     referenceImageMimeType: poseReferenceImage?.mimeType,
                     additionalPrompt: poseAdditionalPrompt,
                     attachedImageBase64: poseAttachedImage?.base64,
+                    model: selectedModel,
                     attachedImageMimeType: poseAttachedImage?.mimeType,
                 }),
             })
@@ -685,7 +692,8 @@ export default function Home() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     image: live2dUploadedFile.base64,
-                    description: live2dDescription
+                    description: live2dDescription,
+                    model: selectedModel,
                 }),
             })
 
@@ -1066,6 +1074,24 @@ export default function Home() {
                         <LanguageSwitcher />
                         {user ? (
                             <>
+                                {/* Model Selection Toggle */}
+                                <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-800 rounded-lg border border-gray-700">
+                                    <span className="text-xs text-gray-400 hidden sm:inline">モデル:</span>
+                                    <button
+                                        onClick={() => setSelectedModel(selectedModel === 'gemini-2.5-flash-image' ? 'nanobanana-pro' : 'gemini-2.5-flash-image')}
+                                        className={`relative inline-flex items-center px-2 py-1 text-xs font-medium rounded transition-colors ${
+                                            selectedModel === 'nanobanana-pro'
+                                                ? 'bg-purple-600 text-white'
+                                                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                        }`}
+                                        title={selectedModel === 'nanobanana-pro' ? 'nanobanana pro (トークン消費1.5倍)' : 'Gemini 2.5 Flash (標準)'}
+                                    >
+                                        {selectedModel === 'nanobanana-pro' ? 'Pro' : '標準'}
+                                        {selectedModel === 'nanobanana-pro' && (
+                                            <span className="ml-1 text-[10px] opacity-75">×1.5</span>
+                                        )}
+                                    </button>
+                                </div>
                                 <TokenDisplay tokens={tokens} onBuyTokens={() => setShowBuyModal(true)} />
                                 <button
                                     onClick={() => setShowHistoryModal(true)}
