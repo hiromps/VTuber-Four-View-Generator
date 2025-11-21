@@ -47,6 +47,14 @@ const ImagePlaceholder = ({ label }: { label: string }) => (
     </div>
 )
 
+const HamburgerIcon = ({ isOpen }: { isOpen: boolean }) => (
+    <div className="w-6 h-5 flex flex-col justify-between cursor-pointer">
+        <span className={`block h-0.5 w-full bg-current transform transition-all duration-300 ${isOpen ? 'rotate-45 translate-y-2' : ''}`}></span>
+        <span className={`block h-0.5 w-full bg-current transition-all duration-300 ${isOpen ? 'opacity-0' : ''}`}></span>
+        <span className={`block h-0.5 w-full bg-current transform transition-all duration-300 ${isOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
+    </div>
+)
+
 export default function Home() {
     const { t } = useLanguage()
     const [user, setUser] = useState<User | null>(null)
@@ -121,6 +129,9 @@ export default function Home() {
     // Model Selection State
     const [selectedModel, setSelectedModel] = useState<ModelType>('gemini-2.5-flash-image')
 
+    // Mobile Menu State
+    const [showMobileMenu, setShowMobileMenu] = useState(false)
+
     const expressionLabels: { [key in ExpressionType]: string } = {
         joy: t('expressions.joy'),
         anger: t('expressions.anger'),
@@ -143,6 +154,31 @@ export default function Home() {
         document.addEventListener('mousedown', handleClickOutside)
         return () => document.removeEventListener('mousedown', handleClickOutside)
     }, [])
+
+    // Close mobile menu on Escape key
+    useEffect(() => {
+        const handleEscape = (event: KeyboardEvent) => {
+            if (event.key === 'Escape' && showMobileMenu) {
+                setShowMobileMenu(false)
+            }
+        }
+
+        document.addEventListener('keydown', handleEscape)
+        return () => document.removeEventListener('keydown', handleEscape)
+    }, [showMobileMenu])
+
+    // Prevent body scroll when mobile menu is open
+    useEffect(() => {
+        if (showMobileMenu) {
+            document.body.style.overflow = 'hidden'
+        } else {
+            document.body.style.overflow = 'unset'
+        }
+
+        return () => {
+            document.body.style.overflow = 'unset'
+        }
+    }, [showMobileMenu])
 
     // Check for auth errors and payment status in URL
     useEffect(() => {
@@ -1065,18 +1101,20 @@ export default function Home() {
 
     return (
         <div className="min-h-screen bg-gray-900 text-white font-sans">
-            <header className="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700 p-2 sm:p-3 md:p-4 sticky top-0 z-10">
-                <div className="container mx-auto flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-0">
-                    <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 text-center sm:text-left">
+            <header className="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700 p-3 md:p-4 sticky top-0 z-20">
+                <div className="container mx-auto flex justify-between items-center">
+                    <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">
                         {t('app.title')}
                     </h1>
-                    <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 w-full sm:w-auto justify-center sm:justify-end">
+
+                    {/* Desktop Navigation */}
+                    <div className="hidden md:flex items-center gap-3">
                         <LanguageSwitcher />
                         {user ? (
                             <>
                                 {/* Model Selection Toggle */}
                                 <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-800 rounded-lg border border-gray-700">
-                                    <span className="text-xs text-gray-400 hidden sm:inline">モデル:</span>
+                                    <span className="text-xs text-gray-400">モデル:</span>
                                     <button
                                         onClick={() => setSelectedModel(selectedModel === 'gemini-2.5-flash-image' ? 'nanobanana-pro' : 'gemini-2.5-flash-image')}
                                         className={`relative inline-flex items-center px-2 py-1 text-xs font-medium rounded transition-colors ${
@@ -1095,17 +1133,17 @@ export default function Home() {
                                 <TokenDisplay tokens={tokens} onBuyTokens={() => setShowBuyModal(true)} />
                                 <button
                                     onClick={() => setShowHistoryModal(true)}
-                                    className="text-xs sm:text-sm text-gray-300 hover:text-white transition flex items-center gap-1 px-2 py-1.5 sm:px-3 sm:py-2 rounded hover:bg-gray-700/50"
+                                    className="text-sm text-gray-300 hover:text-white transition flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-700/50"
                                     title="生成履歴"
                                 >
-                                    <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    <span className="hidden md:inline">履歴</span>
+                                    <span>履歴</span>
                                 </button>
                                 <button
                                     onClick={handleLogout}
-                                    className="text-xs sm:text-sm text-gray-300 hover:text-white transition px-2 py-1.5 sm:px-3 sm:py-2 rounded hover:bg-gray-700/50"
+                                    className="text-sm text-gray-300 hover:text-white transition px-3 py-2 rounded hover:bg-gray-700/50"
                                 >
                                     {t('app.logout')}
                                 </button>
@@ -1113,7 +1151,28 @@ export default function Home() {
                         ) : (
                             <button
                                 onClick={() => setShowAuthModal(true)}
-                                className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-1.5 px-3 sm:py-2 sm:px-4 md:px-6 rounded-lg transition text-xs sm:text-sm md:text-base"
+                                className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-6 rounded-lg transition"
+                            >
+                                {t('app.signIn')}
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Mobile Navigation */}
+                    <div className="flex md:hidden items-center gap-2">
+                        <LanguageSwitcher />
+                        {user ? (
+                            <button
+                                onClick={() => setShowMobileMenu(!showMobileMenu)}
+                                className="p-2 text-gray-300 hover:text-white transition"
+                                aria-label="メニュー"
+                            >
+                                <HamburgerIcon isOpen={showMobileMenu} />
+                            </button>
+                        ) : (
+                            <button
+                                onClick={() => setShowAuthModal(true)}
+                                className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-1.5 px-4 rounded-lg transition text-sm"
                             >
                                 {t('app.signIn')}
                             </button>
@@ -1121,6 +1180,116 @@ export default function Home() {
                     </div>
                 </div>
             </header>
+
+            {/* Mobile Menu Drawer */}
+            {user && (
+                <>
+                    {/* Overlay */}
+                    <div
+                        className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-30 md:hidden transition-opacity duration-300 ${
+                            showMobileMenu ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                        }`}
+                        onClick={() => setShowMobileMenu(false)}
+                    />
+
+                    {/* Drawer */}
+                    <div
+                        className={`fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-gray-800 shadow-2xl z-40 md:hidden transform transition-transform duration-300 ease-in-out ${
+                            showMobileMenu ? 'translate-x-0' : 'translate-x-full'
+                        }`}
+                    >
+                        <div className="flex flex-col h-full">
+                            {/* Drawer Header */}
+                            <div className="flex items-center justify-between p-4 border-b border-gray-700">
+                                <h2 className="text-lg font-semibold text-white">メニュー</h2>
+                                <button
+                                    onClick={() => setShowMobileMenu(false)}
+                                    className="p-2 text-gray-400 hover:text-white transition"
+                                    aria-label="閉じる"
+                                >
+                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            {/* Drawer Content */}
+                            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                                {/* Model Selection */}
+                                <div className="bg-gray-700/50 rounded-lg p-4">
+                                    <label className="block text-sm font-medium text-gray-300 mb-3">モデル選択</label>
+                                    <button
+                                        onClick={() => setSelectedModel(selectedModel === 'gemini-2.5-flash-image' ? 'nanobanana-pro' : 'gemini-2.5-flash-image')}
+                                        className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors ${
+                                            selectedModel === 'nanobanana-pro'
+                                                ? 'bg-purple-600 text-white'
+                                                : 'bg-gray-600 text-gray-200 hover:bg-gray-500'
+                                        }`}
+                                    >
+                                        <span className="font-medium">
+                                            {selectedModel === 'nanobanana-pro' ? 'nanobanana Pro' : 'Gemini 2.5 Flash (標準)'}
+                                        </span>
+                                        {selectedModel === 'nanobanana-pro' && (
+                                            <span className="text-sm bg-purple-700 px-2 py-1 rounded">×1.5</span>
+                                        )}
+                                    </button>
+                                    <p className="mt-2 text-xs text-gray-400">
+                                        {selectedModel === 'nanobanana-pro'
+                                            ? 'トークン消費量: 1.5倍'
+                                            : 'トークン消費量: 標準'}
+                                    </p>
+                                </div>
+
+                                {/* Token Display */}
+                                <div className="bg-gray-700/50 rounded-lg p-4">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <span className="text-sm font-medium text-gray-300">トークン残高</span>
+                                        <span className="text-xl font-bold text-purple-400">{tokens}</span>
+                                    </div>
+                                    <button
+                                        onClick={() => {
+                                            setShowMobileMenu(false)
+                                            setShowBuyModal(true)
+                                        }}
+                                        className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition"
+                                    >
+                                        トークンを購入
+                                    </button>
+                                </div>
+
+                                {/* Menu Items */}
+                                <div className="space-y-2">
+                                    <button
+                                        onClick={() => {
+                                            setShowMobileMenu(false)
+                                            setShowHistoryModal(true)
+                                        }}
+                                        className="w-full flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-lg transition"
+                                    >
+                                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span className="font-medium">生成履歴</span>
+                                    </button>
+
+                                    <button
+                                        onClick={() => {
+                                            setShowMobileMenu(false)
+                                            handleLogout()
+                                        }}
+                                        className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:text-red-300 hover:bg-gray-700/50 rounded-lg transition"
+                                    >
+                                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                        </svg>
+                                        <span className="font-medium">{t('app.logout')}</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </>
+            )}
 
             {/* Auth Error Banner */}
             {authError && (
