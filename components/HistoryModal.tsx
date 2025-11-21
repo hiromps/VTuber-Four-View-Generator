@@ -110,17 +110,29 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
       let shareText: string
 
       if (typeof item.images === 'string') {
-        // コンセプトアート（1枚画像）
+        // コンセプトアートまたはポーズ生成（1枚画像）
         imageToShare = item.images
-        filename = 'vtuber-concept-art.png'
-        shareText = `VTuberのコンセプトアートを生成しました！\n\n#四面図AI #VTuber #AIart`
+        filename = item.generation_type === 'pose_generation' ? 'vtuber-pose.png' : 'vtuber-concept-art.png'
+        shareText = item.generation_type === 'pose_generation'
+          ? `VTuberのポーズを生成しました！\n\n#四面図AI #VTuber #AIart`
+          : `VTuberのコンセプトアートを生成しました！\n\n#四面図AI #VTuber #AIart`
+      } else if (item.generation_type === 'live2d_parts' && (item.images as any).parts) {
+        // Live2Dパーツ（最初の画像のみシェア）
+        const firstPart = (item.images as any).parts[0]
+        if (!firstPart || !firstPart.image) {
+          alert('シェア可能な画像がありません')
+          return
+        }
+        imageToShare = firstPart.image
+        filename = 'vtuber-live2d-parts.png'
+        shareText = `VTuberのLive2Dパーツを生成しました！\n\n#四面図AI #VTuber #AIart #Live2D`
       } else {
         // キャラクターシートまたは表情差分（4枚画像）
         const labels: Record<string, string> = item.generation_type === 'character_sheet'
           ? { front: '正面', back: '背面', left: '左側', right: '右側' }
           : { joy: '喜', anger: '怒', sorrow: '哀', surprise: '驚' }
 
-        imageToShare = await composeGridImages(item.images, labels)
+        imageToShare = await composeGridImages(item.images as Record<string, string>, labels)
         filename = item.generation_type === 'character_sheet'
           ? 'vtuber-four-view.png'
           : 'vtuber-expressions.png'
