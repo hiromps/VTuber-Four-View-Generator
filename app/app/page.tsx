@@ -14,6 +14,7 @@ import { useLanguage } from '@/contexts/LanguageContext'
 import { composeGridImages, generateTwitterShareUrl } from '@/lib/imageComposer'
 import type { User } from '@supabase/supabase-js'
 import type { ModelType } from '@/types'
+import { calculateTokenCost } from '@/lib/tokenCosts'
 
 // SVG Icon Components
 const UploadIcon = () => (
@@ -712,8 +713,9 @@ export default function Home() {
             return
         }
 
-        if (tokens < 5) {
-            setLive2dError('トークンが不足しています（必要: 5トークン）')
+        const requiredTokens = calculateTokenCost('LIVE2D_PARTS', selectedModel)
+        if (tokens < requiredTokens) {
+            setLive2dError(`トークンが不足しています（必要: ${requiredTokens}トークン）`)
             setShowBuyModal(true)
             return
         }
@@ -1502,7 +1504,7 @@ export default function Home() {
 
                             <h2 className="text-lg md:text-xl font-semibold border-b border-gray-600 pb-2 md:pb-3">3. {t('generate.sheetTitle')}</h2>
                             <div className="bg-gray-700 p-3 rounded-lg text-sm text-gray-300">
-                                {t('generate.cost')} <span className="font-bold text-yellow-400">4 {t('generate.tokens')}</span>
+                                {t('generate.cost')} <span className="font-bold text-yellow-400">{calculateTokenCost('CHARACTER_SHEET', selectedModel)} {t('generate.tokens')}</span>
                             </div>
                             <button
                                 onClick={handleGenerateSheet}
@@ -1707,7 +1709,7 @@ export default function Home() {
 
                             <h2 className="text-lg md:text-xl font-semibold border-b border-gray-600 pb-2 md:pb-3">3. {t('generate.expressionsTitle')}</h2>
                             <div className="bg-gray-700 p-3 rounded-lg text-sm text-gray-300">
-                                {t('generate.cost')} <span className="font-bold text-yellow-400">4 {t('generate.tokens')}</span>
+                                {t('generate.cost')} <span className="font-bold text-yellow-400">{calculateTokenCost('FACIAL_EXPRESSIONS', selectedModel)} {t('generate.tokens')}</span>
                             </div>
                             <button
                                 onClick={handleGenerateExpressions}
@@ -1987,7 +1989,7 @@ export default function Home() {
                             </div>
 
                             <div className="bg-gray-700 p-3 rounded-lg text-sm text-gray-300">
-                                {t('generate.cost')} <span className="font-bold text-yellow-400">1 {t('generate.token')}</span>
+                                {t('generate.cost')} <span className="font-bold text-yellow-400">{calculateTokenCost('POSE_GENERATION', selectedModel)} {t('generate.token')}</span>
                             </div>
                             <button
                                 onClick={handleGeneratePose}
@@ -2044,7 +2046,7 @@ export default function Home() {
                                 </select>
                             </div>
                             <div className="bg-gray-700 p-3 rounded-lg text-sm text-gray-300">
-                                {t('generate.cost')} <span className="font-bold text-yellow-400">1 {t('generate.token')}</span>
+                                {t('generate.cost')} <span className="font-bold text-yellow-400">{calculateTokenCost('CONCEPT_ART', selectedModel)} {t('generate.token')}</span>
                             </div>
                             <button onClick={handleGenerateConcept} disabled={isConceptLoading} className="w-full bg-pink-600 hover:bg-pink-700 disabled:bg-gray-500 text-white font-bold py-2.5 md:py-3 px-4 rounded-lg transition-colors flex justify-center items-center text-sm md:text-base">
                                 {isConceptLoading ? t('generate.generating') : t('generate.generateConcept')}
@@ -2200,7 +2202,7 @@ export default function Home() {
 
                             <h2 className="text-lg md:text-xl font-semibold border-b border-gray-600 pb-2 md:pb-3">3. Live2Dパーツ分け生成</h2>
                             <div className="bg-gray-700 p-3 rounded-lg text-sm text-gray-300">
-                                トークン消費: <span className="font-bold text-yellow-400">5トークン</span>
+                                トークン消費: <span className="font-bold text-yellow-400">{calculateTokenCost('LIVE2D_PARTS', selectedModel)}トークン</span>
                             </div>
                             <button
                                 onClick={handleGenerateLive2D}
