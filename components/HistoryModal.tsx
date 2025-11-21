@@ -6,11 +6,11 @@ import { composeGridImages, generateTwitterShareUrl } from '@/lib/imageComposer'
 
 interface ImageHistoryItem {
   id: string
-  generation_type: 'concept' | 'character_sheet' | 'facial_expressions'
+  generation_type: 'concept' | 'character_sheet' | 'facial_expressions' | 'pose_generation' | 'live2d_parts'
   prompt?: string
   aspect_ratio?: string
   additional_prompt?: string
-  images: Record<string, string> | string
+  images: Record<string, string> | string | { parts?: any[] }
   created_at: string
 }
 
@@ -205,6 +205,19 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
                         alt="Generated"
                         className="w-full h-full object-cover"
                       />
+                    ) : item.generation_type === 'live2d_parts' && (item.images as any).parts ? (
+                      <div className="grid grid-cols-2 gap-1 p-1 h-full">
+                        {(item.images as any).parts
+                          .slice(0, 4)
+                          .map((part: any, idx: number) => (
+                            <img
+                              key={idx}
+                              src={part.image}
+                              alt={part.name}
+                              className="w-full h-full object-cover rounded"
+                            />
+                          ))}
+                      </div>
                     ) : (
                       <div className="grid grid-cols-2 gap-1 p-1 h-full">
                         {Object.values(item.images)
@@ -340,6 +353,26 @@ export default function HistoryModal({ isOpen, onClose }: HistoryModalProps) {
                         className="w-full rounded-lg max-h-[60vh] object-contain mx-auto"
                       />
                     </div>
+                  ) : selectedItem.generation_type === 'live2d_parts' && (selectedItem.images as any).parts ? (
+                    (selectedItem.images as any).parts.map((part: any, idx: number) => (
+                      <div key={idx} className="relative">
+                        <img
+                          src={part.image}
+                          alt={part.name}
+                          className="w-full rounded-lg object-contain max-h-[50vh]"
+                        />
+                        <div className="absolute top-2 left-2">
+                          <span className="text-xs sm:text-sm text-white font-semibold bg-purple-600/90 backdrop-blur-sm px-3 py-1.5 rounded shadow-lg">
+                            {part.name}
+                          </span>
+                        </div>
+                        {part.description && (
+                          <div className="mt-2 text-xs text-gray-400">
+                            {part.description}
+                          </div>
+                        )}
+                      </div>
+                    ))
                   ) : (
                     Object.entries(selectedItem.images).map(([key, url]) => (
                       <div key={key} className="relative">
