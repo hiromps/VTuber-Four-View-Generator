@@ -1597,60 +1597,606 @@ body {
 /* ========================================
    レスポンシブ対応
    ======================================== */
+
+/* タブレット（1024px以下） */
 @media (max-width: 1024px) {
+    .container {
+        padding: 0 30px;
+    }
+
     .hero-content {
         grid-template-columns: 1fr;
         text-align: center;
+        gap: 40px;
     }
 
     .hero-visual-area {
-        margin-top: 60px;
+        margin-top: 40px;
+    }
+
+    .hologram-display {
+        width: 350px;
+        height: 350px;
     }
 
     .features-3d-grid {
         grid-template-columns: 1fr;
+        gap: 30px;
     }
 
     .timeline-steps {
         flex-direction: column;
-        gap: 60px;
+        gap: 40px;
     }
 
     .timeline-svg {
         display: none;
     }
+
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+
+    .footer-links {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* 3Dエフェクトの調整 */
+    .neon-rings {
+        opacity: 0.5;
+    }
+
+    .floating-cards {
+        display: none;
+    }
 }
 
+/* タブレット（768px以下） */
 @media (max-width: 768px) {
+    .container {
+        padding: 0 20px;
+    }
+
+    /* ヘッダー */
     .cyber-nav {
         display: none;
     }
 
-    .cyber-title {
-        font-size: 2.5rem;
+    .logo-text {
+        font-size: 1.2rem;
     }
 
-    .title-main {
+    .logo-cube {
+        width: 35px;
+        height: 35px;
+    }
+
+    .cube-face {
+        width: 35px;
+        height: 35px;
+    }
+
+    /* ヒーローセクション */
+    .cyber-hero {
+        padding: 100px 0 60px;
+    }
+
+    .cyber-title {
         font-size: 2rem;
     }
 
-    .showcase-carousel {
-        padding: 20px;
+    .title-main {
+        font-size: 1.75rem;
+    }
+
+    .desc-text {
+        font-size: 1rem;
     }
 
     .holographic-stats {
         flex-direction: column;
-        gap: 20px;
+        gap: 15px;
+        align-items: stretch;
+    }
+
+    .stat-card {
+        padding: 15px;
     }
 
     .futuristic-actions {
         flex-direction: column;
         width: 100%;
+        gap: 15px;
     }
 
     .cta-button {
         width: 100%;
         text-align: center;
+        padding: 15px 30px;
+    }
+
+    .hologram-display {
+        width: 300px;
+        height: 300px;
+    }
+
+    /* グラデーションオーブのサイズ調整 */
+    .gradient-orb-1 {
+        width: 400px;
+        height: 400px;
+    }
+
+    .gradient-orb-2 {
+        width: 500px;
+        height: 500px;
+    }
+
+    .gradient-orb-3 {
+        width: 300px;
+        height: 300px;
+    }
+
+    /* 特徴セクション */
+    .cyber-features {
+        padding: 60px 0;
+    }
+
+    .section-header.futuristic-header {
+        margin-bottom: 40px;
+    }
+
+    .deco-line {
+        width: 60px;
+    }
+
+    .feature-3d-card {
+        height: auto;
+    }
+
+    /* タイムライン */
+    .cyber-how-to {
+        padding: 60px 0;
+    }
+
+    .timeline-container {
+        padding: 40px 20px;
+    }
+
+    .step-bubble {
+        width: 100px;
+        height: 100px;
+        margin-bottom: 20px;
+    }
+
+    .bubble-number {
+        font-size: 1.2rem;
+    }
+
+    .bubble-icon {
+        font-size: 2rem;
+    }
+
+    .step-title {
+        font-size: 1.3rem;
+    }
+
+    .step-desc {
+        font-size: 0.9rem;
+    }
+
+    /* ショーケース */
+    .showcase-section {
+        padding: 60px 0;
+    }
+
+    .showcase-carousel {
+        padding: 20px 0;
+    }
+
+    .showcase-card {
+        width: 250px;
+        height: 350px;
+    }
+
+    /* FAQ */
+    .minimal-faq {
+        padding: 60px 0;
+    }
+
+    .faq-question {
+        padding: 15px 20px;
+        font-size: 1rem;
+    }
+
+    /* CTA */
+    .minimal-cta {
+        padding: 60px 0;
+    }
+
+    .cta-content {
+        padding: 60px 30px;
+    }
+
+    .cta-title {
+        font-size: 2rem;
+    }
+
+    .cta-description {
+        font-size: 1rem;
+    }
+
+    /* フッター */
+    .minimal-footer {
+        padding: 40px 0 20px;
+    }
+
+    .footer-links {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+
+    /* パララックス効果を軽減 */
+    .parallax-layer {
+        display: none;
+    }
+
+    /* ネオンリングを非表示 */
+    .neon-rings {
+        display: none;
+    }
+}
+
+/* モバイル（480px以下） */
+@media (max-width: 480px) {
+    .container {
+        padding: 0 15px;
+    }
+
+    /* ヘッダー */
+    .header.futuristic-header {
+        padding: 15px 0;
+    }
+
+    .logo-text {
+        font-size: 1rem;
+    }
+
+    .logo-cube {
+        width: 30px;
+        height: 30px;
+    }
+
+    .cube-face {
+        width: 30px;
+        height: 30px;
+    }
+
+    /* ヒーローセクション */
+    .cyber-hero {
+        padding: 80px 0 40px;
+    }
+
+    .glowing-badge {
+        padding: 6px 15px;
+        margin-bottom: 20px;
+    }
+
+    .badge-text {
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+    }
+
+    .cyber-title {
+        font-size: 1.75rem;
+    }
+
+    .title-line {
+        margin-bottom: 5px;
+    }
+
+    .glass-card {
+        padding: 15px 20px;
+        border-radius: 15px;
+    }
+
+    .desc-text {
+        font-size: 0.95rem;
+    }
+
+    .futuristic-actions {
+        margin: 30px 0;
+    }
+
+    .cta-button {
+        font-size: 0.95rem;
+        padding: 12px 25px;
+    }
+
+    .btn-text-main {
+        font-size: 0.9rem;
+    }
+
+    .holographic-stats {
+        gap: 12px;
+    }
+
+    .stat-card {
+        padding: 12px;
+    }
+
+    .stat-icon {
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+    }
+
+    .hologram-display {
+        width: 250px;
+        height: 250px;
+    }
+
+    /* 特徴セクション */
+    .cyber-features {
+        padding: 40px 0;
+    }
+
+    .section-header.futuristic-header {
+        margin-bottom: 30px;
+    }
+
+    .header-decoration {
+        gap: 15px;
+    }
+
+    .deco-line {
+        width: 40px;
+    }
+
+    .title-main {
+        font-size: 1.5rem;
+    }
+
+    .title-sub {
+        font-size: 0.85rem;
+        margin-top: 5px;
+        letter-spacing: 2px;
+    }
+
+    .section-desc {
+        font-size: 1rem;
+    }
+
+    .features-3d-grid {
+        gap: 20px;
+    }
+
+    .card-3d-front,
+    .card-3d-back {
+        padding: 20px;
+    }
+
+    .icon-3d {
+        font-size: 3rem;
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+    }
+
+    .card-preview {
+        font-size: 0.9rem;
+    }
+
+    .back-title {
+        font-size: 1.2rem;
+    }
+
+    .feature-list li {
+        padding: 8px 0;
+        font-size: 0.9rem;
+        padding-left: 20px;
+    }
+
+    /* タイムライン */
+    .cyber-how-to {
+        padding: 40px 0;
+    }
+
+    .timeline-container {
+        padding: 30px 15px;
+    }
+
+    .timeline-steps {
+        gap: 30px;
+    }
+
+    .step-bubble {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 15px;
+    }
+
+    .bubble-number {
+        font-size: 1rem;
+        margin-bottom: 5px;
+    }
+
+    .bubble-icon {
+        font-size: 1.5rem;
+    }
+
+    .step-title {
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+    }
+
+    .step-desc {
+        font-size: 0.85rem;
+        margin-bottom: 15px;
+    }
+
+    .step-animation {
+        height: 50px;
+    }
+
+    .ai-processing {
+        width: 50px;
+        height: 50px;
+    }
+
+    .upload-icon,
+    .download-icon {
+        width: 35px;
+        height: 35px;
+    }
+
+    /* ショーケース */
+    .showcase-section {
+        padding: 40px 0;
+    }
+
+    .showcase-card {
+        width: 220px;
+        height: 300px;
+    }
+
+    .card-tag {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+
+    /* FAQ */
+    .minimal-faq {
+        padding: 40px 0;
+    }
+
+    .faq-item {
+        margin-bottom: 15px;
+        border-radius: 12px;
+    }
+
+    .faq-question {
+        padding: 12px 15px;
+        font-size: 0.95rem;
+    }
+
+    .answer-content {
+        padding: 0 15px 15px;
+        font-size: 0.9rem;
+    }
+
+    /* CTA */
+    .minimal-cta {
+        padding: 40px 0;
+    }
+
+    .cta-content {
+        padding: 40px 20px;
+        border-radius: 20px;
+    }
+
+    .cta-title {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+    }
+
+    .cta-description {
+        font-size: 0.9rem;
+        margin-bottom: 30px;
+    }
+
+    .cta-button {
+        padding: 15px 35px;
+        font-size: 0.95rem;
+    }
+
+    /* フッター */
+    .minimal-footer {
+        padding: 30px 0 15px;
+    }
+
+    .footer-content {
+        gap: 30px;
+        margin-bottom: 30px;
+    }
+
+    .minimal-logo .logo-text {
+        font-size: 1rem;
+    }
+
+    .footer-tagline {
+        font-size: 0.9rem;
+    }
+
+    .footer-title {
+        font-size: 1rem;
+        margin-bottom: 12px;
+    }
+
+    .footer-column a {
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+    }
+
+    .footer-bottom {
+        padding-top: 20px;
+        font-size: 0.85rem;
+    }
+
+    /* グラデーション背景のサイズ調整 */
+    .gradient-orb-1,
+    .gradient-orb-2,
+    .gradient-orb-3 {
+        width: 250px;
+        height: 250px;
+        filter: blur(60px);
+    }
+
+    /* フローティング要素を非表示 */
+    .features-decoration {
+        display: none;
+    }
+
+    .timeline-particles {
+        display: none;
+    }
+}
+
+/* 極小画面（360px以下） */
+@media (max-width: 360px) {
+    .container {
+        padding: 0 12px;
+    }
+
+    .cyber-title {
+        font-size: 1.5rem;
+    }
+
+    .title-main {
+        font-size: 1.3rem;
+    }
+
+    .hologram-display {
+        width: 200px;
+        height: 200px;
+    }
+
+    .cta-button {
+        padding: 12px 25px;
+        font-size: 0.9rem;
+    }
+
+    .showcase-card {
+        width: 180px;
+        height: 250px;
     }
 }
 
