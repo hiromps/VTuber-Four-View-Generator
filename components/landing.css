@@ -1595,9 +1595,13 @@ body {
 }
 
 /* ========================================
-   レスポンシブ対応
+   レスポンシブ対応 - 大画面タブレット (1024px以下)
    ======================================== */
 @media (max-width: 1024px) {
+    .container {
+        padding: 0 30px;
+    }
+
     .hero-content {
         grid-template-columns: 1fr;
         text-align: center;
@@ -1607,8 +1611,30 @@ body {
         margin-top: 60px;
     }
 
+    .three-d-showcase {
+        height: 450px;
+    }
+
+    .hologram-display {
+        width: 320px;
+        height: 320px;
+    }
+
+    .neon-ring.ring-1 { width: 400px; height: 400px; }
+    .neon-ring.ring-2 { width: 480px; height: 480px; }
+    .neon-ring.ring-3 { width: 560px; height: 560px; }
+
+    .floating-cards {
+        display: none;
+    }
+
     .features-3d-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+    }
+
+    .feature-3d-card {
+        height: 350px;
     }
 
     .timeline-steps {
@@ -1619,38 +1645,638 @@ body {
     .timeline-svg {
         display: none;
     }
+
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+
+    .footer-brand {
+        text-align: center;
+        align-items: center;
+    }
 }
 
+/* ========================================
+   レスポンシブ対応 - タブレット (768px以下)
+   ======================================== */
 @media (max-width: 768px) {
+    .container {
+        padding: 0 20px;
+    }
+
     .cyber-nav {
         display: none;
     }
 
+    .cyber-hero {
+        padding: 100px 0 60px;
+        min-height: auto;
+    }
+
     .cyber-title {
-        font-size: 2.5rem;
+        font-size: 2.2rem;
     }
 
     .title-main {
-        font-size: 2rem;
+        font-size: 1.8rem;
+    }
+
+    .title-sub {
+        font-size: 0.9rem;
+    }
+
+    .glowing-badge {
+        margin-bottom: 20px;
+    }
+
+    .badge-text {
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+    }
+
+    .hero-description.glass-card {
+        padding: 15px 20px;
+    }
+
+    .desc-text {
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+
+    .three-d-showcase {
+        height: 350px;
+    }
+
+    .hologram-display {
+        width: 280px;
+        height: 280px;
+    }
+
+    .neon-rings {
+        display: none;
     }
 
     .showcase-carousel {
-        padding: 20px;
+        padding: 20px 0;
+    }
+
+    .carousel-track {
+        gap: 20px;
+    }
+
+    .showcase-card {
+        width: 250px;
+        height: 320px;
     }
 
     .holographic-stats {
         flex-direction: column;
-        gap: 20px;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .stat-card {
+        width: 100%;
+        max-width: 280px;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .stat-icon {
+        font-size: 1.5rem;
+        margin-bottom: 0;
+    }
+
+    .stat-value {
+        font-size: 1.4rem;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
     }
 
     .futuristic-actions {
         flex-direction: column;
         width: 100%;
+        gap: 15px;
+        margin: 30px 0;
     }
 
     .cta-button {
         width: 100%;
         text-align: center;
+        padding: 15px 30px;
+        font-size: 1rem;
+    }
+
+    .cyber-features,
+    .cyber-how-to,
+    .showcase-section,
+    .minimal-faq,
+    .minimal-cta {
+        padding: 60px 0;
+    }
+
+    .section-header.futuristic-header {
+        margin-bottom: 40px;
+    }
+
+    .header-decoration {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .deco-line {
+        width: 60px;
+    }
+
+    .features-3d-grid {
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+
+    .feature-3d-card {
+        height: 320px;
+    }
+
+    .card-3d-front,
+    .card-3d-back {
+        padding: 25px 20px;
+    }
+
+    .icon-3d {
+        font-size: 3rem;
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+    }
+
+    .timeline-container {
+        padding: 40px 10px;
+    }
+
+    .timeline-step {
+        padding: 0 15px;
+    }
+
+    .step-bubble {
+        width: 100px;
+        height: 100px;
+        margin-bottom: 20px;
+    }
+
+    .bubble-number {
+        font-size: 1.2rem;
+    }
+
+    .bubble-icon {
+        font-size: 2rem;
+    }
+
+    .step-title {
+        font-size: 1.2rem;
+    }
+
+    .step-desc {
+        font-size: 0.9rem;
+    }
+
+    .faq-question {
+        padding: 15px 20px;
+        font-size: 1rem;
+    }
+
+    .answer-content {
+        padding: 0 20px 15px;
+        font-size: 0.95rem;
+    }
+
+    .cta-content {
+        padding: 50px 25px;
+        border-radius: 20px;
+    }
+
+    .cta-title {
+        font-size: 2rem;
+    }
+
+    .cta-description {
+        font-size: 1rem;
+        margin-bottom: 30px;
+    }
+
+    .cta-button {
+        padding: 15px 40px;
+        font-size: 1rem;
+    }
+
+    .footer-links {
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+    }
+
+    .footer-title {
+        font-size: 1rem;
+    }
+
+    .footer-column a {
+        font-size: 0.9rem;
+    }
+
+    .footer-bottom {
+        font-size: 0.85rem;
+    }
+}
+
+/* ========================================
+   レスポンシブ対応 - スマートフォン (480px以下)
+   ======================================== */
+@media (max-width: 480px) {
+    .container {
+        padding: 0 15px;
+    }
+
+    .header.futuristic-header {
+        padding: 15px 0;
+    }
+
+    .neon-logo {
+        gap: 10px;
+    }
+
+    .logo-cube {
+        width: 32px;
+        height: 32px;
+    }
+
+    .cube-face {
+        width: 32px;
+        height: 32px;
+    }
+
+    .cube-front { transform: translateZ(16px); }
+    .cube-back { transform: rotateY(180deg) translateZ(16px); }
+    .cube-left { transform: rotateY(-90deg) translateZ(16px); }
+    .cube-right { transform: rotateY(90deg) translateZ(16px); }
+    .cube-top { transform: rotateX(90deg) translateZ(16px); }
+    .cube-bottom { transform: rotateX(-90deg) translateZ(16px); }
+
+    .logo-text.neon-text {
+        font-size: 1.2rem;
+    }
+
+    .cyber-hero {
+        padding: 90px 0 50px;
+    }
+
+    .cyber-title {
+        font-size: 1.8rem;
+        line-height: 1.2;
+        margin-bottom: 20px;
+    }
+
+    .title-line {
+        margin-bottom: 5px;
+    }
+
+    .title-main {
+        font-size: 1.5rem;
+    }
+
+    .title-sub {
+        font-size: 0.8rem;
+        letter-spacing: 2px;
+    }
+
+    .glowing-badge {
+        padding: 6px 15px;
+        margin-bottom: 15px;
+    }
+
+    .badge-text {
+        font-size: 0.7rem;
+    }
+
+    .hero-description.glass-card {
+        padding: 12px 15px;
+        border-radius: 15px;
+    }
+
+    .desc-text {
+        font-size: 0.9rem;
+    }
+
+    .three-d-showcase {
+        height: 280px;
+    }
+
+    .hologram-display {
+        width: 220px;
+        height: 220px;
+    }
+
+    .hologram-content {
+        border-radius: 15px;
+    }
+
+    .holographic-stats {
+        gap: 12px;
+    }
+
+    .stat-card {
+        padding: 12px 15px;
+        border-radius: 12px;
+    }
+
+    .stat-icon {
+        font-size: 1.3rem;
+    }
+
+    .stat-value {
+        font-size: 1.2rem;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+    }
+
+    .futuristic-actions {
+        margin: 25px 0;
+        gap: 12px;
+    }
+
+    .cta-button {
+        padding: 14px 25px;
+        font-size: 0.9rem;
+        border-radius: 50px;
+    }
+
+    .primary-cta .btn-text-main {
+        font-size: 0.85rem;
+    }
+
+    .cyber-features,
+    .cyber-how-to,
+    .showcase-section,
+    .minimal-faq,
+    .minimal-cta {
+        padding: 50px 0;
+    }
+
+    .section-header.futuristic-header {
+        margin-bottom: 30px;
+    }
+
+    .deco-line {
+        width: 40px;
+    }
+
+    .section-desc {
+        font-size: 1rem;
+    }
+
+    .feature-3d-card {
+        height: 280px;
+    }
+
+    .card-3d-front,
+    .card-3d-back {
+        padding: 20px 15px;
+        border-radius: 15px;
+    }
+
+    .icon-3d {
+        font-size: 2.5rem;
+    }
+
+    .card-title {
+        font-size: 1.3rem;
+        margin-bottom: 10px;
+    }
+
+    .card-divider {
+        margin-bottom: 10px;
+    }
+
+    .card-preview {
+        font-size: 0.9rem;
+    }
+
+    .back-title {
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+    }
+
+    .feature-list li {
+        padding: 8px 0 8px 20px;
+        font-size: 0.9rem;
+    }
+
+    .timeline-steps {
+        gap: 40px;
+    }
+
+    .step-bubble {
+        width: 90px;
+        height: 90px;
+    }
+
+    .bubble-number {
+        font-size: 1rem;
+        margin-bottom: 8px;
+    }
+
+    .bubble-icon {
+        font-size: 1.8rem;
+    }
+
+    .step-title {
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+    }
+
+    .step-desc {
+        font-size: 0.85rem;
+    }
+
+    .step-animation {
+        height: 50px;
+    }
+
+    .showcase-card {
+        width: 200px;
+        height: 260px;
+    }
+
+    .card-tag {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+    }
+
+    .faq-item {
+        border-radius: 12px;
+        margin-bottom: 15px;
+    }
+
+    .faq-question {
+        padding: 12px 15px;
+        font-size: 0.95rem;
+    }
+
+    .faq-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .answer-content {
+        padding: 0 15px 12px;
+        font-size: 0.9rem;
+    }
+
+    .cta-content {
+        padding: 40px 20px;
+        border-radius: 15px;
+    }
+
+    .cta-gradient {
+        width: 400px;
+        height: 400px;
+    }
+
+    .cta-title {
+        font-size: 1.6rem;
+        margin-bottom: 15px;
+    }
+
+    .cta-description {
+        font-size: 0.95rem;
+        margin-bottom: 25px;
+    }
+
+    .minimal-cta .cta-button {
+        padding: 14px 35px;
+        font-size: 0.95rem;
+    }
+
+    .minimal-footer {
+        padding: 40px 0 25px;
+    }
+
+    .footer-content {
+        gap: 30px;
+        margin-bottom: 30px;
+    }
+
+    .minimal-logo {
+        gap: 10px;
+    }
+
+    .logo-mark {
+        width: 32px;
+        height: 32px;
+    }
+
+    .footer-tagline {
+        font-size: 0.9rem;
+    }
+
+    .footer-links {
+        grid-template-columns: 1fr;
+        gap: 25px;
+        text-align: center;
+    }
+
+    .footer-title {
+        font-size: 0.95rem;
+        margin-bottom: 8px;
+    }
+
+    .footer-column a {
+        font-size: 0.85rem;
+    }
+
+    .footer-bottom {
+        padding-top: 20px;
+        font-size: 0.75rem;
+    }
+
+    /* グラデーションオーブのサイズ調整 */
+    .gradient-orb-1 {
+        width: 300px;
+        height: 300px;
+        top: -100px;
+        left: -100px;
+    }
+
+    .gradient-orb-2 {
+        width: 400px;
+        height: 400px;
+        bottom: -150px;
+        right: -150px;
+    }
+
+    .gradient-orb-3 {
+        width: 250px;
+        height: 250px;
+    }
+
+    /* フローティング要素のサイズ調整 */
+    .element-1 {
+        width: 200px;
+        height: 200px;
+    }
+
+    .element-2 {
+        width: 150px;
+        height: 150px;
+    }
+
+    .element-3 {
+        width: 120px;
+        height: 120px;
+    }
+
+    /* パーティクルの削減（パフォーマンス向上） */
+    .timeline-particles .particle:nth-child(n+4) {
+        display: none;
+    }
+}
+
+/* ========================================
+   レスポンシブ対応 - 超小型デバイス (360px以下)
+   ======================================== */
+@media (max-width: 360px) {
+    .container {
+        padding: 0 12px;
+    }
+
+    .cyber-title {
+        font-size: 1.5rem;
+    }
+
+    .title-main {
+        font-size: 1.3rem;
+    }
+
+    .hologram-display {
+        width: 180px;
+        height: 180px;
+    }
+
+    .feature-3d-card {
+        height: 260px;
+    }
+
+    .cta-title {
+        font-size: 1.4rem;
+    }
+
+    .footer-links {
+        gap: 20px;
     }
 }
 
@@ -1678,6 +2304,7 @@ body {
         height: 2px;
         background: var(--neon-cyan);
         transition: all 0.3s;
+        box-shadow: 0 0 10px var(--neon-cyan);
     }
 
     .mobile-menu-btn span:first-child {
@@ -1702,17 +2329,20 @@ body {
 .minimal-mobile-menu {
     display: none;
     position: fixed;
-    top: 80px;
+    top: 70px;
     left: 0;
     right: 0;
+    bottom: 0;
     background: rgba(10, 0, 18, 0.98);
     backdrop-filter: blur(20px);
-    padding: 30px;
+    -webkit-backdrop-filter: blur(20px);
+    padding: 30px 20px;
     transform: translateY(-20px);
     opacity: 0;
-    transition: all 0.3s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
     z-index: 990;
+    overflow-y: auto;
 }
 
 .minimal-mobile-menu.active {
@@ -1723,37 +2353,87 @@ body {
 
 @media (max-width: 768px) {
     .minimal-mobile-menu {
-        display: block;
+        display: flex;
+        flex-direction: column;
     }
 }
 
 .mobile-menu-link {
     display: block;
-    padding: 15px 0;
-    color: rgba(255, 255, 255, 0.8);
+    padding: 18px 15px;
+    color: rgba(255, 255, 255, 0.9);
     text-decoration: none;
-    font-size: 1.1rem;
-    font-weight: 500;
+    font-size: 1.2rem;
+    font-weight: 600;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     transition: all 0.3s;
+    position: relative;
 }
 
-.mobile-menu-link:hover {
+.mobile-menu-link::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 0;
+    background: var(--gradient-rainbow);
+    transition: height 0.3s;
+}
+
+.mobile-menu-link:hover,
+.mobile-menu-link:active {
     color: var(--neon-cyan);
-    padding-left: 10px;
+    padding-left: 20px;
+    background: rgba(0, 255, 255, 0.05);
+}
+
+.mobile-menu-link:hover::before,
+.mobile-menu-link:active::before {
+    height: 60%;
 }
 
 .mobile-menu-cta {
     display: block;
-    margin-top: 20px;
-    padding: 15px 30px;
+    margin-top: 30px;
+    padding: 18px 30px;
     background: linear-gradient(135deg, var(--neon-pink), var(--neon-cyan));
     color: #fff;
     text-align: center;
     text-decoration: none;
-    border-radius: 30px;
+    border-radius: 50px;
     font-weight: 700;
+    font-size: 1.1rem;
     text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 0 30px rgba(255, 0, 255, 0.4);
+    transition: all 0.3s;
+}
+
+.mobile-menu-cta:hover,
+.mobile-menu-cta:active {
+    transform: scale(1.02);
+    box-shadow: 0 0 40px rgba(255, 0, 255, 0.6);
+}
+
+/* モバイルメニュー - 480px以下 */
+@media (max-width: 480px) {
+    .minimal-mobile-menu {
+        top: 60px;
+        padding: 25px 15px;
+    }
+
+    .mobile-menu-link {
+        padding: 15px 12px;
+        font-size: 1.1rem;
+    }
+
+    .mobile-menu-cta {
+        margin-top: 25px;
+        padding: 15px 25px;
+        font-size: 1rem;
+    }
 }
 
 /* FAQ セクション */
@@ -1993,4 +2673,188 @@ body {
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     text-align: center;
     color: rgba(255, 255, 255, 0.4);
+}
+
+/* ========================================
+   パフォーマンス最適化 - アニメーション軽減
+   ======================================== */
+
+/* reduced-motion を尊重 */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .particle-canvas,
+    .gradient-orb,
+    .holographic-overlay,
+    .neon-rings,
+    .floating-element,
+    .timeline-particles {
+        display: none !important;
+    }
+}
+
+/* モバイルでのパフォーマンス最適化 */
+@media (max-width: 768px) {
+    /* パーティクルキャンバスを非表示（パフォーマンス向上） */
+    .particle-canvas {
+        opacity: 0.4;
+    }
+
+    /* ホログラフィックオーバーレイを軽減 */
+    .holographic-overlay {
+        animation: none;
+        opacity: 0.02;
+    }
+
+    /* グラデーションオーブのアニメーションを軽減 */
+    .gradient-orb {
+        animation-duration: 40s;
+    }
+
+    /* フローティング要素のアニメーションを軽減 */
+    .floating-element {
+        animation-duration: 30s;
+    }
+
+    /* 3Dエフェクトを平面的に */
+    .showcase-container {
+        transform: none !important;
+    }
+
+    .stat-card {
+        transform: none !important;
+    }
+
+    /* カードフリップをタップに最適化 */
+    .card-3d-container {
+        transition-duration: 0.4s;
+    }
+}
+
+/* 超小型デバイスでのさらなる軽減 */
+@media (max-width: 480px) {
+    .particle-canvas {
+        display: none;
+    }
+
+    .gradient-orb {
+        animation: none;
+        filter: blur(100px);
+    }
+
+    .holographic-overlay {
+        display: none;
+    }
+
+    /* フローティング要素を非表示 */
+    .floating-element {
+        display: none;
+    }
+
+    /* 複雑なアニメーションを無効化 */
+    .glitch-text::before,
+    .glitch-text::after,
+    .link-text::before,
+    .link-text::after {
+        display: none;
+    }
+
+    /* スキャンラインエフェクトを軽減 */
+    .hologram-scanlines {
+        animation: none;
+    }
+
+    .hologram-glitch {
+        display: none;
+    }
+}
+
+/* タッチデバイス向けホバー無効化 */
+@media (hover: none) {
+    .glitch-link:hover .link-text::before,
+    .glitch-link:hover .link-text::after {
+        display: none;
+    }
+
+    .holographic-btn:hover {
+        transform: none;
+    }
+
+    .showcase-card:hover {
+        transform: none;
+    }
+
+    .step-bubble:hover {
+        transform: none;
+    }
+
+    .feature-3d-card:hover .card-3d-container {
+        transform: none;
+    }
+}
+
+/* ランドスケープモード（モバイル横向き）対応 */
+@media (max-width: 896px) and (orientation: landscape) {
+    .cyber-hero {
+        min-height: auto;
+        padding: 80px 0 40px;
+    }
+
+    .hero-content {
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+    }
+
+    .hero-visual-area {
+        margin-top: 0;
+    }
+
+    .three-d-showcase {
+        height: 300px;
+    }
+
+    .hologram-display {
+        width: 200px;
+        height: 200px;
+    }
+
+    .cyber-title {
+        font-size: 2rem;
+    }
+
+    .holographic-stats {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .stat-card {
+        flex: 0 0 auto;
+        width: auto;
+        max-width: none;
+    }
+}
+
+/* Safe Area（ノッチ対応）*/
+@supports (padding: max(0px)) {
+    .header.futuristic-header {
+        padding-left: max(20px, env(safe-area-inset-left));
+        padding-right: max(20px, env(safe-area-inset-right));
+    }
+
+    .minimal-mobile-menu {
+        padding-left: max(20px, env(safe-area-inset-left));
+        padding-right: max(20px, env(safe-area-inset-right));
+        padding-bottom: max(30px, env(safe-area-inset-bottom));
+    }
+
+    .minimal-footer {
+        padding-bottom: max(30px, env(safe-area-inset-bottom));
+    }
 }
