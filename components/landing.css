@@ -4,26 +4,35 @@
    ======================================== */
 
 :root {
-    /* VTuber カラーパレット - カラフルでアニメ的 */
-    --neon-pink: #FF00FF;
-    --neon-cyan: #00FFFF;
-    --neon-yellow: #FFD700;
-    --neon-purple: #9370DB;
-    --neon-blue: #00CED1;
-    --neon-green: #00FF88;
-    --hot-pink: #FF69B4;
-    --electric-violet: #8A2BE2;
+    /* スタジオテーマ - 紫/ピンク統一 */
+    --studio-primary: #8B5CF6;
+    --studio-primary-light: #A78BFA;
+    --studio-accent: #EC4899;
+    --studio-accent-light: #F472B6;
 
-    /* ベースカラー */
-    --bg-dark: #0A0012;
-    --bg-darker: #050008;
-    --glass-white: rgba(255, 255, 255, 0.1);
-    --glass-border: rgba(255, 255, 255, 0.2);
+    /* レガシー互換（サイバーパンク要素） */
+    --neon-pink: #EC4899;
+    --neon-cyan: #A78BFA;
+    --neon-yellow: #FBBF24;
+    --neon-purple: #8B5CF6;
+    --neon-blue: #6366F1;
+    --neon-green: #10B981;
+    --hot-pink: #F472B6;
+    --electric-violet: #7C3AED;
 
-    /* グラデーション */
-    --gradient-rainbow: linear-gradient(135deg, #FF00FF, #00FFFF, #FFD700, #FF69B4, #9370DB);
-    --gradient-holographic: linear-gradient(45deg, #FF00FF 0%, #00FFFF 25%, #FFD700 50%, #FF69B4 75%, #FF00FF 100%);
-    --gradient-cyber: linear-gradient(180deg, rgba(255,0,255,0.2), rgba(0,255,255,0.2));
+    /* ベースカラー - スタジオテーマ統一 */
+    --bg-dark: #0F0F1A;
+    --bg-darker: #0A0A12;
+    --bg-card: #16162A;
+    --glass-white: rgba(255, 255, 255, 0.08);
+    --glass-border: rgba(139, 92, 246, 0.3);
+
+    /* グラデーション - スタジオテーマ統一 */
+    --gradient-rainbow: linear-gradient(135deg, #8B5CF6, #EC4899, #A78BFA);
+    --gradient-holographic: linear-gradient(45deg, #8B5CF6 0%, #EC4899 50%, #A78BFA 100%);
+    --gradient-cyber: linear-gradient(180deg, rgba(139, 92, 246, 0.2), rgba(236, 72, 153, 0.2));
+    --gradient-primary: linear-gradient(135deg, #8B5CF6, #7C3AED);
+    --gradient-accent: linear-gradient(135deg, #EC4899, #DB2777);
 }
 
 /* Google Fonts */
@@ -309,45 +318,46 @@ body {
     80% { clip-path: inset(10% 0 70% 0); transform: translate(-1px, 1px); }
 }
 
-/* ホログラフィックボタン */
+/* ホログラフィックボタン - スタジオテーマ */
 .holographic-btn {
     position: relative;
     padding: 12px 30px;
-    background: linear-gradient(135deg, var(--neon-pink), var(--neon-cyan));
+    background: var(--gradient-primary);
     border: none;
-    border-radius: 50px;
+    border-radius: 12px;
     color: #fff;
     font-weight: 700;
     text-transform: uppercase;
     text-decoration: none;
     overflow: hidden;
-    transition: all 0.3s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     box-shadow:
-        0 0 20px rgba(255, 0, 255, 0.5),
-        inset 0 0 20px rgba(255, 255, 255, 0.2);
+        0 4px 20px rgba(139, 92, 246, 0.4),
+        0 0 0 1px rgba(139, 92, 246, 0.3);
 }
 
 .holographic-btn:hover {
-    transform: translateY(-2px) scale(1.05);
+    transform: translateY(-2px);
     box-shadow:
-        0 0 40px rgba(255, 0, 255, 0.8),
-        inset 0 0 30px rgba(255, 255, 255, 0.3);
+        0 8px 30px rgba(139, 92, 246, 0.5),
+        0 0 0 1px rgba(139, 92, 246, 0.5);
+    background: linear-gradient(135deg, #9B6CF6, #8B5CF6);
 }
 
 .btn-glow {
     position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
-    animation: rotate-glow 3s linear infinite;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    animation: btn-shine 3s ease-in-out infinite;
 }
 
-@keyframes rotate-glow {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+@keyframes btn-shine {
+    0% { left: -100%; }
+    50%, 100% { left: 100%; }
 }
 
 /* ========================================
@@ -567,17 +577,15 @@ body {
     100% { background-position: 200% 50%; }
 }
 
-/* グラスカード説明 */
+/* グラスカード説明 - スタジオテーマ */
 .glass-card {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px) saturate(180%);
-    -webkit-backdrop-filter: blur(10px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
+    background: rgba(22, 22, 42, 0.6);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 16px;
     padding: 20px 25px;
-    box-shadow:
-        0 8px 32px rgba(0, 255, 255, 0.1),
-        inset 0 0 20px rgba(255, 255, 255, 0.05);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .desc-text {
@@ -592,44 +600,50 @@ body {
     text-shadow: 0 0 10px var(--neon-pink);
 }
 
-/* CTAボタン */
+/* CTAボタン - スタジオテーマ */
 .futuristic-actions {
     display: flex;
-    gap: 20px;
+    gap: 16px;
     margin: 40px 0;
 }
 
 .cta-button {
     position: relative;
-    padding: 18px 40px;
+    padding: 16px 32px;
     text-decoration: none;
-    font-weight: 700;
-    font-size: 1.1rem;
-    text-transform: uppercase;
-    border-radius: 60px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-transform: none;
+    border-radius: 12px;
     overflow: hidden;
-    transition: all 0.3s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
+    letter-spacing: 0.025em;
 }
 
 .primary-cta {
-    background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+    background: var(--gradient-primary);
     color: #fff;
+    border: none;
     box-shadow:
-        0 0 30px rgba(255, 0, 255, 0.5),
-        inset 0 0 20px rgba(255, 255, 255, 0.2);
+        0 4px 20px rgba(139, 92, 246, 0.4),
+        0 0 0 1px rgba(139, 92, 246, 0.3);
 }
 
 .primary-cta:hover {
-    transform: translateY(-3px) scale(1.05);
+    transform: translateY(-2px);
     box-shadow:
-        0 0 50px rgba(255, 0, 255, 0.8),
-        inset 0 0 30px rgba(255, 255, 255, 0.3);
+        0 8px 30px rgba(139, 92, 246, 0.5),
+        0 0 0 1px rgba(139, 92, 246, 0.5);
 }
 
 .btn-inner {
     position: relative;
     z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 .btn-text-main {
@@ -644,10 +658,11 @@ body {
     transform: translate(-50%, 50%);
     opacity: 0;
     transition: all 0.3s;
+    white-space: nowrap;
 }
 
 .primary-cta:hover .btn-text-main {
-    transform: translateY(-30px);
+    transform: translateY(-20px);
     opacity: 0;
 }
 
@@ -658,48 +673,44 @@ body {
 
 .btn-glow-effect {
     position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
-    animation: rotate-glow 3s linear infinite;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    animation: btn-shine 3s ease-in-out infinite;
 }
 
 .secondary-cta {
-    background: transparent;
-    border: 2px solid var(--neon-cyan);
-    color: var(--neon-cyan);
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.4);
+    color: var(--studio-primary-light);
     position: relative;
 }
 
 .secondary-cta:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 0 30px var(--neon-cyan);
-    background: rgba(0, 255, 255, 0.1);
+    transform: translateY(-2px);
+    background: rgba(139, 92, 246, 0.2);
+    border-color: rgba(139, 92, 246, 0.6);
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
 }
 
 .btn-border-animation {
     position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    background: linear-gradient(45deg, var(--neon-cyan), var(--neon-pink), var(--neon-cyan));
-    border-radius: 60px;
-    z-index: -1;
-    animation: border-rotate 3s linear infinite;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.3), transparent);
+    border-radius: 12px;
+    z-index: 0;
     opacity: 0;
     transition: opacity 0.3s;
 }
 
 .secondary-cta:hover .btn-border-animation {
     opacity: 1;
-}
-
-@keyframes border-rotate {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    animation: btn-shine 2s ease-in-out infinite;
 }
 
 /* ホログラフィック統計 */
@@ -2397,24 +2408,24 @@ body {
 .mobile-menu-cta {
     display: block;
     margin-top: 30px;
-    padding: 18px 30px;
-    background: linear-gradient(135deg, var(--neon-pink), var(--neon-cyan));
+    padding: 16px 30px;
+    background: var(--gradient-primary);
     color: #fff;
     text-align: center;
     text-decoration: none;
-    border-radius: 50px;
-    font-weight: 700;
-    font-size: 1.1rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    box-shadow: 0 0 30px rgba(255, 0, 255, 0.4);
-    transition: all 0.3s;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-transform: none;
+    letter-spacing: 0.025em;
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .mobile-menu-cta:hover,
 .mobile-menu-cta:active {
-    transform: scale(1.02);
-    box-shadow: 0 0 40px rgba(255, 0, 255, 0.6);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(139, 92, 246, 0.5);
 }
 
 /* モバイルメニュー - 480px以下 */
@@ -2450,18 +2461,18 @@ body {
 }
 
 .faq-item {
-    margin-bottom: 20px;
-    background: rgba(255, 255, 255, 0.03);
+    margin-bottom: 16px;
+    background: rgba(22, 22, 42, 0.6);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 15px;
+    border: 1px solid rgba(139, 92, 246, 0.15);
+    border-radius: 12px;
     overflow: hidden;
-    transition: all 0.3s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .faq-item:hover {
-    border-color: var(--neon-cyan);
-    box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+    border-color: rgba(139, 92, 246, 0.4);
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.15);
 }
 
 .faq-question {
@@ -2481,7 +2492,7 @@ body {
 }
 
 .faq-item.active .faq-question {
-    color: var(--neon-cyan);
+    color: var(--studio-primary-light);
 }
 
 .faq-icon {
@@ -2540,7 +2551,7 @@ body {
     line-height: 1.6;
 }
 
-/* CTA セクション */
+/* CTA セクション - スタジオテーマ */
 .minimal-cta {
     padding: 100px 0;
     position: relative;
@@ -2553,10 +2564,11 @@ body {
     margin: 0 auto;
     text-align: center;
     padding: 80px 40px;
-    background: linear-gradient(135deg, rgba(255, 0, 255, 0.1), rgba(0, 255, 255, 0.1));
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 30px;
+    background: rgba(22, 22, 42, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 24px;
     position: relative;
     overflow: hidden;
 }
@@ -2568,46 +2580,51 @@ body {
     transform: translateX(-50%);
     width: 600px;
     height: 600px;
-    background: radial-gradient(circle, var(--neon-pink) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%);
     filter: blur(100px);
-    opacity: 0.3;
+    opacity: 0.5;
 }
 
 .cta-title {
-    font-size: 3rem;
-    font-weight: 900;
-    margin-bottom: 20px;
-    background: var(--gradient-rainbow);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: #F8FAFC;
+    position: relative;
+    z-index: 1;
 }
 
 .cta-description {
-    font-size: 1.2rem;
-    color: rgba(255, 255, 255, 0.8);
-    margin-bottom: 40px;
+    font-size: 1.1rem;
+    color: rgba(248, 250, 252, 0.7);
+    margin-bottom: 32px;
+    position: relative;
+    z-index: 1;
 }
 
-.cta-button {
-    display: inline-block;
-    padding: 20px 50px;
-    background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+.minimal-cta .cta-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 40px;
+    background: var(--gradient-primary);
     color: #fff;
     text-decoration: none;
-    border-radius: 60px;
-    font-size: 1.2rem;
-    font-weight: 700;
-    text-transform: uppercase;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: none;
     position: relative;
     overflow: hidden;
-    transition: all 0.3s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
+    z-index: 1;
 }
 
-.cta-button:hover {
-    transform: translateY(-3px) scale(1.05);
-    box-shadow:
-        0 20px 40px rgba(255, 0, 255, 0.4),
-        0 0 60px rgba(255, 0, 255, 0.6);
+.minimal-cta .cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(139, 92, 246, 0.5);
 }
 
 /* フッター */
