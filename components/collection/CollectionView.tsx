@@ -284,24 +284,29 @@ export default function CollectionView() {
 
     return (
       <div
-        className="fixed inset-0 bg-black bg-opacity-75 flex items-start sm:items-center justify-center z-50 p-0 sm:p-4 pt-2 sm:pt-4"
+        className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center z-50"
         onClick={() => setSelectedItem(null)}
       >
         <div
-          className="bg-gray-800 rounded-lg w-full max-w-5xl max-h-[80vh] sm:max-h-[85vh] overflow-hidden flex flex-col"
+          className="bg-gray-800 w-full sm:rounded-lg sm:w-[95vw] sm:max-w-5xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col rounded-t-2xl sm:rounded-t-lg"
           onClick={(e) => e.stopPropagation()}
         >
+          {/* Mobile drag indicator */}
+          <div className="sm:hidden flex justify-center pt-2 pb-1">
+            <div className="w-10 h-1 bg-gray-600 rounded-full"></div>
+          </div>
+
           {/* Detail Header */}
-          <div className="flex justify-between items-start p-4 sm:p-6 border-b border-gray-700 flex-shrink-0">
-            <div className="flex flex-col gap-2 flex-1">
-              <h3 className="text-lg sm:text-xl font-bold text-white">
+          <div className="flex justify-between items-start p-3 sm:p-4 md:p-6 border-b border-gray-700 flex-shrink-0">
+            <div className="flex flex-col gap-2 flex-1 min-w-0">
+              <h3 className="text-base sm:text-lg md:text-xl font-bold text-white truncate">
                 {getGenerationTypeLabel(selectedItem.generation_type)}
               </h3>
               <button
                 onClick={() => handleShareToX(selectedItem)}
-                className="bg-black hover:bg-gray-900 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-sm w-full sm:w-auto"
+                className="bg-black hover:bg-gray-900 active:bg-gray-800 text-white font-bold py-2 px-3 sm:px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-xs sm:text-sm w-full sm:w-auto"
               >
-                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                <svg className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                 </svg>
                 <span>{language === 'ja' ? 'Xでシェア' : 'Share to X'}</span>
@@ -309,7 +314,7 @@ export default function CollectionView() {
             </div>
             <button
               onClick={() => setSelectedItem(null)}
-              className="text-gray-400 hover:text-white transition p-1 flex-shrink-0 ml-4"
+              className="text-gray-400 hover:text-white active:text-gray-300 transition p-2 -mr-1 flex-shrink-0 ml-2 rounded-full hover:bg-gray-700/50"
               aria-label={language === 'ja' ? '閉じる' : 'Close'}
             >
               <svg className="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -319,23 +324,23 @@ export default function CollectionView() {
           </div>
 
           {/* Detail Content */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6 min-h-0">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 min-h-0 overscroll-contain">
             {selectedItem.prompt && (
-              <div className="mb-4 sm:mb-6">
-                <p className="text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2">
+              <div className="mb-3 sm:mb-4 md:mb-6">
+                <p className="text-xs sm:text-sm text-gray-400 mb-1">
                   {language === 'ja' ? 'プロンプト:' : 'Prompt:'}
                 </p>
                 <p className="text-sm sm:text-base text-white break-words">{selectedItem.prompt}</p>
               </div>
             )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 md:gap-4">
               {typeof selectedItem.images === 'string' ? (
                 <div className="sm:col-span-2">
                   <img
                     src={selectedItem.images}
                     alt="Generated"
-                    className="w-full rounded-lg max-h-[60vh] object-contain mx-auto"
+                    className="w-full rounded-lg max-h-[50vh] sm:max-h-[60vh] object-contain mx-auto"
                   />
                 </div>
               ) : selectedItem.generation_type === 'live2d_parts' &&
@@ -345,15 +350,15 @@ export default function CollectionView() {
                     <img
                       src={part.image}
                       alt={part.name}
-                      className="w-full rounded-lg object-contain max-h-[50vh]"
+                      className="w-full rounded-lg object-contain max-h-[40vh] sm:max-h-[50vh]"
                     />
-                    <div className="absolute top-2 left-2">
-                      <span className="text-xs sm:text-sm text-white font-semibold bg-purple-600/90 backdrop-blur-sm px-3 py-1.5 rounded shadow-lg">
+                    <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2">
+                      <span className="text-[10px] sm:text-xs md:text-sm text-white font-semibold bg-purple-600/90 backdrop-blur-sm px-2 py-1 sm:px-3 sm:py-1.5 rounded shadow-lg">
                         {part.name}
                       </span>
                     </div>
                     {part.description && (
-                      <div className="mt-2 text-xs text-gray-400">{part.description}</div>
+                      <div className="mt-1.5 sm:mt-2 text-[10px] sm:text-xs text-gray-400">{part.description}</div>
                     )}
                   </div>
                 ))
@@ -363,10 +368,10 @@ export default function CollectionView() {
                     <img
                       src={url as string}
                       alt={key}
-                      className="w-full rounded-lg object-contain max-h-[50vh]"
+                      className="w-full rounded-lg object-contain max-h-[40vh] sm:max-h-[50vh]"
                     />
-                    <div className="absolute top-2 left-2">
-                      <span className="text-xs sm:text-sm text-white capitalize font-semibold bg-purple-600/90 backdrop-blur-sm px-3 py-1.5 rounded shadow-lg">
+                    <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2">
+                      <span className="text-[10px] sm:text-xs md:text-sm text-white capitalize font-semibold bg-purple-600/90 backdrop-blur-sm px-2 py-1 sm:px-3 sm:py-1.5 rounded shadow-lg">
                         {key}
                       </span>
                     </div>
@@ -375,7 +380,7 @@ export default function CollectionView() {
               )}
             </div>
 
-            <p className="text-xs text-gray-500 mt-4 sm:mt-6">
+            <p className="text-[10px] sm:text-xs text-gray-500 mt-3 sm:mt-4 md:mt-6">
               {language === 'ja' ? '生成日時: ' : 'Generated: '}
               {formatDate(selectedItem.created_at)}
             </p>
@@ -416,27 +421,28 @@ export default function CollectionView() {
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       {/* Header */}
-      <header className="bg-gray-800 border-b border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/app" className="flex items-center gap-2 text-purple-400 hover:text-purple-300 transition">
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-                <span className="text-sm">{language === 'ja' ? 'アプリに戻る' : 'Back to App'}</span>
-              </Link>
-            </div>
-            <h1 className="text-xl sm:text-2xl font-bold">
+      <header className="bg-gray-800 border-b border-gray-700 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4">
+          <div className="flex items-center justify-between gap-2">
+            <Link
+              href="/app"
+              className="flex items-center gap-1 sm:gap-2 text-purple-400 hover:text-purple-300 transition flex-shrink-0"
+            >
+              <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              <span className="text-xs sm:text-sm hidden xs:inline">{language === 'ja' ? '戻る' : 'Back'}</span>
+            </Link>
+            <h1 className="text-base sm:text-xl md:text-2xl font-bold text-center flex-1 truncate px-2">
               {language === 'ja' ? 'マイコレクション' : 'My Collection'}
             </h1>
-            <div className="w-24"></div> {/* Spacer for centering */}
+            <div className="w-8 sm:w-16 flex-shrink-0"></div> {/* Spacer for centering */}
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
         {/* Filters */}
         <CollectionFilters
           filters={filters}

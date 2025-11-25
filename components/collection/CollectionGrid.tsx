@@ -64,9 +64,9 @@ export default function CollectionGrid({
   // Empty state
   if (!loading && items.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-center">
+      <div className="flex flex-col items-center justify-center py-12 sm:py-16 text-center px-4">
         <svg
-          className="h-16 w-16 text-gray-600 mb-4"
+          className="h-12 w-12 sm:h-16 sm:w-16 text-gray-600 mb-3 sm:mb-4"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -78,10 +78,10 @@ export default function CollectionGrid({
             d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
           />
         </svg>
-        <p className="text-gray-400 text-lg mb-2">
+        <p className="text-gray-400 text-base sm:text-lg mb-1.5 sm:mb-2">
           {language === 'ja' ? 'コレクションがありません' : 'No items in collection'}
         </p>
-        <p className="text-gray-500 text-sm">
+        <p className="text-gray-500 text-xs sm:text-sm max-w-xs">
           {language === 'ja'
             ? '画像を生成するとここに表示されます'
             : 'Generated images will appear here'}
@@ -92,9 +92,9 @@ export default function CollectionGrid({
 
   return (
     <div>
-      {/* Grid */}
+      {/* Grid - 2 columns on small mobile, scaling up */}
       <div
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6"
+        className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-4 lg:gap-6"
         role="grid"
         aria-label={language === 'ja' ? 'キャラクターコレクション' : 'Character Collection'}
       >
@@ -112,18 +112,18 @@ export default function CollectionGrid({
       </div>
 
       {/* Load more trigger */}
-      <div ref={loadMoreRef} className="h-10 mt-6" />
+      <div ref={loadMoreRef} className="h-8 sm:h-10 mt-4 sm:mt-6" />
 
       {/* Loading spinner */}
       {loading && (
-        <div className="flex justify-center items-center py-8">
-          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-purple-500"></div>
+        <div className="flex justify-center items-center py-6 sm:py-8">
+          <div className="animate-spin rounded-full h-8 w-8 sm:h-10 sm:w-10 border-t-2 border-b-2 border-purple-500"></div>
         </div>
       )}
 
       {/* End of list message */}
       {!hasMore && items.length > 0 && (
-        <div className="text-center py-8 text-gray-500 text-sm">
+        <div className="text-center py-6 sm:py-8 text-gray-500 text-xs sm:text-sm">
           {language === 'ja' ? 'すべてのアイテムを表示しました' : "You've reached the end"}
         </div>
       )}

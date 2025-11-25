@@ -111,7 +111,7 @@ const CharacterCard = memo<CharacterCardProps>(function CharacterCard({
 
   return (
     <div
-      className="bg-gray-700 rounded-lg overflow-hidden hover:ring-2 hover:ring-purple-500 hover:shadow-xl hover:scale-[1.02] transition-all duration-200 cursor-pointer flex flex-col group"
+      className="bg-gray-700 rounded-lg overflow-hidden hover:ring-2 hover:ring-purple-500 hover:shadow-xl sm:hover:scale-[1.02] transition-all duration-200 cursor-pointer flex flex-col group active:scale-[0.98] sm:active:scale-[1.02]"
       onClick={() => onSelect(item)}
       role="button"
       tabIndex={0}
@@ -128,21 +128,22 @@ const CharacterCard = memo<CharacterCardProps>(function CharacterCard({
         {renderThumbnail()}
 
         {/* Overlay Labels */}
-        <div className="absolute top-0 left-0 right-0 p-2 flex justify-between items-start gap-2 z-10">
-          <span className="text-xs bg-purple-600/90 backdrop-blur-sm text-white px-2 py-1 rounded shadow-lg whitespace-nowrap">
+        <div className="absolute top-0 left-0 right-0 p-1.5 sm:p-2 flex justify-between items-start gap-1 sm:gap-2 z-10">
+          <span className="text-[10px] sm:text-xs bg-purple-600/90 backdrop-blur-sm text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded shadow-lg whitespace-nowrap truncate max-w-[60%]">
             {getGenerationTypeLabel(item.generation_type)}
           </span>
-          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          {/* Buttons - Always visible on mobile, hover on desktop */}
+          <div className="flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
             {/* Share to X button */}
             <button
               onClick={(e) => {
                 e.stopPropagation()
                 onShare(item)
               }}
-              className="bg-black/90 backdrop-blur-sm text-white hover:bg-gray-900 transition flex-shrink-0 p-1.5 rounded shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="bg-black/80 sm:bg-black/90 backdrop-blur-sm text-white hover:bg-gray-900 active:bg-gray-800 transition flex-shrink-0 p-1.5 sm:p-1.5 rounded shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-500 touch-manipulation"
               aria-label={language === 'ja' ? 'Xでシェア' : 'Share to X'}
             >
-              <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor">
+              <svg className="h-3 w-3 sm:h-3.5 sm:w-3.5" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
               </svg>
             </button>
@@ -153,10 +154,10 @@ const CharacterCard = memo<CharacterCardProps>(function CharacterCard({
                 e.stopPropagation()
                 onDelete(item.id)
               }}
-              className="bg-red-500/90 backdrop-blur-sm text-white hover:bg-red-600 transition flex-shrink-0 p-1.5 rounded shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+              className="bg-red-500/80 sm:bg-red-500/90 backdrop-blur-sm text-white hover:bg-red-600 active:bg-red-700 transition flex-shrink-0 p-1.5 sm:p-1.5 rounded shadow-lg focus:outline-none focus:ring-2 focus:ring-red-500 touch-manipulation"
               aria-label={language === 'ja' ? '削除' : 'Delete'}
             >
-              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="h-3 w-3 sm:h-3.5 sm:w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -172,9 +173,9 @@ const CharacterCard = memo<CharacterCardProps>(function CharacterCard({
       {/* Info */}
       <div className="p-2 sm:p-3 flex-shrink-0">
         {item.prompt && (
-          <p className="text-xs sm:text-sm text-gray-300 line-clamp-2 mb-2">{item.prompt}</p>
+          <p className="text-[11px] sm:text-sm text-gray-300 line-clamp-2 mb-1.5 sm:mb-2">{item.prompt}</p>
         )}
-        <p className="text-xs text-gray-500">{formatDate(item.created_at)}</p>
+        <p className="text-[10px] sm:text-xs text-gray-500">{formatDate(item.created_at)}</p>
       </div>
     </div>
   )
