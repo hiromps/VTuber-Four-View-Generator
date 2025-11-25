@@ -144,5 +144,23 @@
     "enterPrompt": "プロンプトを入力してください。",
     "failedGenerate": "生成に失敗しました。もう一度お試しください。",
     "failedZip": "ZIPファイルの作成に失敗しました。"
+  },
+  "collection": {
+    "title": "マイコレクション",
+    "backToApp": "アプリに戻る",
+    "noItems": "コレクションがありません",
+    "noItemsDescription": "画像を生成するとここに表示されます",
+    "results": "件の結果",
+    "clearFilters": "フィルターをクリア",
+    "searchPlaceholder": "プロンプトで検索...",
+    "allTypes": "すべて",
+    "reachedEnd": "すべてのアイテムを表示しました",
+    "shareToX": "Xでシェア",
+    "delete": "削除",
+    "deleteConfirm": "この履歴を削除してもよろしいですか？",
+    "prompt": "プロンプト:",
+    "generatedAt": "生成日時:",
+    "noDescription": "説明なし",
+    "close": "閉じる"
   }
 }

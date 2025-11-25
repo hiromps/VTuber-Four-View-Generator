@@ -144,5 +144,23 @@
     "enterPrompt": "Please enter a prompt.",
     "failedGenerate": "Failed to generate. Please try again.",
     "failedZip": "Failed to create zip file."
+  },
+  "collection": {
+    "title": "My Collection",
+    "backToApp": "Back to App",
+    "noItems": "No items in collection",
+    "noItemsDescription": "Generated images will appear here",
+    "results": "results",
+    "clearFilters": "Clear filters",
+    "searchPlaceholder": "Search by prompt...",
+    "allTypes": "All",
+    "reachedEnd": "You've reached the end",
+    "shareToX": "Share to X",
+    "delete": "Delete",
+    "deleteConfirm": "Are you sure you want to delete this item?",
+    "prompt": "Prompt:",
+    "generatedAt": "Generated:",
+    "noDescription": "No description",
+    "close": "Close"
   }
 }

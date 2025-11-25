@@ -90,6 +90,91 @@ export async function getImageHistory(userId: string, limit = 20, offset = 0) {
 }
 
 /**
+ * 拡張画像履歴取得（フィルタ、ソート、ページネーション対応）
+ */
+export interface GetImageHistoryOptions {
+  userId: string
+  limit?: number
+  offset?: number
+  type?: string
+  search?: string
+  sort?: 'newest' | 'oldest' | 'type'
+}
+
+export interface GetImageHistoryResult {
+  history: any[]
+  total: number
+  hasMore: boolean
+}
+
+export async function getImageHistoryWithFilters(
+  options: GetImageHistoryOptions
+): Promise<GetImageHistoryResult> {
+  const {
+    userId,
+    limit = 20,
+    offset = 0,
+    type,
+    search,
+    sort = 'newest',
+  } = options
+
+  const supabase = await createClient()
+
+  // Build query with count
+  let query = supabase
+    .from('image_history')
+    .select('*', { count: 'exact' })
+    .eq('user_id', userId)
+
+  // Apply type filter
+  if (type && type !== 'all') {
+    query = query.eq('generation_type', type)
+  }
+
+  // Apply search filter (case-insensitive search on prompt)
+  if (search && search.trim()) {
+    query = query.ilike('prompt', `%${search.trim()}%`)
+  }
+
+  // Apply sort
+  switch (sort) {
+    case 'newest':
+      query = query.order('created_at', { ascending: false })
+      break
+    case 'oldest':
+      query = query.order('created_at', { ascending: true })
+      break
+    case 'type':
+      query = query
+        .order('generation_type', { ascending: true })
+        .order('created_at', { ascending: false })
+      break
+    default:
+      query = query.order('created_at', { ascending: false })
+  }
+
+  // Apply pagination
+  query = query.range(offset, offset + limit - 1)
+
+  const { data, error, count } = await query
+
+  if (error) {
+    console.error('Failed to fetch image history with filters:', error)
+    throw new Error(`Failed to fetch image history: ${error.message}`)
+  }
+
+  const total = count || 0
+  const hasMore = offset + limit < total
+
+  return {
+    history: data || [],
+    total,
+    hasMore,
+  }
+}
+
+/**
  * 画像履歴を削除
  */
 export async function deleteImageHistory(historyId: string, userId: string) {

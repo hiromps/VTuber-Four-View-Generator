@@ -1,0 +1,179 @@
+'use client'
+
+import React from 'react'
+import {
+  FilterState,
+  SortOrder,
+  GenerationType,
+  GENERATION_TYPE_LABELS,
+  SORT_ORDER_LABELS,
+} from '@/types/collection'
+
+interface CollectionFiltersProps {
+  filters: FilterState
+  sortOrder: SortOrder
+  onFilterChange: (filters: FilterState) => void
+  onSortChange: (order: SortOrder) => void
+  language: 'ja' | 'en'
+  totalItems: number
+}
+
+export default function CollectionFilters({
+  filters,
+  sortOrder,
+  onFilterChange,
+  onSortChange,
+  language,
+  totalItems,
+}: CollectionFiltersProps) {
+  const generationTypes: (GenerationType | 'all')[] = [
+    'all',
+    'concept',
+    'character_sheet',
+    'facial_expressions',
+    'pose_generation',
+    'live2d_parts',
+  ]
+
+  const sortOrders: SortOrder[] = ['newest', 'oldest', 'type']
+
+  const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    onFilterChange({
+      ...filters,
+      generationType: e.target.value as GenerationType | 'all',
+    })
+  }
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onFilterChange({
+      ...filters,
+      searchKeyword: e.target.value,
+    })
+  }
+
+  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    onSortChange(e.target.value as SortOrder)
+  }
+
+  const clearFilters = () => {
+    onFilterChange({
+      generationType: 'all',
+      dateRange: { start: null, end: null },
+      searchKeyword: '',
+    })
+    onSortChange('newest')
+  }
+
+  const hasActiveFilters =
+    filters.generationType !== 'all' ||
+    filters.searchKeyword !== '' ||
+    filters.dateRange.start !== null ||
+    filters.dateRange.end !== null
+
+  return (
+    <div className="bg-gray-800 rounded-lg p-4 mb-6">
+      {/* Filter controls */}
+      <div className="flex flex-col gap-4">
+        {/* Top row: Type filter, Search, Sort */}
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+          {/* Generation Type Filter */}
+          <div className="flex-shrink-0">
+            <label htmlFor="type-filter" className="sr-only">
+              {language === 'ja' ? '生成タイプ' : 'Generation Type'}
+            </label>
+            <select
+              id="type-filter"
+              value={filters.generationType}
+              onChange={handleTypeChange}
+              className="w-full sm:w-auto bg-gray-700 text-white border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              aria-label={language === 'ja' ? '生成タイプでフィルタ' : 'Filter by generation type'}
+            >
+              {generationTypes.map((type) => (
+                <option key={type} value={type}>
+                  {GENERATION_TYPE_LABELS[type][language]}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Search Input */}
+          <div className="flex-1">
+            <label htmlFor="search-input" className="sr-only">
+              {language === 'ja' ? '検索' : 'Search'}
+            </label>
+            <div className="relative">
+              <input
+                id="search-input"
+                type="text"
+                value={filters.searchKeyword}
+                onChange={handleSearchChange}
+                placeholder={language === 'ja' ? 'プロンプトで検索...' : 'Search by prompt...'}
+                className="w-full bg-gray-700 text-white border border-gray-600 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                aria-label={language === 'ja' ? 'プロンプトで検索' : 'Search by prompt'}
+              />
+              <svg
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </div>
+          </div>
+
+          {/* Sort Order */}
+          <div className="flex-shrink-0">
+            <label htmlFor="sort-filter" className="sr-only">
+              {language === 'ja' ? '並び順' : 'Sort Order'}
+            </label>
+            <select
+              id="sort-filter"
+              value={sortOrder}
+              onChange={handleSortChange}
+              className="w-full sm:w-auto bg-gray-700 text-white border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              aria-label={language === 'ja' ? '並び順' : 'Sort order'}
+            >
+              {sortOrders.map((order) => (
+                <option key={order} value={order}>
+                  {SORT_ORDER_LABELS[order][language]}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Bottom row: Results count and Clear filters */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+          <p className="text-sm text-gray-400">
+            {language === 'ja'
+              ? `${totalItems}件の結果`
+              : `${totalItems} ${totalItems === 1 ? 'result' : 'results'}`}
+          </p>
+
+          {hasActiveFilters && (
+            <button
+              onClick={clearFilters}
+              className="text-sm text-purple-400 hover:text-purple-300 transition flex items-center gap-1"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+              {language === 'ja' ? 'フィルターをクリア' : 'Clear filters'}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
