@@ -2,16 +2,21 @@
 import { GoogleGenAI, GenerateContentResponse, Modality } from "@google/genai";
 import { ViewType, AspectRatio, ExpressionType, ModelType } from '../types';
 
-// 環境変数のチェック
-if (!process.env.API_KEY) {
-  console.error('ERROR: API_KEY is not set in environment variables');
-  console.error('Available env vars:', Object.keys(process.env).filter(k => k.includes('API') || k.includes('GEMINI')));
-  throw new Error('API_KEY environment variable is required');
+let cachedClient: GoogleGenAI | null = null;
+
+function getGenAIClient(): GoogleGenAI {
+  const apiKey = process.env.API_KEY;
+
+  if (!apiKey) {
+    throw new Error('API_KEY environment variable is required');
+  }
+
+  if (!cachedClient) {
+    cachedClient = new GoogleGenAI({ apiKey });
+  }
+
+  return cachedClient;
 }
-
-console.log('[Gemini] API_KEY is set:', process.env.API_KEY ? 'Yes (length: ' + process.env.API_KEY.length + ')' : 'No');
-
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
 
 // 高画質設定の共通定義
 const QUALITY_SETTINGS = {
@@ -115,6 +120,7 @@ export const generateCharacterSheetView = async (
       text: getPromptForView(view, additionalPrompt, !!cleanAttachedBase64),
     });
 
+    const ai = getGenAIClient();
     const response: GenerateContentResponse = await ai.models.generateContent({
       model: selectedModel,
       contents: {
@@ -159,6 +165,7 @@ export const generateConceptArt = async (prompt: string, aspectRatio: AspectRati
         // 高画質プロンプトを追加
         const qualityEnhancedPrompt = `${QUALITY_SETTINGS.qualityPrompt} award-winning digital illustration, masterpiece, ultra-high resolution, crisp details, sharp focus, professional quality, ${prompt}`;
 
+        const ai = getGenAIClient();
         const response = await ai.models.generateImages({
             model: 'imagen-4.0-generate-001',
             prompt: qualityEnhancedPrompt,
@@ -274,6 +281,7 @@ export const generateFacialExpression = async (
       text: getPromptForExpression(expression, additionalPrompt, !!cleanAttachedBase64),
     });
 
+    const ai = getGenAIClient();
     const response: GenerateContentResponse = await ai.models.generateContent({
       model: selectedModel,
       contents: {
@@ -455,6 +463,7 @@ export const generatePose = async (
       text: getPromptForPose(poseDescription, !!cleanReferenceBase64, additionalPrompt, !!cleanAttachedBase64),
     });
 
+    const ai = getGenAIClient();
     const response: GenerateContentResponse = await ai.models.generateContent({
       model: selectedModel,
       contents: {
@@ -504,6 +513,7 @@ export const enhancePrompt = async (prompt: string): Promise<string> => {
       throw new Error('Prompt is empty');
     }
 
+    const ai = getGenAIClient();
     // Gemini 2.0 Flash モデルを使用してテキスト生成
     const response = await ai.models.generateContent({
       model: 'gemini-2.0-flash-lite',
@@ -638,6 +648,7 @@ Recommended main parts (5-6 parts maximum):
 
 Respond ONLY with valid JSON. Do not include any other text.`;
 
+    const ai = getGenAIClient();
     const response = await ai.models.generateContent({
       model: 'gemini-2.0-flash-exp',
       contents: {

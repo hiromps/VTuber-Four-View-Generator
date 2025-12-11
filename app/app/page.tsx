@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, useMemo } from 'react'
 import JSZip from 'jszip'
 import { fileToData } from '@/utils/imageUtils'
 import { ViewType, GeneratedImages, AspectRatio, UploadedFile, ExpressionType, GeneratedExpressions } from '@/types'
@@ -141,7 +141,13 @@ export default function Home() {
         surprise: t('expressions.surprise'),
     }
 
-    const supabase = createClient()
+    const supabase = useMemo(() => createClient(), [])
+
+    useEffect(() => {
+        if (!supabase) {
+            setAuthError('Supabase is not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.')
+        }
+    }, [supabase])
 
     // Close prompt menus when clicking outside
     useEffect(() => {
@@ -284,6 +290,10 @@ export default function Home() {
 
     // Check authentication and fetch tokens
     useEffect(() => {
+        if (!supabase) {
+            return
+        }
+
         const checkAuth = async () => {
             const { data: { user } } = await supabase.auth.getUser()
             setUser(user)
@@ -304,7 +314,7 @@ export default function Home() {
         })
 
         return () => subscription.unsubscribe()
-    }, [])
+    }, [supabase])
 
     const fetchTokens = async () => {
         try {

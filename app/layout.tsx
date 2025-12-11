@@ -1,12 +1,9 @@
 import './globals.css'
-import { Inter } from 'next/font/google'
 import { Metadata } from 'next'
 import Providers from '@/components/Providers'
 import GoogleAnalytics from '@/components/GoogleAnalytics'
 import { GoogleAdSenseScript } from '@/components/GoogleAdSense'
 import { defaultSEO, organizationSchema, howToSchema, breadcrumbSchema } from '@/lib/seo-config'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://smartgram.online'),
@@ -103,8 +100,6 @@ export default function RootLayout({
           }}
         />
         {/* Preconnect to external domains */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="preconnect" href="https://pagead2.googlesyndication.com" />
         {/* PWA関連 */}
@@ -114,7 +109,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="VTuber四面図AI" />
       </head>
-      <body className={inter.className}>
+      <body className="font-sans">
         {/* Google AdSense */}
         <GoogleAdSenseScript />
         <GoogleAnalytics />
