@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, useMemo } from 'react'
 import JSZip from 'jszip'
 import { fileToData } from '@/utils/imageUtils'
 import { ViewType, GeneratedImages, AspectRatio, UploadedFile, ExpressionType, GeneratedExpressions } from '@/types'
@@ -141,7 +141,13 @@ export default function Home() {
         surprise: t('expressions.surprise'),
     }
 
-    const supabase = createClient()
+    const supabase = useMemo(() => createClient(), [])
+
+    useEffect(() => {
+        if (!supabase) {
+            setAuthError('Supabase is not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.')
+        }
+    }, [supabase])
 
     // Close prompt menus when clicking outside
     useEffect(() => {
@@ -284,6 +290,10 @@ export default function Home() {
 
     // Check authentication and fetch tokens
     useEffect(() => {
+        if (!supabase) {
+            return
+        }
+
         const checkAuth = async () => {
             const { data: { user } } = await supabase.auth.getUser()
             setUser(user)
@@ -304,7 +314,7 @@ export default function Home() {
         })
 
         return () => subscription.unsubscribe()
-    }, [])
+    }, [supabase])
 
     const fetchTokens = async () => {
         try {
@@ -423,7 +433,8 @@ export default function Home() {
             return
         }
 
-        if (tokens < 4) {
+        const requiredTokens = calculateTokenCost('CHARACTER_SHEET', selectedModel)
+        if (tokens < requiredTokens) {
             setSheetError(t('errors.insufficientTokensSheet'))
             setShowBuyModal(true)
             return
@@ -477,7 +488,7 @@ export default function Home() {
         } finally {
             setIsSheetLoading(false)
         }
-    }, [user, uploadedFile, tokens, sheetAdditionalPrompt, sheetAttachedImage])
+    }, [user, uploadedFile, tokens, sheetAdditionalPrompt, sheetAttachedImage, selectedModel])
 
     const handleGenerateConcept = useCallback(async () => {
         if (!user) {
@@ -534,7 +545,8 @@ export default function Home() {
             return
         }
 
-        if (tokens < 4) {
+        const requiredTokens = calculateTokenCost('FACIAL_EXPRESSIONS', selectedModel)
+        if (tokens < requiredTokens) {
             setExpressionsError(t('errors.insufficientTokensExpressions'))
             setShowBuyModal(true)
             return
@@ -585,7 +597,7 @@ export default function Home() {
         } finally {
             setIsExpressionsLoading(false)
         }
-    }, [user, uploadedFile, tokens, expressionsAdditionalPrompt, expressionsAttachedImage])
+    }, [user, uploadedFile, tokens, expressionsAdditionalPrompt, expressionsAttachedImage, selectedModel])
 
     const handleGeneratePose = useCallback(async () => {
         if (!user) {
@@ -604,7 +616,8 @@ export default function Home() {
             return
         }
 
-        if (tokens < 1) {
+        const requiredTokens = calculateTokenCost('POSE_GENERATION', selectedModel)
+        if (tokens < requiredTokens) {
             setPoseError(t('errors.insufficientTokens'))
             setShowBuyModal(true)
             return
@@ -658,7 +671,7 @@ export default function Home() {
         } finally {
             setIsPoseLoading(false)
         }
-    }, [user, uploadedFile, tokens, poseDescription, poseReferenceImage, poseAdditionalPrompt, poseAttachedImage, t])
+    }, [user, uploadedFile, tokens, poseDescription, poseReferenceImage, poseAdditionalPrompt, poseAttachedImage, t, selectedModel])
 
     const handleEnhanceLive2dPrompt = useCallback(async () => {
         if (!live2dDescription || live2dDescription.trim() === '') {
@@ -757,7 +770,7 @@ export default function Home() {
         } finally {
             setIsLive2dLoading(false)
         }
-    }, [user, live2dUploadedFile, tokens, live2dDescription])
+    }, [user, live2dUploadedFile, tokens, live2dDescription, selectedModel])
 
     const handleLive2dFileChange = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0]
